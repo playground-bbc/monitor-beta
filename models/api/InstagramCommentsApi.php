@@ -354,7 +354,10 @@ class InstagramCommentsApi extends Model {
 					$comments = $client->createRequest()
 					    ->setMethod('GET')
 					    ->setUrl("{$this->_baseUrl}/{$query}")
-					    ->setData(['after' => $after])
+					    ->setData([
+					    	'after' => $after,
+					    	'appsecret_proof' => $this->_appsecret_proof
+					    ])
 					    ->send();
 
 
@@ -457,6 +460,9 @@ class InstagramCommentsApi extends Model {
 						$replies = $client->createRequest()
 					    ->setMethod('GET')
 					    ->setUrl($query)
+					    ->setData([
+					    	'appsecret_proof' => $this->_appsecret_proof
+					    ])
 					    ->send();
 
 

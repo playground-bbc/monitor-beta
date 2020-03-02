@@ -266,7 +266,9 @@ class FacebookCommentsApi extends Model {
 
 							do{
 
-								$commentsResponse = $client->get($next)->send();// more comments then
+								$commentsResponse = $client->get($next,[
+									'appsecret_proof' => $this->_appsecret_proof
+								])->send();// more comments then
 
 								$comments =  $commentsResponse->getData(); // get all post and comments
 
@@ -431,7 +433,8 @@ class FacebookCommentsApi extends Model {
 									//echo $id_message. "\n";
 									
 									$commentsResponse = $client->get($id_message,[
-										'access_token' => $this->_page_access_token
+										'access_token' => $this->_page_access_token,
+										'appsecret_proof' => $this->_appsecret_proof
 									])->send();// more comments then
 									
 									// if get error data

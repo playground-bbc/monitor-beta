@@ -18,11 +18,11 @@ class m190916_222510_cache extends Migration
         }
 
         $this->createTable('{{%cache}}',[
-            'id'                => $this->char(128),
-            'expire'         => $this->integer(11),
-            'data'         => $this->binary(128),
-
-        ],$tableOptions);
+            'id' => $this->string(128)->notNull(),
+            'expire' => $this->integer(),
+            'data' => $this->binary(),
+            'PRIMARY KEY ([[id]])',
+        ], $tableOptions);
 
     }
 

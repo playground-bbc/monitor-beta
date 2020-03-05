@@ -137,7 +137,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
                 <count-date-resources-chart>
             </div>
         </div>
-        <div class="row">
+        <div id="mentions-list" class="row">
             <list-mentions></list-mentions>
         </div>
         <div class="row">

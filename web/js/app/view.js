@@ -731,11 +731,17 @@ const cloudWords = Vue.component('cloud-words',{
 			var words = response.map(function(r){
 				r.handlers = {click: function() {
 			      $("#list-mentions").DataTable().search(r.text).draw();
+			      $('html, body').animate({
+                    	scrollTop: $("#mentions-list").offset().top
+                	}, 2000);
 			    }};
 			    r.html = {'class': 'pointer-jqcloud'};
 			    return r;
 			});
 			return words;
+		},
+		scroll(){
+			console.log(1);
 		}
 
 	},

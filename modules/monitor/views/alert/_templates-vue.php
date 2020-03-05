@@ -223,7 +223,9 @@ use yii\helpers\Html;
 <!-- template que muestra las nubes de palabras -->
 <script type="text/x-template" id="cloud-words">
     <div v-if="loaded" class="col-md-12 well">
-        <h2>Cloud words</h2>
+        <h2>Nube de tags</h2>
+        <i>Clickea la palabra para revisar los mensajes que contienen ese keyword</i>
+        <hr>
         <button v-on:click.prevent="reload" class="btn btn-sm btn-primary" id="update-demo">Update</button>
         <div id="jqcloud" class="jqcloud"></div>
     </div>

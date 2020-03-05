@@ -956,7 +956,7 @@ const vm = new Vue({
 		listMentions,
 		cloudWords,
 		tableDate,
-		listEmojis,
+		//listEmojis,
 		sweetAlert,
 
 	}	

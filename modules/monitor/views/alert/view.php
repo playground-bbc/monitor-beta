@@ -143,9 +143,10 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
         <div class="row">
             <cloud-words></cloud-words>
         </div>
-        <div class="row">
+        
+        <!-- <div class="row">
             <list-emojis></list-emojis>
-        </div>
+        </div> -->
             
         
         <!-- <div class="row">

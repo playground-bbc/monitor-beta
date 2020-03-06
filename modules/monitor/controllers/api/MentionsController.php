@@ -65,6 +65,7 @@ class MentionsController extends Controller
     // valores por default
     $count = 0;
     $shares = 0;
+    $retweets = 0;
     $coments = 0;
     $likes = 0;
     $likes_comments = 0;
@@ -86,19 +87,33 @@ class MentionsController extends Controller
             $likes += $alertMention->mention_data['like_count'];
             $coments += $alertMention->mentionsCount;
           }
-          if($alertMention->mentionsCount){
+        }
+        // change to see retweets look up history in github
+        if($alertMention->mentionsCount){
+
             foreach ($alertMention->mentions as $mentions => $mention) {
               if(\yii\helpers\ArrayHelper::keyExists('like_count',$mention->mention_data)){
                 $likes_comments += $mention->mention_data['like_count'];
               }
-            }
-          }
 
+              if(\yii\helpers\ArrayHelper::keyExists('retweet_count',$mention->mention_data)){
+                $retweets += $mention->mention_data['retweet_count'];
+
+              }
+            }
         }
       }
 
     }
-    return array('status'=>true,'count'=>$count,'shares' => $shares,'likes' => $likes,'coments' => $coments,'likes_comments' => $likes_comments);
+    return [
+      'status'=>true,
+      'count'=>$count,
+      'likes' => $likes,
+      'shares' => $shares,
+      'coments' => $coments,
+      'retweets' => $retweets,
+      'likes_comments' => $likes_comments
+    ];
   }
 
   /**

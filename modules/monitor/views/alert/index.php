@@ -47,7 +47,7 @@ $escape = new JsExpression("function(m) { return m; }");
 
     <h1><?= Html::encode($this->title) ?></h1>
     <p>
-        <?= Html::a('Create Alerts', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Crear Alerta', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
@@ -196,6 +196,3 @@ $escape = new JsExpression("function(m) { return m; }");
     <?php Pjax::end() ?>
 
 </div>
-<?php
-
-?>

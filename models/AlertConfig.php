@@ -105,11 +105,11 @@ class AlertConfig extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'alertId' => Yii::t('app', 'Alert ID'),
-            'product_description' => Yii::t('app', 'Product Description'),
-            'competitors' => Yii::t('app', 'Competitors'),
-            'country' => Yii::t('app', 'url Drive'),
-            'country' => Yii::t('app', 'country'),
+            'alertId' => Yii::t('app', 'Alerta ID'),
+            'product_description' => Yii::t('app', 'Descripción del producto'),
+            'competitors' => Yii::t('app', 'Competidores'),
+            'country' => Yii::t('app', 'Url Drive'),
+            'country' => Yii::t('app', 'País'),
             'start_date' => Yii::t('app', 'Fecha Inicio'),
             'end_date' => Yii::t('app', 'Fecha Final'),
             'createdAt' => Yii::t('app', 'Created At'),

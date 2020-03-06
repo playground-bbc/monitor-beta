@@ -5,8 +5,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Alerts */
 
-$this->title = Yii::t('app', 'Create Alerts');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Alerts'), 'url' => ['index']];
+$this->title = Yii::t('app', 'Crear Alerta');
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Alertas'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="container">

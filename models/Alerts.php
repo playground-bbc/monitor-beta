@@ -79,8 +79,11 @@ class Alerts extends \yii\db\ActiveRecord
         return [
             'id'        => Yii::t('app', 'ID'),
             'userId'    => Yii::t('app', 'User ID'),
-            'name'      => Yii::t('app', 'Name'),
+            'name'      => Yii::t('app', 'Nombre'),
             'status'    => Yii::t('app', 'Status'),
+            'alertResourceId'=> Yii::t('app', 'Recursos Sociales'),
+            'dictionaryIds'=> Yii::t('app', 'Diccionarios'),
+            'productsIds'=> Yii::t('app', 'Productos'),
             'createdAt' => Yii::t('app', 'Created At'),
             'updatedAt' => Yii::t('app', 'Updated At'),
             'createdBy' => Yii::t('app', 'Created By'),

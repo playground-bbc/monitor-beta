@@ -30,7 +30,7 @@ use yii\helpers\Html;
             <div class="inner">
               <h3>{{shares}}<sup style="font-size: 20px"></sup></h3>
 
-              <p>Shares</p>
+              <p>Instagram Shares</p>
             </div>
             <div class="icon">
               <i class="glyphicon glyphicon-share"></i>
@@ -45,7 +45,7 @@ use yii\helpers\Html;
             <div class="inner">
               <h3>{{coments}}</h3>
 
-              <p>Comentarios</p>
+              <p>Comentarios Totales</p>
             </div>
             <div class="icon">
               <i class="glyphicon glyphicon-comment"></i>
@@ -60,10 +60,10 @@ use yii\helpers\Html;
             <div class="inner">
               <h3>{{likes}}</h3>
 
-              <p>likes</p>
+              <p>Instagram Likes</p>
             </div>
             <div class="icon">
-              <i class="glyphicon glyphicon-thumbs-up"></i>
+              <i class="glyphicon glyphicon-heart"></i>
             </div>
             <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
           </div>
@@ -79,7 +79,7 @@ use yii\helpers\Html;
               <p>likes comments</p>
             </div>
             <div class="icon">
-              <i class="glyphicon glyphicon-heart"></i>
+              <i class="glyphicon glyphicon-thumbs-up"></i>
             </div>
             <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
           </div>

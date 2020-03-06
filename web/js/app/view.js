@@ -199,7 +199,7 @@ const count_resources_chat = Vue.component('total-resources-chart',{
 	    	alertId:id,
 	    	response: [],
 	    	loaded: false,
-	    	dataTable: ['Red Social', 'Shares/Retweets', 'Likes Post', 'Likes','Total'],
+	    	dataTable: ['Red Social', 'Shares/Retweets', 'Instagram likes', 'Likes','Total'],
 	    	view:null,
 	    	column: [0,
 	    		1,

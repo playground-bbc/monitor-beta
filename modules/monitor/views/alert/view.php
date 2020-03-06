@@ -12,7 +12,7 @@ use kartik\select2\Select2;
 \app\assets\JqcloudAsset::register($this);
 \app\assets\highchartsAsset::register($this);
 \app\assets\GoogleChartAsset::register($this);
-\app\assets\AppAsset::register($this);
+\app\assets\ViewAsset::register($this);
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Alerts */

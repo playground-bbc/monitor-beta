@@ -20,25 +20,12 @@ class AppAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-       'css/site.css',
-       'css/view.css',
-       
+        'css/site.css',
     ];
     public $js = [
-        // include js for general variables
-        'js/app/variables.js',
-        // include js for general functions
-        'js/app/functions.js',
-        // include js for View view
-        'js/app/view.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
-    ];
-
-    public $publishOptions = [
-        'forceCopy' => true,
-         //you can also make it work only in debug mode: 'forceCopy' => YII_DEBUG
     ];
 }

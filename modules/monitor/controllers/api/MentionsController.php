@@ -92,13 +92,17 @@ class MentionsController extends Controller
         if($alertMention->mentionsCount){
 
             foreach ($alertMention->mentions as $mentions => $mention) {
-              if(\yii\helpers\ArrayHelper::keyExists('like_count',$mention->mention_data)){
-                $likes_comments += $mention->mention_data['like_count'];
+              if (isset($mention->mention_data['like_count'])) {
+                if(\yii\helpers\ArrayHelper::keyExists('like_count',$mention->mention_data)){
+                  $likes_comments += $mention->mention_data['like_count'];
+                }
               }
 
-              if(\yii\helpers\ArrayHelper::keyExists('retweet_count',$mention->mention_data)){
-                $retweets += $mention->mention_data['retweet_count'];
+              if (isset($mention->mention_data['retweet_count'])) {
+                if(\yii\helpers\ArrayHelper::keyExists('retweet_count',$mention->mention_data)){
+                  $retweets += $mention->mention_data['retweet_count'];
 
+                }
               }
             }
         }

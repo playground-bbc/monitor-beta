@@ -52,56 +52,60 @@ class AlertFacebook extends \yii\bootstrap\Widget
             'name_app' => $name_app
         ])->one();
 
+
+
         $appendClass = isset($this->options['class']) ? ' ' . $this->options['class'] : '';
         $link = \app\helpers\FacebookHelper::loginLink();
         $url_link = '<a href="' . $link . '">Log in with Facebook!</a>';
 
         
         if(!\Yii::$app->user->isGuest){
-            if(!$user_facebook->status){
-                // is expired
-                $message = Yii::t('app','Por favor Inicie sesión con facebook: '.$url_link);
-                echo \yii\bootstrap\Alert::widget([
-                        'body' => $message,
-                        'closeButton' => $this->closeButton,
-                        'options' => array_merge($this->options, [
-                            'id' => $this->getId(),
-                            'class' => $this->alertTypes['warning'],
-                        ]),
-                ]);
-            }
-
-            $is_expired = \app\helpers\FacebookHelper::isExpired($userId);
-            if($is_expired){
-                $message = Yii::t('app','Su sesión de facebook ha caducado: '.$url_link);
-                echo \yii\bootstrap\Alert::widget([
-                        'body' => $message,
-                        'closeButton' => $this->closeButton,
-                        'options' => array_merge($this->options, [
-                            'id' => $this->getId(),
-                            'class' => $this->alertTypes['info'],
-                        ]),
-                ]);
-            }
-
-            // only test for logout
-            if($user_facebook->status && !$is_expired){
-                if($this->logout){
+            if (!is_null($user_facebook)) {
+                if(!$user_facebook->status){
                     // is expired
-                    $is_expired = \app\helpers\FacebookHelper::isExpired($userId);
-                    if(!$is_expired){
-                        $link = Yii::$app->urlManager->createAbsoluteUrl(['monitor/facebook/logout','userId' => $userId]);
-                        
-                        $linkHtml = \yii\helpers\Html::a('logout',$link);
-                        $message = Yii::t('app','Logout facebook: '.$linkHtml);
-                        echo \yii\bootstrap\Alert::widget([
-                                'body' => $message,
-                                'closeButton' => $this->closeButton,
-                                'options' => array_merge($this->options, [
-                                    'id' => $this->getId(),
-                                    'class' => $this->alertTypes['success'],
-                                ]),
-                        ]);
+                    $message = Yii::t('app','Por favor Inicie sesión con facebook: '.$url_link);
+                    echo \yii\bootstrap\Alert::widget([
+                            'body' => $message,
+                            'closeButton' => $this->closeButton,
+                            'options' => array_merge($this->options, [
+                                'id' => $this->getId(),
+                                'class' => $this->alertTypes['warning'],
+                            ]),
+                    ]);
+                }
+
+                $is_expired = \app\helpers\FacebookHelper::isExpired($userId);
+                if($is_expired){
+                    $message = Yii::t('app','Su sesión de facebook ha caducado: '.$url_link);
+                    echo \yii\bootstrap\Alert::widget([
+                            'body' => $message,
+                            'closeButton' => $this->closeButton,
+                            'options' => array_merge($this->options, [
+                                'id' => $this->getId(),
+                                'class' => $this->alertTypes['info'],
+                            ]),
+                    ]);
+                }
+
+                // only test for logout
+                if($user_facebook->status && !$is_expired){
+                    if($this->logout){
+                        // is expired
+                        $is_expired = \app\helpers\FacebookHelper::isExpired($userId);
+                        if(!$is_expired){
+                            $link = Yii::$app->urlManager->createAbsoluteUrl(['monitor/facebook/logout','userId' => $userId]);
+                            
+                            $linkHtml = \yii\helpers\Html::a('logout',$link);
+                            $message = Yii::t('app','Logout facebook: '.$linkHtml);
+                            echo \yii\bootstrap\Alert::widget([
+                                    'body' => $message,
+                                    'closeButton' => $this->closeButton,
+                                    'options' => array_merge($this->options, [
+                                        'id' => $this->getId(),
+                                        'class' => $this->alertTypes['success'],
+                                    ]),
+                            ]);
+                        }
                     }
                 }
             }

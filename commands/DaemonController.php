@@ -72,14 +72,16 @@ class DaemonController extends Controller
         $drive->getContentDocument();
         return ExitCode::OK;
     }
-
-    public function actionVerifyAlertsFinish(){
-        $alert = new Alerts();
-        $alertsConfig = $alert->getBringAllAlertsToFinish();
-        
-
-
-
+    /**
+     * [actionInsightsRun call api to get insights]
+     * @return [type] [description]
+     */
+    public function actionInsightsRun(){
+        $userFacebook = \app\helpers\FacebookHelper::getUserActiveFacebook();
+        if (!empty($userFacebook)) {
+            $baseApi = new BaseApi();
+            $api = $baseApi->callInsights($userFacebook);
+        }
         return ExitCode::OK;
     }
     /**

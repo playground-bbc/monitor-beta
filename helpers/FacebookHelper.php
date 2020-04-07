@@ -164,9 +164,11 @@ class FacebookHelper
 				'resourceId' => self::$_resource_id,
 				'name_app' => Yii::$app->params['facebook']['name_app'],
 			] )->one();
-		if (isset($userCredential->expiration_date)) {
-            return $userCredential->expiration_date < time();
-        }
+		if (!is_null($userCredential)) {
+			if (isset($userCredential->expiration_date)) {
+	            return $userCredential->expiration_date < time();
+	        }
+		}
         return null;
 	}
 	/**
@@ -279,6 +281,32 @@ class FacebookHelper
         
 
         return (!is_null($page_access_token)) ? $page_access_token : null;
+	}
+
+
+	public static function getUserActiveFacebook()
+	{
+		$usersFacebook = \app\models\Users::find()->select('id')->where([
+            'status' => 10
+        ])->with(['credencialsApis' => function ($query)
+            {   
+                $query->andWhere(['resourceId' => 2]);
+                $query->andWhere(['not', ['access_secret_token' => null]]);
+                $query->andWhere(['not', ['access_secret_token' => 'encrycpt here']]);
+                $query->andWhere([
+                'and',
+                    ['>=', 'expiration_date', time()],
+                ]);
+                $query->orderBy(['updatedAt' => 'DESC']);
+            }
+        ])->asArray()->all();
+
+        $userFacebook = array_filter($usersFacebook,function ($user)
+        {
+            return (!empty($user['credencialsApis']));
+        });
+        
+        return reset($userFacebook);
 	}
 
 

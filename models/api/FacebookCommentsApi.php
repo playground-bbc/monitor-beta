@@ -107,7 +107,7 @@ class FacebookCommentsApi extends Model {
 		// get page token   
 		$this->_page_access_token = $this->_getPageAccessToken($user_credential);
 		// get appsecret_proof
-		$this->_appsecret_proof = $this->_getAppsecretProof($this->_page_access_token);
+		$this->_appsecret_proof = \app\helpers\FacebookHelper::getAppsecretProof($this->_page_access_token);
 		// loading firts query
 		$params['query'] = $this->_postCommentsSimpleQuery();  
 
@@ -729,7 +729,7 @@ class FacebookCommentsApi extends Model {
 	 */
 	private function _getPageAccessToken($user_credential){
 		
-		$appsecret_proof = $this->_getAppsecretProof($user_credential->access_secret_token);
+		$appsecret_proof = \app\helpers\FacebookHelper::getAppsecretProof($user_credential->access_secret_token);
 		$params = [
             'access_token' => $user_credential->access_secret_token,
             'appsecret_proof' => $appsecret_proof
@@ -755,12 +755,6 @@ class FacebookCommentsApi extends Model {
         
 
         return (!is_null($page_access_token)) ? $page_access_token : null;
-	}
-
-	public function _getAppsecretProof($access_token)
-	{
-		$app_secret = Yii::$app->params['facebook']['app_secret'];
-		return hash_hmac('sha256', $access_token, $app_secret); 
 	}
 
 	/**

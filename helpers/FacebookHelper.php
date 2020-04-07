@@ -45,7 +45,16 @@ class FacebookHelper
 		$fb = self::getFacebook();
 		$helper = $fb->getRedirectLoginHelper();
 		// Optional permissions
-		$permissions = ['manage_pages','pages_show_list','read_page_mailboxes','ads_management','pages_messaging','instagram_basic','pages_show_list']; 
+		$permissions = [
+			'manage_pages',
+			'read_insights',
+			'ads_management',
+			'instagram_basic',
+			'pages_show_list',
+			'pages_messaging',
+			'read_page_mailboxes',
+			'instagram_manage_insights'
+		]; 
 		// crea una URL absoluta: http://www.example.com/index.php?r=post/index
 		$url = Yii::$app->urlManager->createAbsoluteUrl(['monitor/facebook/validate-fb']);
 
@@ -185,7 +194,12 @@ class FacebookHelper
         return false;
 
 	}
-
+	/**
+	 * [isPublicationNew determine if publication is new with respect to last publication]
+	 * @param  [type]  $unix_last_date [description]
+	 * @param  [type]  $unix_new_date  [description]
+	 * @return boolean                 [description]
+	 */
 	public static function isPublicationNew($unix_last_date,$unix_new_date){
 
 		$diffForHumans = explode(" ",\app\helpers\DateHelper::diffForHumans($unix_last_date,$unix_new_date));
@@ -214,6 +228,17 @@ class FacebookHelper
 		return ($userCredential) ? $userCredential : null;
 			
 
+	}
+
+	/**
+	 * [getAppsecretProof return app secret proof]
+	 * @param  [string] $access_token [access_token from credencialApi table]
+	 * @return [string]               [AppsecretProof]
+	 */
+	public static function getAppsecretProof($access_token)
+	{
+		$app_secret = \Yii::$app->params['facebook']['app_secret'];
+		return hash_hmac('sha256', $access_token, $app_secret); 
 	}
 
 

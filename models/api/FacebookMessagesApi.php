@@ -110,7 +110,7 @@ class FacebookMessagesApi extends Model {
 		$user_credential = \app\helpers\FacebookHelper::getCredencials($this->userId);
 
 		// get page token   
-		$this->_page_access_token = $this->_getPageAccessToken($user_credential);
+		$this->_page_access_token = \app\helpers\FacebookHelper::getPageAccessToken($user_credential);
 		// get appsecret_proof
 		$this->_appsecret_proof = \app\helpers\FacebookHelper::getAppsecretProof($this->_page_access_token);
 		// loading firts query
@@ -399,40 +399,6 @@ class FacebookMessagesApi extends Model {
 		$message_query = "{$bussinessId}/conversations?fields=link,message_count,name,updated_time,messages{message,from,created_time,updated_time}&limit={$this->_limit_message}";
 
 		return $message_query;
-	}
-
-	/**
-	 * [_getPageAccessToken get page access token token]
-	 * @param  [string] $access_secret_token [description]
-	 * @return [string] [PageAccessToken]
-	 */
-	private function _getPageAccessToken($user_credential){
-		$appsecret_proof = \app\helpers\FacebookHelper::getAppsecretProof($user_credential->access_secret_token);
-		$params = [
-            'access_token' => $user_credential->access_secret_token,
-            'appsecret_proof' => $appsecret_proof
-        ];
-
-        $page_access_token = null;
-       
-        try{
-        	
-        	$accounts = $this->_client->get('me/accounts',$params)->send();
-        	$data = $accounts->getData();
-        	if(isset($data['error'])){
-        		// to $user_credential->user->username and $user_credential->name_app
-        		// error send email with $data['error']['message']
-        		return null;
-        	}
-        	$page_access_token = ArrayHelper::getColumn($data['data'],'access_token')[0]; 
-
-        }catch(\yii\httpclient\Exception $e){
-        	// problem conections
-        	// send a email
-        }
-        
-
-        return (!is_null($page_access_token)) ? $page_access_token : null;
 	}
 
 	/**

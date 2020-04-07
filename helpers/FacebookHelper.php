@@ -21,6 +21,7 @@ class FacebookHelper
 {
 
 	private static $_resource_id = 5;
+	private static $_baseUrl = 'https://graph.facebook.com/v4.0';
 
 	/**
      * return facebook object.
@@ -239,6 +240,45 @@ class FacebookHelper
 	{
 		$app_secret = \Yii::$app->params['facebook']['app_secret'];
 		return hash_hmac('sha256', $access_token, $app_secret); 
+	}
+
+
+
+	/**
+	 * [_getPageAccessToken get page access token token]
+	 * @param  [string] $access_secret_token [description]
+	 * @return [string] [PageAccessToken]
+	 */
+	public static function getPageAccessToken($user_credential){
+		
+		$appsecret_proof = \app\helpers\FacebookHelper::getAppsecretProof($user_credential->access_secret_token);
+		$params = [
+            'access_token' => $user_credential->access_secret_token,
+            'appsecret_proof' => $appsecret_proof
+        ];
+
+        $page_access_token = null;
+
+        $client = new yii\httpclient\Client(['baseUrl' => self::$_baseUrl]);
+       
+        try{
+        	
+        	$accounts = $client->get('me/accounts',$params)->send();
+        	$data = $accounts->getData();
+        	if(isset($data['error'])){
+        		// to $user_credential->user->username and $user_credential->name_app
+        		// error send email with $data['error']['message']
+        		return null;
+        	}
+        	$page_access_token = yii\helpers\ArrayHelper::getColumn($data['data'],'access_token')[0]; 
+
+        }catch(\yii\httpclient\Exception $e){
+        	// problem conections
+        	// send a email
+        }
+        
+
+        return (!is_null($page_access_token)) ? $page_access_token : null;
 	}
 
 

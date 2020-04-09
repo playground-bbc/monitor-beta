@@ -3,13 +3,15 @@
 namespace app\models;
 
 use Yii;
-
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 /**
  * This is the model class for table "w_content".
  *
  * @property int $id
  * @property int $type_content_id
  * @property int $resource_id
+ * @property int $content_id
  * @property string|null $message
  * @property string|null $permalink
  * @property string|null $image_url
@@ -34,15 +36,29 @@ class WContent extends \yii\db\ActiveRecord
         return 'w_content';
     }
 
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['createdAt','updatedAt'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updatedAt'],
+                ],
+                'value' => function() { return date('U');  },
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['type_content_id', 'resource_id'], 'required'],
+            [['type_content_id', 'resource_id','content_id'], 'required'],
             [['type_content_id', 'resource_id', 'timespan', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
-            [['message', 'permalink', 'image_url'], 'string', 'max' => 255],
+            [['message', 'permalink', 'image_url'], 'string'],
             [['resource_id'], 'exist', 'skipOnError' => true, 'targetClass' => Resources::className(), 'targetAttribute' => ['resource_id' => 'id']],
             [['type_content_id'], 'exist', 'skipOnError' => true, 'targetClass' => WTypeContent::className(), 'targetAttribute' => ['type_content_id' => 'id']],
         ];

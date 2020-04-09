@@ -302,6 +302,19 @@ class BaseApi extends Model {
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Live Chat Conversations'); 
 		} 
  
+	}
+
+	public function callInsights($userFacebook)
+	{
+	 	$insightsApi = new \app\models\api\InsightsApi();
+	 	
+	 	if ($insightsApi->prepare($userFacebook)) {
+	 		$page = $insightsApi->getInsightsPageFacebook();
+	 		if ($page) {
+	 			$insightsApi->setInsightsPageFacebook($page);
+	 			$insightsApi->setInsightsPostFacebook($page);
+	 		}
+	 	}
 	} 
 
 	

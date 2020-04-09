@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "w_insights".
@@ -15,6 +17,8 @@ use Yii;
  * @property string|null $insights_id
  * @property string|null $period
  * @property int|null $value
+ * @property int|null $_like
+ * @property int|null $_love
  * @property int|null $end_time
  * @property int|null $createdAt
  * @property int|null $updatedAt
@@ -33,6 +37,20 @@ class WInsights extends \yii\db\ActiveRecord
         return 'w_insights';
     }
 
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['createdAt','updatedAt'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updatedAt'],
+                ],
+                'value' => function() { return date('U');  },
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -40,7 +58,7 @@ class WInsights extends \yii\db\ActiveRecord
     {
         return [
             [['content_id'], 'required'],
-            [['content_id', 'value', 'end_time', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
+            [['content_id', 'value','_like','_love', 'end_time', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name', 'title', 'description', 'insights_id', 'period'], 'string', 'max' => 255],
             [['content_id'], 'exist', 'skipOnError' => true, 'targetClass' => WContent::className(), 'targetAttribute' => ['content_id' => 'id']],
         ];

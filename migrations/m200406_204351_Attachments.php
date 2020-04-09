@@ -20,9 +20,9 @@ class m200406_204351_Attachments extends Migration
         $this->createTable('{{%w_attachments}}',[
             'id'              => $this->primaryKey(),
             'content_id'      => $this->integer()->notNull(),
-            'title'            => $this->string(),
-            'type'       => $this->string(),
-            'src_url'         => $this->string(),
+            'title'           => $this->string(),
+            'type'            => $this->string(),
+            'src_url'         => $this->text(),
             'createdAt'       => $this->integer(),
             'updatedAt'       => $this->integer(),
             'createdBy'       => $this->integer(),
@@ -31,7 +31,7 @@ class m200406_204351_Attachments extends Migration
         ],$tableOptions);
 
 
-        $this->insert('{{%w_attachments}}', [
+        /*$this->insert('{{%w_attachments}}', [
             'content_id'    => 1,
             'title'         => 'some name',
             'type'          => 'video',
@@ -40,7 +40,7 @@ class m200406_204351_Attachments extends Migration
             'updatedAt'     => '1488153462',
             'createdBy'     => '1',
             'updatedBy'     => '1',
-        ]);
+        ]);*/
 
          // creates index for column `content_id`
         $this->createIndex(

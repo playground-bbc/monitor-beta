@@ -25,9 +25,6 @@ class MentionsHelper
      */
     public static function saveMencions($where = [], $properties = []){
        
-      
-
-
         $is_model = Mentions::find()->where($where)->one();
         // if there a record 
         if($is_model){

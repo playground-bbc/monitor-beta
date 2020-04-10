@@ -284,6 +284,47 @@ class FacebookHelper
         return (!is_null($page_access_token)) ? $page_access_token : null;
 	}
 
+	/**
+	 * [_getBusinessAccountId get bussinessId]
+	 * @param  [type] $user_credential [description]
+	 * @return [string]                  [description]
+	 */
+	public static function getBusinessAccountId($access_secret_token){
+		
+		$bussinessId = Yii::$app->params['facebook']['business_id'];
+		$appsecret_proof = \app\helpers\FacebookHelper::getAppsecretProof($access_secret_token);
+
+		$params = [
+            'access_token'    => $access_secret_token,
+            'appsecret_proof' => $appsecret_proof
+        ];
+
+        $BusinessAccountId = null;
+        $client = new yii\httpclient\Client(['baseUrl' => self::$_baseUrl]);
+       
+        try{
+        	
+        	$accounts = $client->get("{$bussinessId}?fields=instagram_business_account",$params)->send();
+        	$data = $accounts->getData();
+        	if(isset($data['error'])){
+        		// to $user_credential->user->username and $user_credential->name_app
+        		// error send email with $data['error']['message']
+        		return null;
+        	}
+      
+        	$BusinessAccountId = $data['instagram_business_account']['id']; 
+
+        }catch(\yii\httpclient\Exception $e){
+        	// problem conections
+        	// send a email
+        }
+        
+
+        return (!is_null($BusinessAccountId)) ? $BusinessAccountId : null;
+
+	}
+
+
 
 	public static function getUserActiveFacebook()
 	{

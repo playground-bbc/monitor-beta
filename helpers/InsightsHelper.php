@@ -6,15 +6,41 @@ use yii\helpers\Url;
 
 
 /**
- * 
+ *  class helper to model Insights
  */
 class InsightsHelper
 {
 	
+    public static function getData($end_point,$params)
+    {
+        $_baseUrl = 'https://graph.facebook.com/v6.0'; 
+
+        $data = null;
+        $client = new yii\httpclient\Client(['baseUrl' => $_baseUrl]);
+        
+        try {
+            
+            $response = $client->get($end_point,$params)->send();
+            if ($response->isOk) {
+                $data = $response->getData();
+            }
+            
+            if(isset($data['error'])){
+                // to $user_credential->user->username and $user_credential->name_app
+                // error send email with $data['error']['message']
+                $data = null;
+            }
+            
+        } catch (\yii\httpclient\Exception $e) {
+            // send email
+        }
+        return (!is_null($data))? $data : false;
+    }
 	/**
      * [saveMencions save in alerts_mencions model]
-     * @param  array  $properties [description]
-     * @return [type]             [description]
+     * @param  array  $where      [conditions to find in the db]
+     * @param  array  $properties [properties to save inst save]
+     * @return [model]             [instance save in db]
      */
     public static function saveContent($where = [], $properties = []){
        
@@ -44,37 +70,54 @@ class InsightsHelper
 
     }
 
-
-    public static function saveInsights($insights,$contentId)
+    /**
+     * [saveInsights save in Insights model]
+     * @param  array  $where      [conditions to find in the db]
+     * @param  array  $properties [properties to save inst save]
+     */
+    public static function saveInsightsFacebookPost($insights,$contentId)
     {
     	$model = $insights;
 		for ($m=0; $m < sizeof($model) ; $m++) { 
-			$insights = new \app\models\WInsights();
-			$insights->content_id = $contentId;
-			$insights->name = $model[$m]['name'];
-			$insights->title = $model[$m]['title'];
-			$insights->description = $model[$m]['description'];
-			$insights->insights_id = $model[$m]['id'];
-			$insights->period = $model[$m]['period'];
+			
+            $where = [
+                'name' => $model[$m]['name'],
+                'title' => $model[$m]['title'],
+                'description' => $model[$m]['description'],
+                'insights_id' => $model[$m]['id'],
+                'period' => $model[$m]['period'],
+                'content_id' => $contentId,
+            ];
 			for ($v=0; $v < sizeof($model[$m]['values']) ; $v++) {
 				if (!is_array($model[$m]['values'][$v]['value'])) {
-					$insights->value = $model[$m]['values'][$v]['value'];
-					$insights->end_time = \app\helpers\DateHelper::getToday();
+					$where['value'] = $model[$m]['values'][$v]['value'];
 				}else{
 					foreach ($model[$m]['values'][$v]['value'] as $key => $value) {
-						$property = '_'.$key; 
-						$insights->$property = $value;
+						$property = '_'.$key;
+						$where[$property] = $value;
 					}
 				}
 			}
 
-			if(!$insights->save()){
-				var_dump($insights->errors);
-			}
+            $is_insights = \app\models\WInsights::find()->where($where)->exists();
+            if (!$is_insights) {
+                $insights = new \app\models\WInsights();
+                foreach ($where as $property => $value) {
+                    $insights->$property = $value;
+                }
+                $insights->end_time = \app\helpers\DateHelper::getToday();
+                if(!$insights->save()){
+                    var_dump($insights->errors);
+                }
+            }
 		}
     }
 
-
+    /**
+     * [saveAttachments save in Attachments model]
+     * @param  array  $where      [conditions to find in the db]
+     * @param  array  $properties [properties to save inst save]
+     */
     public static function saveAttachments($attachments,$contentId)
     {
     	if (!empty($attachments)) {
@@ -95,10 +138,158 @@ class InsightsHelper
     					$model->title = $attachments[$a]['title'];
     					$model->type = $attachments[$a]['media_type'];
     					$model->src_url = $attachments[$a]['media']['image']['src'];
-    					$model->save();
-    				}
-    			}
-    		}
-    	}
+                        if(!$model->save()){
+                            var_dump($model->errors);
+                        }
+    				}// end if media_type != album
+
+                    if ($attachments[$a]['media_type'] == 'album') {
+                        if (\yii\helpers\ArrayHelper::keyExists('subattachments',$attachments[$a])) {
+                            if (!empty($attachments[$a]['subattachments']['data'])) {
+                               $subattachments = $attachments[$a]['subattachments']['data'];
+
+                               for ($s=0; $s < sizeof($subattachments); $s++) { 
+                                    $model = new \app\models\WAttachments();
+                                    $model->content_id = $contentId;
+                                    $model->title = $attachments[$a]['title'];
+                                    $model->type = $attachments[$a]['media_type'];
+                                    $model->src_url = $subattachments[$s]['media']['image']['src'];
+                                    if(!$model->save()){
+                                        var_dump($model->errors);
+                                    }
+                               }// end loop 
+                            }
+                        }
+                    } // end if media_type = album
+    			}// end if is_null
+    		} // end loop
+    	}// end if empty
     }
+
+    /**
+     * [saveInsightsPage save insigth page in db]
+     * @param  [type] $insights  [description]
+     * @param  [type] $contentId [description]
+     * @return [type]            [description]
+     */
+    public static function saveInsightsPage($insights,$contentId)
+    {
+        // ver si hay un insigth con fecha actual y si lo hay actualizar
+        if (!empty($insights)) {
+            for ($i=0; $i < sizeof($insights) ; $i++) { 
+                $name        = $insights[$i]['name'];
+                $period      = $insights[$i]['period'];
+                $description = $insights[$i]['description'];
+                $title        = $insights[$i]['title'];
+                $insights_id = $insights[$i]['id'];
+                if (!empty($insights[$i]['values'])) {
+                    $values = $insights[$i]['values'];
+                    for ($v=0; $v < sizeof($values) ; $v++) { 
+                        if (\app\helpers\DateHelper::isToday($values[$v]['end_time'])) {
+                            
+                            $where = [
+                                'content_id' => $contentId,
+                                'name'       => $name,
+                                'period'     => $period,
+                                'description'=> $description,
+                                'title'      => $title,
+                                'insights_id'=> $insights_id,
+                                'end_time'   => \app\helpers\DateHelper::asTimestamp($values[$v]['end_time']),
+                            ];
+
+                            $insight_exists = \app\models\WInsights::find()->where($where)->exists();
+                            if ($insight_exists) {
+                                $model = \app\models\WInsights::find()->where($where)->one();
+                                $model->value = $values[$v]['value'];
+                            }else{
+                                $model = new \app\models\WInsights();
+                                $model->content_id = $contentId;
+                                $model->name = $name;
+                                $model->period = $period;
+                                $model->description = $description;
+                                $model->title = $title;
+                                $model->insights_id = $insights_id;
+                                $model->value = $values[$v]['value'];
+                                $model->end_time = \app\helpers\DateHelper::asTimestamp($values[$v]['end_time']);
+                            }
+
+                            if (!$model->save()) {
+                                var_dump($model->errors);
+                            }
+                        }
+                    }
+                }
+            }
+        }// end if
+
+    }
+
+    /**
+     * [saveInsightsInstagramPost description]
+     * @param  [type] $insights  [description]
+     * @param  [type] $contentId [description]
+     * @return [type]            [description]
+     */
+    public static function saveInsightsInstagramPost($insights,$contentId)
+    {
+        $model = $insights;
+        if (!empty($model)) {
+            for ($m=0; $m < sizeof($model) ; $m++) { 
+
+                $where = [
+                    'name' => $model[$m]['name'],
+                    'title' => $model[$m]['title'],
+                    'description' => $model[$m]['description'],
+                    'insights_id' => $model[$m]['id'],
+                    'period' => $model[$m]['period'],
+                    'content_id' => $contentId,
+                ];
+                
+                if (!empty($model[$m]['values'])) {
+                    $values = $model[$m]['values'];
+                    for ($v=0; $v < sizeof($values) ; $v++) { 
+                        $where['value'] = $values[$v]['value'];
+                    }   
+                }
+                $is_insights = \app\models\WInsights::find()->where($where)->exists();
+                if (!$is_insights) {
+                    $insights = new \app\models\WInsights();
+                    foreach ($where as $property => $value) {
+                        $insights->$property = $value;
+                    }
+                    $insights->end_time = \app\helpers\DateHelper::getToday();
+                    if(!$insights->save()){
+                        var_dump($insights->errors);
+                    }
+                }
+            } 
+        }
+        
+    }
+
+    /**
+     * [setMetric create array to new metric]
+     * @param [type] $name        [description]
+     * @param [type] $period      [description]
+     * @param [type] $value       [description]
+     * @param [type] $title       [description]
+     * @param [type] $description [description]
+     * @param string $id          [description]
+     */
+    public static function setMetric($name,$period,$value,$title,$description,$id = '')
+    {
+        return [
+            'name' => $name,
+            'period' => $period,
+            'values' => [
+                ['value' => $value]
+            ],
+            'title' => $title,
+            'description' => $description,
+            'id' => $id,
+
+        ];
+    }
+
+
 }

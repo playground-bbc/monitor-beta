@@ -550,7 +550,7 @@ class InstagramCommentsApi extends Model {
 		// get page token   
 		$this->_page_access_token = \app\helpers\FacebookHelper::getPageAccessToken($user_credential);
 		// get busines id
-		$this->_business_account_id = $this->_getBusinessAccountId($user_credential);
+		$this->_business_account_id = \app\helpers\FacebookHelper::getBusinessAccountId($user_credential->access_secret_token);
 		// get app_proof
 		$this->_appsecret_proof = \app\helpers\FacebookHelper::getAppsecretProof($this->_page_access_token);
 		// loading firts query

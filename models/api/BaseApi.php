@@ -312,8 +312,17 @@ class BaseApi extends Model {
 	 		$page = $insightsApi->getInsightsPageFacebook();
 	 		if ($page) {
 	 			$insightsApi->setInsightsPageFacebook($page);
-	 			$insightsApi->setInsightsPostFacebook($page);
+	 			
 	 		}
+	 		$insightsApi->setInsightsPostFacebook();
+
+	 		$pageIns = $insightsApi->getInsightsPageInstagram();
+	 		if ($pageIns) {
+	 			$insightsApi->setInsightsPageInstagram($pageIns);
+	 		}
+	 		$insightsApi->setInsightsPostInstagram();
+	 		$insightsApi->setStorysPostInstagram();
+
 	 	}
 	} 
 

@@ -323,6 +323,8 @@ class BaseApi extends Model {
 	 		$insightsApi->setInsightsPostInstagram();
 	 		$insightsApi->setStorysPostInstagram();
 
+	 		$insightsApi->setInsightsPostonDbSave();
+
 	 	}
 	} 
 

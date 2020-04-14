@@ -50,7 +50,7 @@ class InsightsApi extends Model
 		
 		$today  = \app\helpers\DateHelper::getToday();
 		
-		$end_point = "{$this->_business_id}?fields=id,link,about,engagement,picture{url},insights.metric(page_impressions,page_impressions_unique,page_post_engagements).since({$today}).until({$today}).period(day)";
+		$end_point = "{$this->_business_id}?fields=id,cover,link,about,engagement,picture{url},insights.metric(page_impressions,page_impressions_unique,page_post_engagements).since({$today}).until({$today}).period(day)";
 		
 		$params = [
             'access_token' => $this->_access_token,

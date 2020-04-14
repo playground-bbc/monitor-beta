@@ -23,18 +23,46 @@ use yii\helpers\Html;
  */
 class InsightsWidget extends \yii\bootstrap\Widget
 {
-	public $message;
+	
+    public $userId;
+    public $userCredencial = [];
+
 
     public function init()
     {
         parent::init();
-        if ($this->message === null) {
-            $this->message = 'Hello World';
-        }
+        $this->userId = Yii::$app->user->id;
+        $this->userCredencial = \app\helpers\FacebookHelper::getCredencials($this->userId);
+        
     }
 
 	public function run()
 	{
-        return $this->render('index',['message' => $this->message]);
+        $link = \app\helpers\FacebookHelper::loginLink();
+        $url_link = "<a href='{$link}'>Log in with Facebook!</a>";
+
+        if (is_null($this->userCredencial)) {
+            $message = Yii::t('app','Por favor Inicie sesión con facebook: '.$url_link);
+            $class   = 'alert-info';
+            return $this->render('alert',['message' => $message,'class' => $class]);
+        }else{
+
+            if (!$this->userCredencial->status) {
+                $message = Yii::t('app','Parece que estas deslogueado: '.$url_link);
+                $class   = 'alert-warning';
+                return $this->render('alert',['message' => $message,'class' => $class]);
+            }
+
+            $is_expired = \app\helpers\FacebookHelper::isExpired($this->userId);
+            if ($is_expired) {
+                $message = Yii::t('app','Su sesión de facebook ha caducado: '.$url_link);
+                $class   = 'alert-warning';
+                return $this->render('alert',['message' => $message,'class' => $class]);
+
+            }
+        }
+
+
+        return $this->render('dashboard');
 	}
 }

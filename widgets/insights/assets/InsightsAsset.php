@@ -5,27 +5,28 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace app\assets;
+namespace app\widgets\insights\assets;
 
 use yii\web\AssetBundle;
 
 /**
  * Main application asset bundle.
  *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
  */
 class InsightsAsset extends AssetBundle
 {
-    public $basePath = '@webroot';
-    public $baseUrl = '@web';
+    
+    public $sourcePath = "@insights";
     public $css = [
         'css/insights.css',
     ];
     public $js = [
+        'js/main.js',
+        //'js/widget/bootstrap.bundle.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
+        '\app\assets\VueAsset',
     ];
 }

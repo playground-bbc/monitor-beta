@@ -11,7 +11,6 @@ use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
 
 use app\widgets\AlertFacebook;
-use app\widgets\insights\InsightsWidget;
 
 AppAsset::register($this);
 ?>
@@ -65,8 +64,7 @@ AppAsset::register($this);
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
             'homeLink' => false
         ]) ?>
-        <?= Alert::widget() ?>
-        <?= InsightsWidget::widget() ?>
+        
         
         <?= $content ?>
     </div>

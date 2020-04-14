@@ -3,7 +3,7 @@
 app\widgets\insights\assets\InsightsAsset::register($this);
 ?>
 <div id="insights" class="container">
-	<h3 class="mt-4 mb-4">Social Widgets</h3>
+	<!-- <h3 class="mt-4 mb-4">Social Widgets</h3> -->
 	<div class="row">
 		<div v-if="loaded">
 			<card-widget :resources = "resources">

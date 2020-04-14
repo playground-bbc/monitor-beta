@@ -43,10 +43,10 @@ use yii\helpers\Html;
 			<div class="row">
 			<div class="col-md-12">
 					<ul class="nav nav-tabs">
-						<li class="active">
+						<li>
 							<a :href="'#' +idTab+'a'" data-toggle="tab">Posts Insights</a>
 						</li>
-						<li>
+						<li class="active">
 							<a :href="'#' +idTab+'b'" data-toggle="tab">Storys Insights</a>
 						</li>
 					</ul>
@@ -66,7 +66,7 @@ use yii\helpers\Html;
 
 
 <script type="text/x-template" id="post-template">
-	<div class="tab-pane active" :id="idTab+'a'">
+	<div class="tab-pane" :id="idTab+'a'">
 		<div class="table-responsive">
 			<table class="table">
 	          <thead>
@@ -94,7 +94,7 @@ use yii\helpers\Html;
 </script>
 
 <script type="text/x-template" id="insights-template">
-<div class="tab-pane" :id="idTab+'b'">
+<div class="tab-pane active" :id="idTab+'b'">
 	<div v-if="loaded" class="table-responsive">
 		<table class="table">
 	      <thead>

@@ -56,7 +56,15 @@ class InsightsController extends Controller
 				'type_content_id' => $pageContentId->id,
 				'resource_id' => $resourceId
 			]
-		)->with(['resource','wInsights'])->orderBy(['updatedAt' => SORT_DESC])->asArray()->all();
+		)->with(['resource'])->orderBy(['updatedAt' => SORT_DESC])->asArray()->all();
+
+		for ($p=0; $p < sizeof($page_content) ; $p++) { 
+
+        	$insights = \app\models\WInsights::find()->where(['content_id' => $page_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy('name')->limit(3)->all();
+        	if (!is_null($insights)) {
+        		$page_content[$p]['wInsights'] = $insights;
+        	}
+        }
 		
 		return reset($page_content);
 	}

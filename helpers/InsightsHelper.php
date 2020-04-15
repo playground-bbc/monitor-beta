@@ -23,6 +23,7 @@ class InsightsHelper
             $response = $client->get($end_point,$params)->send();
             if ($response->isOk) {
                 $data = $response->getData();
+
             }
             
             if(isset($data['error'])){
@@ -81,35 +82,42 @@ class InsightsHelper
 		for ($m=0; $m < sizeof($model) ; $m++) { 
 			
             $where = [
+                'content_id' => $contentId,
                 'name' => $model[$m]['name'],
                 'title' => $model[$m]['title'],
-                'description' => $model[$m]['description'],
-                'insights_id' => $model[$m]['id'],
                 'period' => $model[$m]['period'],
-                'content_id' => $contentId,
+                'insights_id' => $model[$m]['id'],
+                'description' => $model[$m]['description'],
+                'end_time' => \app\helpers\DateHelper::getTodayDate(),
             ];
-			for ($v=0; $v < sizeof($model[$m]['values']) ; $v++) {
-				if (!is_array($model[$m]['values'][$v]['value'])) {
-					$where['value'] = $model[$m]['values'][$v]['value'];
-				}else{
-					foreach ($model[$m]['values'][$v]['value'] as $key => $value) {
-						$property = '_'.$key;
-						$where[$property] = $value;
-					}
-				}
-			}
 
-            $is_insights = \app\models\WInsights::find()->where($where)->exists();
-            if (!$is_insights) {
+            $insight_exists = \app\models\WInsights::find()->where($where)->exists();
+            if ($insight_exists) {
+                $insights = \app\models\WInsights::find()->where($where)->one();
+                
+            }else{
                 $insights = new \app\models\WInsights();
+                $insights->end_time = \app\helpers\DateHelper::getTodayDate();
                 foreach ($where as $property => $value) {
                     $insights->$property = $value;
                 }
-                $insights->end_time = \app\helpers\DateHelper::getToday();
-                if(!$insights->save()){
-                    var_dump($insights->errors);
+            }
+
+            for ($v=0; $v < sizeof($model[$m]['values']) ; $v++) {
+                if (!is_array($model[$m]['values'][$v]['value'])) {
+                    $insights->value = $model[$m]['values'][$v]['value'];
+                }else{
+                    foreach ($model[$m]['values'][$v]['value'] as $key => $value) {
+                        $property = "_{$key}";
+                        $insights->$property = $value;
+                    }
                 }
             }
+
+            if (!$insights->save()) {
+                var_dump($model->errors());
+            }
+
 		}
     }
 
@@ -243,25 +251,31 @@ class InsightsHelper
                     'insights_id' => $model[$m]['id'],
                     'period' => $model[$m]['period'],
                     'content_id' => $contentId,
+                    'end_time' => \app\helpers\DateHelper::getTodayDate(),
                 ];
                 
-                if (!empty($model[$m]['values'])) {
-                    $values = $model[$m]['values'];
-                    for ($v=0; $v < sizeof($values) ; $v++) { 
-                        $where['value'] = $values[$v]['value'];
-                    }   
-                }
                 $is_insights = \app\models\WInsights::find()->where($where)->exists();
-                if (!$is_insights) {
+                if ($is_insights) {
+                    $insights = \app\models\WInsights::find()->where($where)->one();
+                } else {
                     $insights = new \app\models\WInsights();
+                    $insights->end_time = \app\helpers\DateHelper::getTodayDate();
                     foreach ($where as $property => $value) {
                         $insights->$property = $value;
                     }
-                    $insights->end_time = \app\helpers\DateHelper::getToday();
-                    if(!$insights->save()){
-                        var_dump($insights->errors);
-                    }
                 }
+
+                if (!empty($model[$m]['values'])) {
+                    $values = $model[$m]['values'];
+                    for ($v=0; $v < sizeof($values) ; $v++) { 
+                        $insights->value = $values[$v]['value'];
+                    }   
+                }
+                
+                if (!$insights->save()) {
+                    var_dump($model->errors());
+                }
+                
             } 
         }
         

@@ -51,7 +51,7 @@ class InsightsApi extends Model
 		$today  = \app\helpers\DateHelper::getToday();
 		
 		$end_point = "{$this->_business_id}?fields=id,cover,link,about,engagement,picture{url},insights.metric(page_impressions,page_impressions_unique,page_post_engagements).since({$today}).until({$today}).period(day)";
-		
+
 		$params = [
             'access_token' => $this->_access_token,
             'appsecret_proof' => $this->_appsecret_proof
@@ -118,7 +118,7 @@ class InsightsApi extends Model
 		
 			$data = \app\helpers\InsightsHelper::getData($end_point,$params);
 
-			if (!is_null($data)) {
+			if ($data) {
 				$data = $data['data'];
 				// if there content
 				$where =[
@@ -222,8 +222,8 @@ class InsightsApi extends Model
 	        ];
 
 			$data = \app\helpers\InsightsHelper::getData($end_point,$params);
-
-			if (!is_null($data)) {
+			
+			if ($data) {
 				$data = $data['data'];
 				// if there content
 				$where =[

@@ -93,7 +93,7 @@ class InsightsApi extends Model
 				if (!empty($page['fan_count'])) {
 					$name = 'fan_count';
 					$period = 'lifetime';
-					$title = 'usuarios a quienes les gusta la página';
+					$title = 'Usuarios a quienes les gusta la página';
 					$description = 'El número de usuarios a los que les gusta la página.';
 					$value = $page['fan_count'];
 					$metric = \app\helpers\InsightsHelper::setMetric($name,$period,$value,$title,$description);

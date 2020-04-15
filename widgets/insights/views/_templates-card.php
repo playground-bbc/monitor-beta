@@ -31,7 +31,7 @@ use yii\helpers\Html;
 
 		<div class="card-footer" style="padding-top: 10px;">
 			<div class="row">
-				<div v-for="insights in insightsPage" :class="getCol">
+				<div v-for="(insights,index) in insightsPage" :class="getCol(insightsPage.length,index +1)">
 					<div class="description-block">
 					  <h5 class="description-header">{{insights.value}}</h5>
 					  <span class="">{{insights.title}}</span>

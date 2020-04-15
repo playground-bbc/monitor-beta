@@ -21,7 +21,6 @@ const widget = Vue.component('widget',{
 	},
 	mounted(){
 		this.idTab =  Math.floor((Math.random() * (11-5))+5);
-		console.log(this.idTab);
 		this.fetchPage();
 	},
 	methods:{
@@ -34,6 +33,23 @@ const widget = Vue.component('widget',{
 		      		
 		      	}
 		    })
+		},
+		getCol: function(length,index) {
+			var className = '';
+			var col = Math.round(12 / length);
+			className = `col-sm-${col} border-right` 
+			
+			if (length == 5) {
+				if (index == 3) {
+					className = `col-sm-3 border-right`;
+				}
+				if (index == 5) {
+					className = `col-sm-3`;
+				}
+				return className;
+			}
+			
+			return  className; 
 		},
 	},
 	filters: {
@@ -50,10 +66,7 @@ const widget = Vue.component('widget',{
 		
 	},
 	computed: {
-		getCol: function() {
-			var col = 12 / this.insightsPage.length;
-			return `col-sm-${col} border-right`; 
-		},
+		
 		setLinkTab:function(){
 			return `#${this.idTab}a`; 
 		}

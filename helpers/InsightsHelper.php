@@ -296,7 +296,10 @@ class InsightsHelper
             'name' => $name,
             'period' => $period,
             'values' => [
-                ['value' => $value]
+                [
+                    'value' => $value,
+                    'end_time' => \app\helpers\DateHelper::getTodayDate(false)
+                ]
             ],
             'title' => $title,
             'description' => $description,

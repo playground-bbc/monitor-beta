@@ -50,7 +50,7 @@ class InsightsApi extends Model
 		
 		$today  = \app\helpers\DateHelper::getToday();
 		
-		$end_point = "{$this->_business_id}?fields=id,cover,link,about,engagement,picture{url},insights.metric(page_impressions,page_impressions_unique,page_post_engagements).since({$today}).until({$today}).period(day)";
+		$end_point = "{$this->_business_id}?fields=id,fan_count,cover,link,about,picture{url},insights.metric(page_impressions,page_impressions_unique,page_post_engagements).since({$today}).until({$today}).period(day)";
 
 		$params = [
             'access_token' => $this->_access_token,
@@ -90,6 +90,15 @@ class InsightsApi extends Model
 			
 			if ($content) {
 				$insights = $page['insights']['data'];
+				if (!empty($page['fan_count'])) {
+					$name = 'fan_count';
+					$period = 'lifetime';
+					$title = 'usuarios a quienes les gusta la página';
+					$description = 'El número de usuarios a los que les gusta la página.';
+					$value = $page['fan_count'];
+					$metric = \app\helpers\InsightsHelper::setMetric($name,$period,$value,$title,$description);
+					array_push($insights, $metric);
+				}
 				\app\helpers\InsightsHelper::saveInsightsPage($insights,$content->id);
 			}
 
@@ -160,7 +169,7 @@ class InsightsApi extends Model
 	{
 		$this->_business_id_instagram = \app\helpers\FacebookHelper::getBusinessAccountId($this->_access_token);
 
-		$end_point = "{$this->_business_id_instagram}/?fields=username,profile_picture_url,biography,insights.metric(impressions,reach,follower_count,profile_views).period(day)";
+		$end_point = "{$this->_business_id_instagram}/?fields=username,followers_count,profile_picture_url,biography,insights.metric(impressions,reach,follower_count,profile_views).period(day)";
 
 		$params = [
             'access_token' => $this->_access_token,
@@ -198,6 +207,15 @@ class InsightsApi extends Model
 
 			if ($content) {
 				$insights = $page['insights']['data'];
+				if (!empty($page['followers_count'])) {
+					$name = 'followers_count';
+					$period = 'lifetime';
+					$title = 'Usuarios que siguen la página';
+					$description = 'El número de usuarios que siguen a la página.';
+					$value = $page['followers_count'];
+					$metric = \app\helpers\InsightsHelper::setMetric($name,$period,$value,$title,$description);
+					array_push($insights, $metric);
+				}
 				\app\helpers\InsightsHelper::saveInsightsPage($insights,$content->id);
 				
 			}

@@ -10,11 +10,14 @@ use yii\web\NotFoundHttpException;
 
 
 /**
- * 
+ * class controller to Api widget
  */
 class InsightsController extends Controller
 {
-	
+	/**
+	 * [behaviors negotiator to return the response in json format]
+	 * @return [array] [for controller]
+	 */
 	public function behaviors(){
 	   return [
 	        [
@@ -38,7 +41,10 @@ class InsightsController extends Controller
 	   ];
 	}
 
-
+	/**
+	 * [actionNumbersContent returns the number of entities]
+	 * @return [array] [entity type with its id: page, post, storys]
+	 */
 	public function actionNumbersContent()
 	{
 		$pageContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Page'])->one(); 
@@ -47,7 +53,11 @@ class InsightsController extends Controller
         
         return $page_resource;
 	}
-
+	/**
+	 * [actionContentPage returns the information on the page with its Insights]
+	 * @param  [int] $resourceId [id of resource Facebook o Instagram]
+	 * @return [array]           [Page data]
+	 */
 	public function actionContentPage($resourceId)
 	{
 		$pageContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Page'])->one(); 
@@ -60,7 +70,11 @@ class InsightsController extends Controller
 		
 		return reset($page_content);
 	}
-
+	/**
+	 * [actionPostsInsights returns the information on the Post with its Insights]
+	 * @param  [int] $resourceId [id of resource Facebook o Instagram]
+	 * @return [array]           [Post data]
+	 */
 	public function actionPostsInsights($resourceId)
 	{
 		// type posts
@@ -85,7 +99,11 @@ class InsightsController extends Controller
 
         return $posts_content;
 	}
-
+	/**
+	 * [actionStorysInsights returns the information on the Storys with its Insights]
+	 * @param  [int] $resourceId [id of resource Facebook o Instagram]
+	 * @return [array]           [Storys data]
+	 */
 	public function actionStorysInsights($resourceId)
 	{
 		$storyContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Story'])->one();

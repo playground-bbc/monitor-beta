@@ -34,7 +34,7 @@ use yii\helpers\Html;
 				<div v-for="(insights,index) in insightsPage" :class="getCol(insightsPage.length,index +1)">
 					<div class="description-block">
 					  <h5 class="description-header">{{insights.value}}</h5>
-					  <span class="">{{insights.title}}</span>
+					  <span class="">{{insights.title  | setTitleInsights}}</span>
 					</div>
 					<!-- /.description-block -->
 				</div>

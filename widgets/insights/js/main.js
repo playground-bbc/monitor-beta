@@ -2,6 +2,9 @@
 
 const baseUrlApi = `${origin}/monitor-beta/web/monitor/api/insights/`;
 const baseUrlImg = `${origin}/monitor-beta/web/img/`;
+const titleInsights = {
+	'Número de seguidores': 'Seguidores Unicos'
+}
 
 
 const cardWidget = Vue.component('card-widget',{
@@ -20,7 +23,7 @@ const widget = Vue.component('widget',{
 		}
 	},
 	mounted(){
-		this.idTab =  Math.floor((Math.random() * (11-5))+5);
+		this.idTab =  Math.floor((Math.random() * (11-5))+50+this.resourceId);
 		this.fetchPage();
 	},
 	methods:{
@@ -62,7 +65,14 @@ const widget = Vue.component('widget',{
 				value = 0;
 			}
 			return value;
+		},
+		setTitleInsights : function(value){
+			if (titleInsights[value]) {
+				return titleInsights[value];
+			}
+			return value;
 		}
+
 		
 	},
 	computed: {

@@ -50,8 +50,8 @@ class InsightsApi extends Model
 		
 		$today  = \app\helpers\DateHelper::getToday();
 		
-		$end_point = "{$this->_business_id}?fields=id,cover,link,about,engagement,picture{url},insights.metric(page_impressions,page_impressions_unique,page_post_engagements).since({$today}).until({$today}).period(day)";
-		
+		$end_point = "{$this->_business_id}?fields=id,fan_count,cover,link,about,picture{url},insights.metric(page_impressions,page_impressions_unique,page_post_engagements).since({$today}).until({$today}).period(day)";
+
 		$params = [
             'access_token' => $this->_access_token,
             'appsecret_proof' => $this->_appsecret_proof
@@ -90,6 +90,15 @@ class InsightsApi extends Model
 			
 			if ($content) {
 				$insights = $page['insights']['data'];
+				if (!empty($page['fan_count'])) {
+					$name = 'fan_count';
+					$period = 'lifetime';
+					$title = 'Usuarios a quienes les gusta la página';
+					$description = 'El número de usuarios a los que les gusta la página.';
+					$value = $page['fan_count'];
+					$metric = \app\helpers\InsightsHelper::setMetric($name,$period,$value,$title,$description);
+					array_push($insights, $metric);
+				}
 				\app\helpers\InsightsHelper::saveInsightsPage($insights,$content->id);
 			}
 
@@ -118,7 +127,7 @@ class InsightsApi extends Model
 		
 			$data = \app\helpers\InsightsHelper::getData($end_point,$params);
 
-			if (!is_null($data)) {
+			if ($data) {
 				$data = $data['data'];
 				// if there content
 				$where =[
@@ -160,7 +169,7 @@ class InsightsApi extends Model
 	{
 		$this->_business_id_instagram = \app\helpers\FacebookHelper::getBusinessAccountId($this->_access_token);
 
-		$end_point = "{$this->_business_id_instagram}/?fields=username,profile_picture_url,biography,insights.metric(impressions,reach,follower_count,profile_views).period(day)";
+		$end_point = "{$this->_business_id_instagram}/?fields=username,followers_count,profile_picture_url,biography,insights.metric(impressions,reach,follower_count,profile_views).period(day)";
 
 		$params = [
             'access_token' => $this->_access_token,
@@ -198,6 +207,15 @@ class InsightsApi extends Model
 
 			if ($content) {
 				$insights = $page['insights']['data'];
+				if (!empty($page['followers_count'])) {
+					$name = 'followers_count';
+					$period = 'lifetime';
+					$title = 'Usuarios que siguen la página';
+					$description = 'El número de usuarios que siguen a la página.';
+					$value = $page['followers_count'];
+					$metric = \app\helpers\InsightsHelper::setMetric($name,$period,$value,$title,$description);
+					array_push($insights, $metric);
+				}
 				\app\helpers\InsightsHelper::saveInsightsPage($insights,$content->id);
 				
 			}
@@ -222,8 +240,8 @@ class InsightsApi extends Model
 	        ];
 
 			$data = \app\helpers\InsightsHelper::getData($end_point,$params);
-
-			if (!is_null($data)) {
+			
+			if ($data) {
 				$data = $data['data'];
 				// if there content
 				$where =[
@@ -337,6 +355,7 @@ class InsightsApi extends Model
 		];*/
 		$ids = $this->_postIds;
 
+
 		$typeContent = \app\models\WTypeContent::find()->select('id')->where(['name' => 'Post'])->one();
 		$facebookPostsIds = \yii\helpers\ArrayHelper::getValue($ids,'facebook');
 		// if there content
@@ -371,7 +390,10 @@ class InsightsApi extends Model
 				foreach ($facebookPostsIdsDB as $facebookPost) {
 					$end_point = "{$this->_business_id}_{$facebookPost->content_id}?fields=id,permalink_url,updated_time,message,picture,attachments{media,media_type,subattachments,title},insights.metric(post_impressions,post_engaged_users,post_reactions_by_type_total,page_actions_post_reactions_total)";
 
-					$posts[] = \app\helpers\InsightsHelper::getData($end_point,$params);
+					$data = \app\helpers\InsightsHelper::getData($end_point,$params);
+					if ($data) {
+						$posts[] = $data;
+					}
 				}
 
 			
@@ -419,7 +441,10 @@ class InsightsApi extends Model
 			foreach ($instagramPostsIdsDB as $instagramPost) {
 				$end_point = "{$instagramPost->content_id}?fields=ig_id,timestamp,shortcode,media_type,media_url,caption,like_count,permalink,thumbnail_url,username,comments_count,insights.metric(impressions,reach,engagement)";
 				
-				$posts[] = \app\helpers\InsightsHelper::getData($end_point,$params);
+				$data = \app\helpers\InsightsHelper::getData($end_point,$params);
+				if ($data) {
+					$posts[] = $data;
+				}
 			}
 
 			for ($p=0; $p < sizeof($posts); $p++) { 

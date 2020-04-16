@@ -2,6 +2,9 @@
 
 const baseUrlApi = `${origin}/monitor-beta/web/monitor/api/insights/`;
 const baseUrlImg = `${origin}/monitor-beta/web/img/`;
+const titleInsights = {
+	'Número de seguidores': 'Seguidores Unicos',
+}
 
 
 const cardWidget = Vue.component('card-widget',{
@@ -20,8 +23,7 @@ const widget = Vue.component('widget',{
 		}
 	},
 	mounted(){
-		this.idTab =  Math.floor((Math.random() * (11-5))+5);
-		console.log(this.idTab);
+		this.idTab =  Math.floor(Math.round(Math.random()*100 + this.resourceId));
 		this.fetchPage();
 	},
 	methods:{
@@ -35,6 +37,23 @@ const widget = Vue.component('widget',{
 		      	}
 		    })
 		},
+		getCol: function(length,index) {
+			var className = '';
+			var col = Math.round(12 / length);
+			className = `col-sm-${col} border-right` 
+			
+			if (length == 5) {
+				if (index == 3) {
+					className = `col-sm-3 border-right`;
+				}
+				if (index == 5) {
+					className = `col-sm-3`;
+				}
+				return className;
+			}
+			
+			return  className; 
+		},
 	},
 	filters: {
 		imagePath: function (value) {
@@ -46,14 +65,18 @@ const widget = Vue.component('widget',{
 				value = 0;
 			}
 			return value;
+		},
+		setTitleInsights : function(value){
+			if (titleInsights[value]) {
+				return titleInsights[value];
+			}
+			return value;
 		}
+
 		
 	},
 	computed: {
-		getCol: function() {
-			var col = 12 / this.insightsPage.length;
-			return `col-sm-${col} border-right`; 
-		},
+		
 		setLinkTab:function(){
 			return `#${this.idTab}a`; 
 		}
@@ -86,7 +109,7 @@ const PostsInsights = Vue.component('posts',{
 			var insights = this.contentPosts[0].wInsights;
 			for (var i = 0; i < insights.length; i++) {
 				if (insights[i].name == 'post_reactions_by_type_total') {
-					var title = 'like / love ';
+					var title = 'Likes / ROT ';
 					this.insightsHeader.push(title);
 				}else{
 					this.insightsHeader.push(insights[i].title);
@@ -159,6 +182,19 @@ const InsightsStrorys = Vue.component('storys',{
 				value = 0;
 			}
 			return value;
+		},
+		getDate: function(value){
+			console.log(value);
+			var a = new Date(value * 1000);
+            var months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            var year = a.getFullYear();
+            var month = months[a.getMonth()];
+            var date = a.getDate();
+            var hour = a.getHours();
+            var min = a.getMinutes();
+            var sec = a.getSeconds();
+            var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+            return time;
 		}
 	},
 });

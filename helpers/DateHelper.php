@@ -102,6 +102,17 @@ class DateHelper
         $now = new \DateTime();
         return $now->getTimestamp();
     }
+    /**
+     * [getTodayDate get today date but only  date + 00:00:00.000000]
+     * @return [int] [today date format 00:00:00.000000 on timespan]
+     */
+    public function getTodayDate($timespan = true)
+    {
+        $today_date = Date::today();
+        
+        return ($timespan) ? $today_date->getTimestamp() : $today_date;
+
+    }
 
     /**
      * [isBetweenDate chekcs if date is between two date ]

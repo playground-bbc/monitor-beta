@@ -19,6 +19,10 @@ use yii\db\ActiveRecord;
  * @property int|null $value
  * @property int|null $_like
  * @property int|null $_love
+ * @property int|null $_wow
+ * @property int|null $_haha
+ * @property int|null $_anger
+ * @property int|null $_sorry
  * @property int|null $end_time
  * @property int|null $createdAt
  * @property int|null $updatedAt
@@ -58,7 +62,7 @@ class WInsights extends \yii\db\ActiveRecord
     {
         return [
             [['content_id'], 'required'],
-            [['content_id', 'value','_like','_love', 'end_time', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
+            [['content_id', 'value','_like','_love','_haha','_wow','_anger','_sorry', 'end_time', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name', 'title', 'description', 'insights_id', 'period'], 'string', 'max' => 255],
             [['content_id'], 'exist', 'skipOnError' => true, 'targetClass' => WContent::className(), 'targetAttribute' => ['content_id' => 'id']],
         ];

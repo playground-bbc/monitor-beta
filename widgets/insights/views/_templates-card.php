@@ -83,7 +83,7 @@ use yii\helpers\Html;
 	              			{{insigth.value}}
 	              		</div>
 	              		<div v-else>
-	              			{{insigth._like | isNullValue}} / {{insigth._love | isNullValue}} 
+	              			{{insigth._like | isNullValue}} / {{parseInt(insigth._love) + parseInt(insigth._wow) + parseInt(insigth._haha) + parseInt(insigth._sorry) + parseInt(insigth._anger)}} 
 	              		</div>
 	          	  </td>
 	            </tr>
@@ -106,7 +106,7 @@ use yii\helpers\Html;
 	      </thead>
 	      <tbody v-if="contentStorys">
 	        <tr v-for="story in contentStorys">
-				<th scope="row"><a :href="story.permalink" target="_blank">Story</a></th>
+				<th scope="row"><a :href="story.permalink" target="_blank">{{story.timespan | getDate }}</a></th>
 	            <td align="center" v-for="insigth in story.wInsights">
               		<div class="text-center" v-if="insigth.value">
               			{{insigth.value}}

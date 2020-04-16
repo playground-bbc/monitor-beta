@@ -70,6 +70,56 @@ class InsightsHelper
         return $model;
 
     }
+    /**
+     * [setReactionsFacebookPost deprecade]
+     * @param [type] $insights [description]
+     */
+    public static function setReactionsFacebookPost($insights)
+    {
+        $reactions_key = [
+            'like',
+            'love',
+            'wow',
+            'haha',
+            'sorry',
+            'anger'
+        ];
+
+        $name = "post_reactions_by_type_";
+        $title = "Lifetime Total post Reactions by ";
+        $description = "Lifetime: Total post reactions by type.";
+
+
+        $model = [];
+        for ($i=0; $i < sizeof($insights) ; $i++) { 
+            
+            if ($insights[$i]['name'] == 'post_reactions_by_type_total' ) {
+                if (!empty($insights[$i]['values'])) {
+                    $values = reset($insights[$i]['values']);
+                    foreach ($values as $value => $reactions) {
+                        for ($r=0; $r <sizeof($reactions_key) ; $r++) { 
+                            if (\yii\helpers\ArrayHelper::keyExists($reactions_key[$r],$reactions)) {
+                                $reactions_name = $reactions_key[$r];
+                                $val = $reactions[$reactions_name];
+                                $model[] = \app\helpers\InsightsHelper::setMetric($name.$reactions_name,"lifetime",$val,$title.$reactions_name,$description,$insights[$i]['id']);
+                            }else{
+                                $reactions_name = $reactions_key[$r];
+                                $val = 0;
+                                $model[] = \app\helpers\InsightsHelper::setMetric($name.$reactions_name,"lifetime",$val,$title.$reactions_name,$description,$insights[$i]['id']); 
+                            }
+                        }
+                       // echo $value."\n";
+                    }
+                    unset($insights[$i]);
+                }
+            }else{
+              $model[] = $insights[$i];  
+            }
+        }
+
+        return $model;
+
+    }
 
     /**
      * [saveInsights save in Insights model]

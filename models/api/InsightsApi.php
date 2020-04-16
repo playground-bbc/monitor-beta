@@ -338,7 +338,9 @@ class InsightsApi extends Model
 		}
 	}
 
-
+	/**
+	 * [setInsightsPostonDbSave call to entitys in the db and call api graphs to insights]
+	 */
 	public function setInsightsPostonDbSave()
 	{
 		/*$ids = [

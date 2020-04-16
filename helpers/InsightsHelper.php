@@ -10,7 +10,12 @@ use yii\helpers\Url;
  */
 class InsightsHelper
 {
-	
+	/**
+     * [getData call to api with the end point]
+     * @param  [string] $end_point [end point to call]
+     * @param  [string] $params    [params in the call]
+     * @return [array]            [data from the call or null]
+     */
     public static function getData($end_point,$params)
     {
         $_baseUrl = 'https://graph.facebook.com/v6.0'; 

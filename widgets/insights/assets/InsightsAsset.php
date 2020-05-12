@@ -21,6 +21,7 @@ class InsightsAsset extends AssetBundle
         'css/insights.css',
     ];
     public $js = [
+        'js/template.js',
         'js/main.js',
         //'js/widget/bootstrap.bundle.min.js',
     ];

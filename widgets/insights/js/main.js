@@ -1,10 +1,4 @@
-//const origin = location.origin;
-
-const baseUrlApi = `${origin}/monitor-beta/web/monitor/api/insights/`;
-const baseUrlImg = `${origin}/monitor-beta/web/img/`;
-const titleInsights = {
-	'Número de seguidores': 'Seguidores Unicos',
-}
+'use strict'
 
 
 const cardWidget = Vue.component('card-widget',{
@@ -19,7 +13,7 @@ const widget = Vue.component('widget',{
 		return {
 			contentPage: [],
 			insightsPage: [],
-			idTab:0
+			idTab:0,
 		}
 	},
 	mounted(){
@@ -71,6 +65,12 @@ const widget = Vue.component('widget',{
 				return titleInsights[value];
 			}
 			return value;
+		},
+		setTitleTooltipsInsights: function (value){
+			if (titleToolTipsInsights[value]) {
+				return titleToolTipsInsights[value];
+			}
+			return value;
 		}
 
 		
@@ -90,10 +90,10 @@ const PostsInsights = Vue.component('posts',{
 	    return {
 	    	contentPosts: [],
 			insightsPost: [],
-			insightsHeader: []
+			insightsHeader: [],
 	    }
 	},
-	mounted(){
+	created(){
 		this.fetchPost();
 	},
 	methods:{
@@ -101,20 +101,14 @@ const PostsInsights = Vue.component('posts',{
 			axios.get(baseUrlApi + 'posts-insights'+ '?resourceId=' +this.resourceId)
 		      .then((response) => {
 		        this.contentPosts = response.data;
-		        // set header
 		        this.setHeaders();
+		        
 		    })
 		},
 		setHeaders(){
 			var insights = this.contentPosts[0].wInsights;
 			for (var i = 0; i < insights.length; i++) {
-				if (insights[i].name == 'post_reactions_by_type_total') {
-					var title = 'Likes / ROT ';
-					this.insightsHeader.push(title);
-				}else{
-					this.insightsHeader.push(insights[i].title);
-				}
-				
+				this.insightsHeader.push(insights[i].name);
 			}
 			//console.log(this.insightsHeader);
 		}
@@ -128,7 +122,19 @@ const PostsInsights = Vue.component('posts',{
 				value = 0;
 			}
 			return value;
-		}
+		},
+		setHeadersPost: function(value){
+			if (headersPost[value]) {
+				return headersPost[value];
+			}
+			return value;
+		},
+		setHeaderToolTips: function(value){
+			if (titleInsightsTableTooltips[value]) {
+				return titleInsightsTableTooltips[value];
+			}
+			return value;
+		} 
 	},
 	computed: {
 		setidTab:function(){
@@ -173,7 +179,6 @@ const InsightsStrorys = Vue.component('storys',{
 			for (var i = 0; i < insights.length; i++) {
 				this.storysHeader.push(insights[i].title);
 			}
-			//console.log(this.storysHeader);
 		}
 	},
 	filters:{
@@ -184,7 +189,6 @@ const InsightsStrorys = Vue.component('storys',{
 			return value;
 		},
 		getDate: function(value){
-			console.log(value);
 			var a = new Date(value * 1000);
             var months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             var year = a.getFullYear();
@@ -199,6 +203,10 @@ const InsightsStrorys = Vue.component('storys',{
 	},
 });
 
+
+Vue.filter('formatNumber', function (value) {
+  return value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+})
 
 var vue = new Vue({
 	el: '#insights',
@@ -224,4 +232,3 @@ var vue = new Vue({
 		},
 	},
 });
-

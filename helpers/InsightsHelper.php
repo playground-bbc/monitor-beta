@@ -54,24 +54,22 @@ class InsightsHelper
         // if there a record 
         if($is_model){
             $model = \app\models\WContent::find()->where($where)->one();
+        }else{
+            $model = new \app\models\WContent();
         }
 
-        // if not there a record
-        if(is_null($is_model)){
-            $model = new  \app\models\WContent();
-
-            foreach($where as $property => $value){
-                $model->$property = $value;
-            }
-
-            foreach($properties as $property => $value){
-                $model->$property = $value;
-            }
-            // save or update
-        	if(!$model->save()){
-        		var_dump($model->errors);
-        	}
+        foreach($where as $property => $value){
+            $model->$property = $value;
         }
+
+        foreach($properties as $property => $value){
+            $model->$property = $value;
+        }
+        // save or update
+        if(!$model->save()){
+            var_dump($model->errors);
+        }
+
         return $model;
 
     }
@@ -363,5 +361,33 @@ class InsightsHelper
         ];
     }
 
+    /**
+     * [getPostInsightsByResource create array wInsights for each post]
+     * @param [array] $posts_content [description]
+     * @param int $resourceId          [description]
+     */
+    public static function getPostInsightsByResource($posts_content = [],$resourceId)
+    {
+        $where = [
+            'Facebook Comments' => ['post_impressions','post_engaged_users','post_reactions_by_type_total'],
+            'Instagram Comments' => ['likes','reach','coments','impressions','engagement'],
+        ];
+
+        for ($p=0; $p < sizeof($posts_content) ; $p++) { 
+            if (isset($posts_content[$p]['resource']['name'])) {
+                $resourceName = $posts_content[$p]['resource']['name'];
+
+                $insights = \app\models\WInsights::find()->where([
+                    'content_id' => $posts_content[$p]['id'],
+                ])->andWhere([
+                    'name' => $where[$resourceName],
+                ])->orderBy(['end_time' => SORT_DESC ])->asArray()->limit(sizeof($where[$resourceName]))->all();
+                if (!is_null($insights)) {
+                    $posts_content[$p]['wInsights'] = $insights;
+                }
+            }            
+        }
+        return $posts_content;
+    }
 
 }

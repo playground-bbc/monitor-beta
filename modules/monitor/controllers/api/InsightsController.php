@@ -67,6 +67,16 @@ class InsightsController extends Controller
 				'resource_id' => $resourceId
 			]
 		)->with(['resource'])->orderBy(['updatedAt' => SORT_DESC])->asArray()->all();
+		// add image cover if instagram
+		if ($page_content[0]['resource']['name'] == 'Instagram Comments') {
+			$cover_url = \app\models\WContent::find()->select('image_url')->where(
+				[
+					'type_content_id' => $pageContentId->id,
+					'resource_id' => 5
+				]
+			)->one();
+			$page_content[0]['image_url'] = $cover_url->image_url;
+		}
 
 		for ($p=0; $p < sizeof($page_content) ; $p++) { 
 
@@ -95,17 +105,9 @@ class InsightsController extends Controller
             ]
         )->with(['resource'])->orderBy(['updatedAt' => SORT_DESC])->asArray()->limit(5)->all();
 
-        
 
-        for ($p=0; $p < sizeof($posts_content) ; $p++) { 
 
-        	$insights = \app\models\WInsights::find()->where(['content_id' => $posts_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy('name')->limit(3)->all();
-        	if (!is_null($insights)) {
-        		$posts_content[$p]['wInsights'] = $insights;
-        	}
-        }
-
-        return $posts_content;
+        return \app\helpers\InsightsHelper::getPostInsightsByResource($posts_content,$resourceId);
 	}
 	/**
 	 * [actionStorysInsights returns the information on the Storys with its Insights]
@@ -125,7 +127,7 @@ class InsightsController extends Controller
 
         for ($p=0; $p < sizeof($storys_content) ; $p++) { 
 
-        	$insights = \app\models\WInsights::find()->where(['content_id' => $storys_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy('name')->limit(3)->all();
+        	$insights = \app\models\WInsights::find()->where(['content_id' => $storys_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy(['id','name'])->limit(3)->all();
         	if (!is_null($insights)) {
         		$storys_content[$p]['wInsights'] = $insights;
         	}

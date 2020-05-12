@@ -297,11 +297,10 @@ class TwitterApi extends Model {
 	 * @return [type]         [data]
 	 */
 	public function search_tweets($params = []){
-		//sleep(1);
+
 		$this->codebird->setReturnFormat(CODEBIRD_RETURNFORMAT_ARRAY);
 		$this->codebird->setTimeout(4000);
 		$this->codebird->setConnectionTimeout(9000);
-		//ini_set('memory_limit', '800M');  // 
 		return $this->codebird->search_tweets($params, true);
 	}
 

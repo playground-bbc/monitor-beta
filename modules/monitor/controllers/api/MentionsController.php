@@ -141,7 +141,7 @@ class MentionsController extends Controller
     for($d = 0; $d < sizeof($modelDataCount); $d++){
       if(!is_null($modelDataCount[$d])){
         $name = $modelDataCount[$d][0];
-        $total = $modelDataCount[$d][4];
+        $total = (int)$modelDataCount[$d][4];
         
         $data[] = array($name,$total);
       }

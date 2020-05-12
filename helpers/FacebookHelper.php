@@ -325,7 +325,10 @@ class FacebookHelper
 	}
 
 
-
+	/**
+	 * [getUserActiveFacebook take a user active with credential facebook]
+	 * @return [array] [users]
+	 */
 	public static function getUserActiveFacebook()
 	{
 		$usersFacebook = \app\models\Users::find()->select('id')->where([
@@ -389,7 +392,11 @@ class FacebookHelper
        return $userFacebook;
 	}
 
-
+	/**
+	 * [getUserbyPermissions return the user with the proper permission]
+	 * @param  [array] $usersFacebook [users from db]
+	 * @return [type]                [description]
+	 */
 	public static function getUserbyPermissions($usersFacebook)
 	{
 		$user = [];
@@ -413,7 +420,11 @@ class FacebookHelper
 
 		return $user;
 	}
-
+	/**
+	 * [getIdPostFacebook return id post]
+	 * @param  [string] $id [string compuest by numerodelapagina_numerodepost]
+	 * @return [string ]     [return numerodepost ]
+	 */
 	public static function getIdPostFacebook($id)
 	{
 		$post_id = explode('_', $id);

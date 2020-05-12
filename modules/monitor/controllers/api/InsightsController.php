@@ -78,9 +78,10 @@ class InsightsController extends Controller
 			$page_content[0]['image_url'] = $cover_url->image_url;
 		}
 
+		$limit = ($resourceId == 5) ? 4:5;
 		for ($p=0; $p < sizeof($page_content) ; $p++) { 
 
-        	$insights = \app\models\WInsights::find()->where(['content_id' => $page_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy(['id','name'])->limit(5)->all();
+        	$insights = \app\models\WInsights::find()->where(['content_id' => $page_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy(['id','name'])->limit($limit)->all();
         	if (!is_null($insights)) {
         		$page_content[$p]['wInsights'] = $insights;
         	}

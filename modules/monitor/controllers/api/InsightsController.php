@@ -66,7 +66,7 @@ class InsightsController extends Controller
 				'type_content_id' => $pageContentId->id,
 				'resource_id' => $resourceId
 			]
-		)->with(['resource'])->orderBy(['updatedAt' => SORT_DESC])->asArray()->all();
+		)->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->all();
 		// add image cover if instagram
 		if ($page_content[0]['resource']['name'] == 'Instagram Comments') {
 			$cover_url = \app\models\WContent::find()->select('image_url')->where(
@@ -104,7 +104,7 @@ class InsightsController extends Controller
                 'type_content_id' => $postContentId->id,
                 'resource_id' => $resourceId // get by source
             ]
-        )->with(['resource'])->orderBy(['updatedAt' => SORT_DESC])->asArray()->limit(5)->all();
+        )->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
 
 
 
@@ -124,7 +124,7 @@ class InsightsController extends Controller
                 'type_content_id' => $storyContentId->id,
                 'resource_id' => $resourceId // get by source
             ]
-        )->with(['resource'])->orderBy(['updatedAt' => SORT_DESC])->asArray()->limit(5)->all();
+        )->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
 
         for ($p=0; $p < sizeof($storys_content) ; $p++) { 
 

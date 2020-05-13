@@ -319,9 +319,14 @@ class DriveApi extends Model{
         if($typeDocument == 'products'){
             for ($i = 0; $i < sizeof($response->sheets); $i++) {
                 $title_dictionary = $response->sheets[$i]->properties->title;
-                if(!in_array(strtolower($title_dictionary), $aliasNames)){
-                    $sheetName[] = $title_dictionary;
-                    
+                if ($title_dictionary != '' && !is_null($title_dictionary)) {
+                    $title_dictionary_array = explode(' ', $title_dictionary);
+                    if (isset($title_dictionary_array[0])) {
+                        if(!in_array(strtolower($title_dictionary_array[0]), $aliasNames)){
+                            $sheetName[] = $title_dictionary;
+                            
+                        }
+                    }
                 }
             }
 

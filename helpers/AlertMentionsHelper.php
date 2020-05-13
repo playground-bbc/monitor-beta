@@ -457,4 +457,19 @@ class AlertMentionsHelper
         return $alerts;
     }
 
+    /**
+     * [getResourceIdByName get id of resource by name]
+     * @param  [string] $resourceName [Ej:Twiiter]
+     * @return [int]               [id resource]
+     */
+    public static function getResourceIdByName($resourceName)
+    {
+        $resourcesId = (new \yii\db\Query())
+            ->select('id')
+            ->from('resources')
+            ->where(['name' => $resourceName])
+            ->all();
+        return \yii\helpers\ArrayHelper::getColumn($resourcesId,'id')[0];
+    }
+
 }

@@ -19,6 +19,7 @@ class LiveChatsApi extends Model {
 	public $products;
 	
 	public $data;
+	public $filename;
 
 
 	private $_api_login;
@@ -125,7 +126,10 @@ class LiveChatsApi extends Model {
 						];
 
 					}
-
+					if (\app\helpers\DateHelper::isToday($productMention->date_searched)) {
+						// set filename
+						$this->filename = $productMention->date_searched;
+					}
 				}
 			}
 
@@ -314,6 +318,9 @@ class LiveChatsApi extends Model {
 		if(count($chats)){
 			$jsonfile = new JsonFile($this->alertId,$source);
 			$jsonfile->load($chats);
+			if ($this->filename) {
+				$jsonfile->fileName = $this->filename;
+			}
 			$jsonfile->save();
 		}
 

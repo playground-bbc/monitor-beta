@@ -61,91 +61,175 @@ class StringHelper
         return $data;
 
     }
-
+    /**
+     * https://github.com/danielstjules/Stringy#containsanyarray-needles--boolean-casesensitive--true-
+     */
     public static function containsAny($sentence,$data){
         return s($sentence)->containsAny($data,false);
     }
-
+    /**
+     * https://github.com/danielstjules/Stringy#containsallarray-needles--boolean-casesensitive--true-
+     */
     public static function containsAll($sentence,$data){
         return s($sentence)->containsAll($data,false);
     }
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#containscount
+     */
     public static function containsCount($sentence,$word){
         $s = new Stringizer($sentence);
         return $s->containsCount($word); // true, case insensitive
     }
+    /**
+     * https://github.com/jasonlam604/Stringizer#dasherize
+     */
+    public static function dasherize($sentence){
+        $s = new Stringizer($sentence);
+        return $s->dasherize();
+    }
 
+    /**
+     * https://github.com/jasonlam604/Stringizer#lowercase
+     */
+    public static function lowercase($sentence){
+        $s = new Stringizer($sentence);
+        $s->lowercase();
+        return $s->getString();
+    }
+    /**
+     * https://github.com/jasonlam604/Stringizer#replace
+     */
     public static function replace($sentence,$word,$replace){
         $s = new Stringizer($sentence);
         $s->replace($word, $replace);
         return $s->getString();
     }
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#removeascii
+     */
     public static function removeNonAscii($sentence){
         $s = new Stringizer($sentence);
         $s->removeNonAscii(); 
         return $s->getString();
     }
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#isascii
+     */
     public static function isAscii($sentence){
         $s = new Stringizer($sentence);
         return $s->isAscii();
     }
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#replaceaccents
+     */
     public static function replaceAccents($sentence){
         $s = new Stringizer($sentence);
         $s->replaceAccents(); 
         return $s->getString();
     }
 
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#contains
+     */
     public static function containsIncaseSensitive($sentence,$word){
         $s = new Stringizer($sentence);
         return $s->containsIncaseSensitive($word); // true, case insensitive
     }
 
-    
+    /**
+     * https://github.com/jasonlam604/Stringizer#containscount
+     */
     public static function containsCountIncaseSensitive($sentence,$word){
         $s = new Stringizer($sentence);
         return $s->containsCountIncaseSensitive($word); // true, case insensitive
     }
 
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#replace
+     */
     public static function replaceIncaseSensitive($sentence,$word,$replace){
         $s = new Stringizer($sentence);
         $s->replaceIncaseSensitive($word, $replace); // Fizz bar Fizz bar Fizz bar
         return $s->getString();
     }
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#collapsewhitespace
+     */
     public static function collapseWhitespace($sentence){
         $s = new Stringizer($sentence);
         $s->collapseWhitespace(); // ȘŦŗÍñĝ ìzĕŕ
         return $s->getString();
     }
+    /**
+     * https://github.com/jasonlam604/Stringizer#striptags
+     */
+    public static function stripTags($sentence){
+        $s = new Stringizer($sentence);
+        return $s->stripTags();
+    }
 
+    /**
+     * https://github.com/jasonlam604/Stringizer#isempty
+     */
     public static function isEmpty($sentence){
         $s = new Stringizer($sentence);
         return $s->isEmpty(); // true;
     }
-
+    /**
+     * [replacingSpacesWithUnderscores convert sentence in camel to snake and replace # to _ and chance '_' to ' ']
+     * @param  [type] $sentence [description]
+     * @return [type]           [description]
+     */
     public static function replacingSpacesWithUnderscores($sentence){
         $s = new Stringizer($sentence);
-        return str_replace(' ', '_', $s->camelToSnake()); // true;
+        $collapseDiagonalpace = self::replaceIncaseSensitive($s->camelToSnake(),'/','_');
+        $collapseUnderscorespace = self::replaceIncaseSensitive($collapseDiagonalpace,'#','_');
+        $collapseWhitespace = self::replaceIncaseSensitive($collapseUnderscorespace,' ','_');
+        return $collapseWhitespace; // true;
     }
-
+    /**
+     * https://github.com/jasonlam604/Stringizer#substring
+     */
     public static function substring($sentence,$start,$end){
         $s = new Stringizer($sentence);
-        return $s->subString($start,$end);
+        $s->subString($start,$end);
+        return $s->getString();
     }
-
+    /**
+     * [ensureRightPoints add to the sentence "...."]
+     * @param  [string] $sentence 
+     * @return [string]
+     */
     public static function ensureRightPoints($sentence){
         $s = new Stringizer($sentence);
         $s->ensureRight("....");
         return $s->getString();
     }
+    /**
+     * https://github.com/jasonlam604/Stringizer#isurl
+     */
+    public static function isUrl($url)
+    {
+        $s = new Stringizer($url);
+        return $s->isUrl(); // true
+    }
+    /**
+     * [getValidUrls return valid urls]
+     * @param  [array/string] $urls
+     * @return [array]
+     */
+    public static function getValidUrls($urls){
+        
+        $urls = (!is_array($urls)) ? explode(',', $urls) : $urls;
 
-
-
+        $valid_urls = [];
+        foreach ($urls as $url) {
+            if (self::isUrl($url)) {
+                array_push($valid_urls, $url);
+            }
+        }
+        return $valid_urls;
+    }
 
     
     public static function in_array_r($needle, $haystack, $strict = true) {
@@ -209,12 +293,20 @@ class StringHelper
         return strtr($s, $replace);
     }
 
-
+    /**
+     * [remove_emoji remove emoji form sentence]
+     * @param  [string] $text [description]
+     * @return [string]       [description]
+     */
     public static function remove_emoji ($text){
         //$text = self::replaceAccents($text);
         return preg_replace('/[[:^print:]]/', '', $text);
     }
-
+    /**
+     * [getDomain get domain form url]
+     * @param  [string] $url
+     * @return [string] 
+     */
     public static function getDomain($url){
         $pieces = parse_url($url);
         $domain = isset($pieces['host']) ? $pieces['host'] : '';
@@ -237,6 +329,27 @@ class StringHelper
               
         // return result 
         return $params[$param]; 
+    }
+
+
+    public static function sortDataAnalysisTable($tds = [],$link)
+    {
+        if (!empty($tds)) {
+            $headersTarget = ['name','total'];
+            
+            $statistics = [];
+            $size = (sizeof($tds) >= 5) ? 5 : sizeof($tds);
+
+            for ($i=1; $i < $size; $i++) { 
+                for ($h=0; $h < sizeof($headersTarget); $h++) { 
+                    $tmp[$headersTarget[$h]] = $tds[$i][$h];
+                    $tmp['url'] = $link;
+                }
+                $statistics[] = $tmp;
+            }
+            
+            return $statistics;
+        }
     }
 
 }

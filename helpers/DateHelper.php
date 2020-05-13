@@ -31,6 +31,19 @@ class DateHelper
     }
 
     /**
+     * [add plus hours to date depending in number]
+     * @param  [string] $date   [date unix]
+     * @param  [string] $number   [int 1]
+     * @return [string] $number []
+     */
+    public static function addHours($date, $number)
+    {
+        //$date_format = Yii::$app->formatter->asDatetime($date,'yyyy-MM-dd');
+        $date_future = Date::parse($date)->addHours($number);
+        return $date_future->getTimestamp();
+    }
+
+    /**
      * [sub plus a date depending in number]
      * @param  [string] $date   [date]
      * @return [string] $number [ej +1 day]
@@ -57,6 +70,19 @@ class DateHelper
     	
     	return round($diff);
     }
+
+     /**
+     * [diffInDays get diffInMonths between two date]
+     * @param  [string] $date_1   [date ej unix date]
+     * @return [string] $date_21  [date ej "Sat Aug 24 14:29:51 +0000 2019"]
+     */
+    public static function diffInMonths($date_1,$date_2){
+        
+        $date_format_1 = Yii::$app->formatter->asDatetime($date_1,'yyyy-MM-dd');
+        $date_format_2 = Yii::$app->formatter->asDatetime($date_2,'yyyy-MM-dd');
+        $diff = Date::parse($date_format_1)->floatDiffInMonths($date_format_2);
+        return round($diff, 0, PHP_ROUND_HALF_DOWN);
+    }
     /**
      * [diffForHumans get difference between two date formatter as human read_only]
      * @param  [string / int] $date_1 [unix date format]
@@ -69,6 +95,24 @@ class DateHelper
         $diff = Date::parse($date_1)->diffForHumans($date_2);
         return $diff;
     }
+
+    public static function periodDates($start_date,$end_date)
+    {
+        date_default_timezone_set('UTC');
+        $start_date = Yii::$app->formatter->asDatetime($start_date,'yyyy-MM-dd');
+        $end_date = Yii::$app->formatter->asDatetime($end_date,'yyyy-MM-dd');
+        // By default daysUntil will use a 1-day interval:
+        //$period = Date::parse($start_date)->range($end_date,1, 'days');
+        $period = Date::parse($start_date)->toPeriod($end_date, '1 days');
+        // iterate by days
+        $days = [];
+        foreach ($period as $date) {
+            $days[] = $date->format('Y-m-d');
+        }
+
+        return $days;
+    }
+
     /**
      * [asTimestamp get time in unix date]
      * @param  [type] $date [11 julio de 2019 or 11/07/2019 yes is my birthday]
@@ -102,7 +146,7 @@ class DateHelper
         $now = new \DateTime();
         return $now->getTimestamp();
     }
-    /**
+     /**
      * [getTodayDate get today date but only  date + 00:00:00.000000]
      * @return [int] [today date format 00:00:00.000000 on timespan]
      */
@@ -112,6 +156,16 @@ class DateHelper
         
         return ($timespan) ? $today_date->getTimestamp() : $today_date;
 
+    }
+
+    public static function daysUntil($from_date,$to_date)
+    {
+        $period = Date::parse($from_date)->daysUntil($to_date);
+        $days = [];
+        foreach ($period as $key => $date) {
+            $days[] = $date->format('U');
+        }
+        return $days;
     }
 
     /**

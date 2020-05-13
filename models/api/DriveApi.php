@@ -18,6 +18,62 @@ class DriveApi extends Model{
 	private $_data;
     public $driveTitle; // used in form alert
 	
+    /**
+     * [getDictionariesForTopic get titles ]
+     * @param  string $value [description]
+     * @return [type]        [description]
+     */
+    public function getDictionariesTitlesForTopic()
+    {
+        $spreadsheetId = $this->_getSpreadSheetId();
+        $response = $this->_get($spreadsheetId);
+
+        $topic_dictionaries = [];
+        $aliasNames = [
+            'diccionario',
+            'diccionarios',
+            'dictionary',
+            'words',
+            'Palabras',
+            'palabras'
+        ];
+
+        for ($i = 0; $i < sizeof($response->sheets); $i++) {
+            $title_dictionary = $response->sheets[$i]->properties->title;
+            $id_dictionary = $response->sheets[$i]->properties->sheetId;
+            if(\app\helpers\StringHelper::containsAny(strtolower($title_dictionary),$aliasNames)){
+                $topic_dictionaries[$id_dictionary] = $title_dictionary;
+                
+            }
+        }
+
+        return $topic_dictionaries;
+
+
+    }
+
+
+
+    public function getDictionariesByIdsForTopic($sheetIds = [])
+    {
+        $spreadsheetId = $this->_getSpreadSheetId();
+        $response = $this->_get($spreadsheetId);
+
+        $topic_dictionaries = [];
+        $index = 0;
+
+        for ($i = 0; $i < sizeof($response->sheets); $i++) {
+            if (in_array($response->sheets[$i]->properties->sheetId,$sheetIds)) {
+                $topic_dictionaries[$index]['id'] = $response->sheets[$i]->properties->sheetId;
+                $topic_dictionaries[$index]['name'] = $response->sheets[$i]->properties->title;
+                $index++;
+            }
+        }
+
+        return $topic_dictionaries;
+
+
+    }
 
 	public function getDictionaries(){
 	    $sheetName = $this->_getTitleDocument('dictionaries');
@@ -30,10 +86,11 @@ class DriveApi extends Model{
     {
         $service = $this->_getServices();
 
-        $spreadsheetId = $this->_getSpreadSheetId();;
+        $spreadsheetId = $this->_getSpreadSheetId();
         $response = $this->_get($spreadsheetId);
 
         $values = [];
+
         foreach ($sheetNames as $sheetName) {
             $response           = $service->spreadsheets_values->get($spreadsheetId, $sheetName);
             $values[$sheetName] = $response->getValues();
@@ -233,18 +290,26 @@ class DriveApi extends Model{
         return ($spreadSheetId != '') ? $spreadSheetId : false;       
     }
 
+
+
     private function _getTitleDocument($typeDocument){
         
-        $spreadsheetId = $this->_getSpreadSheetId();;
+        $spreadsheetId = $this->_getSpreadSheetId();
         $response = $this->_get($spreadsheetId);
 
-        $sheetName     = [];
+        $sheetName = [];
+        $aliasNames = [
+            'diccionario',
+            'diccionarios',
+            'dictionary',
+            'words'
+        ];
 
         if($typeDocument == 'dictionaries'){
             for ($i = 0; $i < sizeof($response->sheets); $i++) {
-                $its_title_dictionary = $response->sheets[$i]->properties->title;
-                if($its_title_dictionary[0] == '_'){
-                    $sheetName[$its_title_dictionary] = $its_title_dictionary;
+                $title_dictionary = $response->sheets[$i]->properties->title;
+                if(\app\helpers\StringHelper::containsAny(strtolower($title_dictionary),$aliasNames)){
+                    $sheetName[$title_dictionary] = $title_dictionary;
                     
                 }
             }
@@ -253,9 +318,9 @@ class DriveApi extends Model{
 
         if($typeDocument == 'products'){
             for ($i = 0; $i < sizeof($response->sheets); $i++) {
-                $its_title_dictionary = $response->sheets[$i]->properties->title;
-                if($its_title_dictionary[0] != '_'){
-                    $sheetName[] = $its_title_dictionary;
+                $title_dictionary = $response->sheets[$i]->properties->title;
+                if(!in_array(strtolower($title_dictionary), $aliasNames)){
+                    $sheetName[] = $title_dictionary;
                     
                 }
             }

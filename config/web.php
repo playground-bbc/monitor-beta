@@ -17,6 +17,9 @@ $config = [
         'monitor' => [
             'class' => 'app\modules\monitor\Module',
         ],
+        'topic' => [
+            'class' => 'app\modules\topic\Module',
+        ],
     ],
     'components' => [
         'assetManager' => [

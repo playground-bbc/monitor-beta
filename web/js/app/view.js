@@ -674,7 +674,7 @@ const listMentions = Vue.component('list-mentions',{
 	mounted(){
 		var table = this.setDataTable();
 		setInterval( function () {
-		    table.ajax.reload();
+		    table.ajax.reload(null,false);
 		}, refreshTimeTable );
 	},
 	methods:{

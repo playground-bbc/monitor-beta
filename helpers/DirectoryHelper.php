@@ -40,5 +40,23 @@ class DirectoryHelper{
         return $path;
     }
 
+    /**
+     * [removeDirectory delete a directory and his content when delete a alert]
+     * @param  [int] $id [id alert]
+     */
+    public static function removeDirectory($id,$resourceName="")
+    {
+        // separator to folder flat archives
+        $s = DIRECTORY_SEPARATOR;
+        $path = \Yii::getAlias('@data')."{$s}{$id}{$s}";
+        if ($resourceName != "") {
+            $path = \Yii::getAlias('@data')."{$s}{$id}{$s}{$resourceName}{$s}";
+        }
+        
+        if (is_dir($path)) {
+            FileHelper::removeDirectory($path);
+        }
+    }
+
 
 }

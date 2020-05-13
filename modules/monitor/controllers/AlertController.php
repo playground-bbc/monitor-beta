@@ -249,7 +249,7 @@ class AlertController extends Controller
 
         $alert->scenario = 'saveOrUpdate';
 
-        $isDocumentExist = \app\helpers\DocumentHelper::isDocumentExist($alert->id,'Excel Document');
+        //$isDocumentExist = \app\helpers\DocumentHelper::isDocumentExist($alert->id,'Excel Document');
 
         // reset alerts_mentions
         if (Yii::$app->getRequest()->getQueryParam('fresh') == 'true') {
@@ -294,12 +294,12 @@ class AlertController extends Controller
             //array_push($alert->alertResourceId,$resource->id);
             
           }else{
-            if($isDocumentExist){
+            /*if($isDocumentExist){
               // get resource document
               $resource = \app\models\Resources::findOne(['resourcesId' => 3]);
               // add resource document to the alert
               array_push($alert->alertResourceId,$resource->id);
-            }
+            }*/
           }
           // set resource
           if(!$config->saveAlertconfigSources($alert->alertResourceId)){
@@ -424,35 +424,21 @@ class AlertController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        //if model
-        if($model){
-          // delete user
-          foreach ($model->alertsMentions as $alertMention) {
-            if($alertMention->mentionsCount){
-                foreach ($alertMention->mentions as $mentions => $mention) {
-                  $user = \app\models\UsersMentions::findOne($mention->origin_id);
-                  if(!is_null($user)){
-                    $user->delete();
-                  }
-                }
-              }
-          }
-          // delete alert
-          $model->delete();
-          $history_search = \app\models\HistorySearch::findOne(['alertId' => $id]);
-          if($history_search){
-            // delete history
-            $history_search->delete();
-          }
-
-          // delete product models
-          $ProductsModelsAlerts = \app\models\ProductsModelsAlerts::find()->where(['alertId' => $id])->all();
-          foreach ($ProductsModelsAlerts as $productsModel){
-            $productsModel->delete();
-          }
-
-        }
+        $alert_delete = Yii::$app->db->createCommand('DELETE FROM alerts WHERE id=:alertId');
         
+        // delete history search
+        $history_search = \app\models\HistorySearch::findOne(['alertId' => $model->id]);
+        if($history_search){
+          // delete history
+          $history_search->delete();
+        }
+        // remove directory
+        \app\helpers\DirectoryHelper::removeDirectory($id);
+        // prepare and execute delete alert
+        $alert_delete->bindParam(':alertId', $id);
+        $alert_delete->execute();
+        // delete user then no have mention
+        Yii::$app->db->createCommand('DELETE FROM users_mentions WHERE users_mentions.id NOT IN ( SELECT distinct origin_id FROM mentions)')->execute(); 
 
         return $this->redirect(['index']);
     }

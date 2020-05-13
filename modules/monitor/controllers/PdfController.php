@@ -27,8 +27,6 @@ class PdfController extends \yii\web\Controller
         $url_logo = \yii\helpers\Url::to('@img/logo.jpg');
         // load model alert
         $model = \app\models\Alerts::findOne($aletId);
-        $model->status = 0;
-        $model->save();
         // name file
         $start_date = \Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy-MM-dd');
         $end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy-MM-dd');

@@ -80,7 +80,9 @@ class JsonFile {
 	}
 
 	public function findAll(){
-		return $this->filebase->findAll(true, true);
+		$data = $this->filebase->findAll(true, true);
+		$this->filebase->flushCache(); 
+		return $data;
 	}
 
 
@@ -94,7 +96,7 @@ class JsonFile {
 			'dir'           => \Yii::getAlias('@data')."{$s}{$this->documentId}{$s}{$this->source}",
 			'cache'         => true,
 			'cache_expires' => 1800,
-			'pretty'        => false,
+			'pretty'        => true,
 			'safe_filename' => true,
 	    	//'read_only'      => $read_only,
         ]);

@@ -67,14 +67,9 @@ class BaseApi extends Model {
 		foreach ($alerts as $alert) {
 			$products_params = $tweets->prepare($alert);
 			if($products_params){
-				$data = $tweets->call($products_params);
-				if(!empty($data)){
+				if($tweets->call($products_params)){
 					// path to folder flat archives
-					$folderpath = [
-						'source' => 'Twitter',
-						'documentId' => $alert['id'],
-					];
-					$this->saveJsonFile($folderpath,$data);
+					$tweets->saveJsonFile();
 				}
 			}
 			

@@ -18,6 +18,7 @@ class LiveTicketApi extends Model {
 	public $products;
 	
 	public $data;
+	public $filename;
 
 
 	private $_api_login;
@@ -86,6 +87,7 @@ class LiveTicketApi extends Model {
 
 					if($productMention->date_searched < $this->end_date)
 					{
+
 						if(!\app\helpers\DateHelper::isToday(intval($productMention->date_searched))){
 							$date_from = Yii::$app->formatter->asDate($productMention->date_searched,'yyyy-MM-dd');
 							$date_to = \app\helpers\DateHelper::add($productMention->date_searched,'+1 day');
@@ -126,6 +128,10 @@ class LiveTicketApi extends Model {
 
 					}
 
+					if (\app\helpers\DateHelper::isToday($productMention->date_searched)) {
+						// set filename
+						$this->filename = $productMention->date_searched;
+					}
 
 				}
 			}
@@ -287,6 +293,9 @@ class LiveTicketApi extends Model {
 		if(count($tickets)){
 			$jsonfile = new JsonFile($this->alertId,$source);
 			$jsonfile->load($tickets);
+			if ($this->filename) {
+				$jsonfile->fileName = $this->filename;
+			}
 			$jsonfile->save();
 		}
 

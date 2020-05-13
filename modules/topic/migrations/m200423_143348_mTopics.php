@@ -4,6 +4,8 @@ use yii\db\Migration;
 
 /**
  * Class m200423_143348_mTopics
+ *
+ * ./yii migrate --migrationPath=@app/modules/topic/migrations --interactive=0
  */
 class m200423_143348_mTopics extends Migration
 {

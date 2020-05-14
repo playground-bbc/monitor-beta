@@ -50,6 +50,23 @@ class DaemonController extends Controller
         
         return ExitCode::OK;
     }
+
+    /**
+     * [actionAlertsRun runs all alerts when its resource are equal to web page]
+     * @return [type] [description]
+     */
+    public function actionAlertsRunWeb(){
+        $alert = new Alerts();
+        $alertsConfig = $alert->getBringAllAlertsToRun(true,'Paginas Webs');
+        
+        
+        if(!empty($alertsConfig)){
+           $baseApi = new BaseApi();
+           $api = $baseApi->callResourcesApi($alertsConfig);
+        }
+        
+        return ExitCode::OK;
+    }
     /**
      * [actionDataSearch get json in transformed the data to db [Not finish]]
      * @return [type] [description]

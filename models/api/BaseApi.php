@@ -34,6 +34,7 @@ class BaseApi extends Model {
 		'Live Chat Conversations' => 'liveChatConversations',
 		'Web page'                => 'webpage',
 		'Excel Document'          => 'excelDocument',
+		'Paginas Webs'            => 'webPages',
 	];
 
 
@@ -51,7 +52,6 @@ class BaseApi extends Model {
 					}
 				}
 			}
-
 			foreach($resources as $method => $alerts){
 				$this->{$method}($alerts);
 			}
@@ -152,6 +152,28 @@ class BaseApi extends Model {
 	public function excelDocument($alerts = []){
 		//echo "excelDocument". "\n";
 		
+	}
+
+	/**
+	 * [webPages call webPages model Api]
+	 * @param  array  $alerts [alert with webPages resources]
+	 * @return [null]        
+	 */
+	public function webPages($alerts = [])
+	{
+		$scraping = new \app\models\api\Scraping();
+		foreach ($alerts as $alert) {
+			if ($alert['config']['urls'] != '') {
+				$query_params = $scraping->prepare($alert);
+				$crawlers = $scraping->getRequest();
+				$content  = \app\helpers\ScrapingHelper::getContent($crawlers);
+				$data     = \app\helpers\ScrapingHelper::setContent($content);
+				$model    = $scraping->searchTermsInContent($data);
+				if(!empty($model)){
+					$scraping->saveJsonFile();
+				}
+			}
+		}
 	}
 
 	public function webpage($alerts = []){
@@ -297,6 +319,23 @@ class BaseApi extends Model {
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Live Chat Conversations'); 
 		} 
  
+	}
+
+	/**
+	 * [readDataPaginasWebsApi read and search depends on the params the alerts]
+	 * @param  [int] $alertId   [id of the alert]
+	 * @param  [array] $data    [data from the json file]
+	 * @return [null]          
+	 */
+	public function readDataPaginasWebsApi($alertId,$data)
+	{
+		$searchScrapingApi = new \app\models\search\ScrapingSearch();
+		$params = [$alertId,$data];
+
+		$searchScrapingApi->load($params);
+		if($searchScrapingApi->search()){ 
+			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Paginas Webs'); 
+		} 
 	}
 
 	public function callInsights($userFacebook)

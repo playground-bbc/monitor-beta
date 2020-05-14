@@ -472,4 +472,13 @@ class AlertMentionsHelper
         return \yii\helpers\ArrayHelper::getColumn($resourcesId,'id')[0];
     }
 
+    public static function isAlertHaveDictionaries($alertId)
+    {
+        if(!is_null($alertId)){
+            $keywords = \app\models\Keywords::find()->where(['alertId' => $alertId])->exists();
+            return $keywords;
+        }
+        return false;
+    }
+
 }

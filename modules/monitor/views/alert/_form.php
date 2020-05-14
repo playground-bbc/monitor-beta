@@ -19,6 +19,11 @@ use mludvik\tagsinput\TagsInputWidget;
 /* @var $model app\models\form\AlertForm */
 /* @var $form ActiveForm */
 
+$pluginOptions = [ 'allowClear' =>  true];
+if (!$alert->isNewRecord) {
+    $pluginOptions = [ 'allowClear' =>  false];
+}
+
 ?>
 <div id="views-alert" class="modules-monitor-views-alert">
     <?php $form = ActiveForm::begin(); ?>
@@ -95,28 +100,20 @@ use mludvik\tagsinput\TagsInputWidget;
                     ?>
                 </div>
                 <div class="col-md-4">
-                    <?= $form->field($alert, 'dictionaryIds')->widget(Select2::classname(), [
-                            'data' => $drive->dictionaries,
-                            'options' => [
-                                'id' => 'social_dictionaryId',
-                                'resourceName' => 'dictionaries',
-                                'placeholder' => 'Select a dictionaries...',
-                                'multiple' => true,
-                                'theme' => 'krajee',
-                                'debug' => true,
-                                'value' => (isset($alert->dictionariesName)) ? $alert->dictionariesName : [],
-                            ],
+                    <?= $form->field($config, 'urls')->widget(Select2::classname(), [
+                        'options' => [
+                            'id' => 'urls',
+                            //'resourceName' => 'Product Competition',
+                            'placeholder' => 'Ingrese url a Buscar', 
+                            'multiple' => true
+                        ],
                             'pluginOptions' => [
-                                'depends'=>['drive-title'],
-                                'allowClear' => true,
+                                'tags' => true,
+                                'tokenSeparators' => [',', ' '],
+                                'minimumInputLength' => 2
                             ],
-                            'pluginEvents' => [
-                               "select2:select" => "function(e) { 
-                                    return null;
-                               }",
-                            ]
-                        ]);
-                    ?>
+                        ]); 
+                    ?>  
                 </div>
                 <div class="col-md-4">
                     <?= $form->field($alert, 'productsIds')->widget(Select2::classname(), [
@@ -146,7 +143,35 @@ use mludvik\tagsinput\TagsInputWidget;
             </div>
             <!-- config properties-->
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <?= $form->field($alert, 'dictionaryIds')->widget(Select2::classname(), [
+                            'data' => $drive->dictionaries,
+                            'options' => [
+                                'id' => 'social_dictionaryId',
+                                'resourceName' => 'dictionaries',
+                                'placeholder' => 'Selecione Diccionarios de Palabras',
+                                'multiple' => true,
+                                'theme' => 'krajee',
+                                'value' => (isset($alert->dictionariesName)) ? $alert->dictionariesName : [],
+                            ],
+                            'pluginOptions' => [
+                                'allowClear' => false,
+                            ],
+                            'pluginEvents' => [
+                               "select2:select" => "function(e) { 
+                                    return null;
+                               }",
+                            ],
+                            'toggleAllSettings' => [
+                               'selectLabel' => '',
+                               'unselectLabel' => '',
+                               'selectOptions' => ['class' => 'text-success'],
+                               'unselectOptions' => ['class' => 'text-danger'],
+                            ],
+                        ]);
+                    ?>
+                </div>
+                <div class="col-md-4">
                     <?= $form->field($alert, 'free_words')->widget(Select2::classname(), [
                    // 'data' => $alert->freeKeywords,
                     'changeOnReset' => false,
@@ -165,7 +190,7 @@ use mludvik\tagsinput\TagsInputWidget;
                     ])->label('Tag free words'); 
                     ?>   
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <?= $form->field($config, 'competitors')->widget(Select2::classname(), [
                     //'data' => $data,
                     'options' => [
@@ -239,7 +264,7 @@ use mludvik\tagsinput\TagsInputWidget;
     <?php ActiveForm::end(); ?>
 </div><!-- modules-monitor-views-alert -->
 
-<!-- template que muestra las nubes de palabras -->
+<!-- template que muestra el botton de reload -->
 <script type="text/x-template" id="sync-product-id">
     <div class="col-md-1">
         <div class="form-group field-alerts-productsids">
@@ -248,7 +273,9 @@ use mludvik\tagsinput\TagsInputWidget;
     </div>
 </script>
 
+
 <?php 
+Yii::$app->view->registerJs('var appId = "'. Yii::$app->id.'"',  \yii\web\View::POS_HEAD);
 $this->registerJsFile(
     '@web/js/app/form.js',
     ['depends' => [
@@ -262,11 +289,12 @@ $this->registerJsFile(
 if (!$alert->isNewRecord) {
     Yii::$app->view->registerJs('var alertId = "'. $alert->id.'";var appId = "'. Yii::$app->id.'" ',  \yii\web\View::POS_HEAD);
     $this->registerJsFile(
-        '@web/js/app/update.js',
-        ['depends' => [
-            \app\assets\SweetAlertAsset::className(),
-            ]
+    '@web/js/app/update.js',
+    ['depends' => [
+        \app\assets\SweetAlertAsset::className(),
         ]
-    );
+    ]
+);
 }
+
 ?>

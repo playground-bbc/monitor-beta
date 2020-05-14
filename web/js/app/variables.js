@@ -1,13 +1,15 @@
 let id = document.getElementById('alertId').value;
 //console.log(location);
 const origin = location.origin;
+const appId = location.pathname.split('/')[1];
 
 
-//const apiUrl = `${origin}/monitor-beta/api/v1/mentions/`;
 
-const baseUrlApi = `${origin}/monitor-beta/web/monitor/api/mentions/`;
-const baseUrlDocument = `${origin}/monitor-beta/web/monitor/pdf/`;
-const baseUrlView = `${origin}/monitor-beta/web/monitor/alert/`;
+//const apiUrl = `${origin}/${appId}/api/v1/mentions/`;
+
+const baseUrlApi = `${origin}/${appId}/web/monitor/api/mentions/`;
+const baseUrlDocument = `${origin}/${appId}/web/monitor/pdf/`;
+const baseUrlView = `${origin}/${appId}/web/monitor/alert/`;
 // 1000 = 1 seg
 
 let refreshTime = 15000;

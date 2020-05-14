@@ -25,7 +25,6 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
 
 \yii\web\YiiAsset::register($this);
 ?>
-<link rel="stylesheet" href="https://d1azc1qln24ryf.cloudfront.net/114779/Socicon/style-cf.css?u8vidh">
 <div id="alerts-view" class="alerts-view" style="padding-top: 10px">
     <h1><?= Html::encode($this->title) ?></h1>
     <?= Html::hiddenInput('alertId', $model->id,['id' => 'alertId']); ?>

@@ -195,6 +195,21 @@ class AlertController extends Controller
       $status = ($isDictionary) ? true: false;
       return ['status'=>$status];
     }
+
+    public function actionDeleteUrlAlert($alertId,$urlName)
+    {
+      \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+     
+      $scraping = new \app\models\api\Scraping();
+      $resourceId = \app\helpers\AlertMentionsHelper::getResourceIdByName($scraping->resourceName);
+      $type = $scraping::TYPE_MENTIONS;
+      
+      \app\models\AlertsMencions::deleteAll('alertId = :alertId  AND  resourcesId = :resourcesId AND type = :type AND url = :url', 
+        [':alertId' => $alertId,':resourcesId' => $resourceId, ':type' => $type, ':url' => $urlName]);
+
+      return ['status' => true];
+    }
+    
     /**
      * [actionAddFilterAlert adding dictionaries or filter in update]
      * @param  [type] $alertId        [description]
@@ -260,11 +275,7 @@ class AlertController extends Controller
 
         $alert->scenario = 'saveOrUpdate';
 
-        if (
-            Yii::$app->request->post() &&
-            $alert->load(Yii::$app->request->post()) &&
-            $config->load(Yii::$app->request->post())
-        ) {
+        if (Yii::$app->request->post() && $alert->load(Yii::$app->request->post()) && $config->load(Yii::$app->request->post())) {
             $error = false;
             $alert->userId = Yii::$app->user->getId();
             // only test
@@ -278,6 +289,8 @@ class AlertController extends Controller
             $config->alertId = $alert->id;
             $config->start_date = Yii::$app->request->post('start_date');
             $config->end_date = Yii::$app->request->post('end_date');
+            $config->urls = (Yii::$app->request->post('AlertConfig')['urls']) ?
+                          implode(',', Yii::$app->request->post('AlertConfig')['urls']) : null;
 
             if ($config->save()) {
                 //sources model
@@ -410,6 +423,7 @@ class AlertController extends Controller
             $config->product_description
         );
         $config->competitors = explode(",", $config->competitors);
+        $config->urls = explode(",",$config->urls);
 
         $alert->scenario = 'saveOrUpdate';
 
@@ -427,11 +441,7 @@ class AlertController extends Controller
             \app\helpers\HistorySearchHelper::deleteHistory($alert->id);
         }
 
-        if (
-            Yii::$app->request->post() &&
-            $alert->load(Yii::$app->request->post()) &&
-            $config->load(Yii::$app->request->post())
-        ) {
+        if (Yii::$app->request->post() && $alert->load(Yii::$app->request->post()) && $config->load(Yii::$app->request->post())) {
             $error = false;
             $messages;
 
@@ -445,6 +455,8 @@ class AlertController extends Controller
             $config->alertId = $alert->id;
             $config->start_date = Yii::$app->request->post('start_date');
             $config->end_date = Yii::$app->request->post('end_date');
+            $config->urls = (Yii::$app->request->post('AlertConfig')['urls']) ?
+                          implode(',', Yii::$app->request->post('AlertConfig')['urls']) : null;
             $config->save();
 
             // add resource alert

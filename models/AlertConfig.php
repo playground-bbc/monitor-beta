@@ -16,6 +16,7 @@ use app\helpers\DateHelper;
  * @property string $product_description
  * @property string $competitors
  * @property string $country
+ * @property string $urls
  * @property string $url_drive
  * @property int $start_date
  * @property int $end_date
@@ -110,6 +111,7 @@ class AlertConfig extends \yii\db\ActiveRecord
             'competitors' => Yii::t('app', 'Competidores'),
             'country' => Yii::t('app', 'Url Drive'),
             'country' => Yii::t('app', 'País'),
+            'urls'    => Yii::t('app', 'Urls Web'),
             'start_date' => Yii::t('app', 'Fecha Inicio'),
             'end_date' => Yii::t('app', 'Fecha Final'),
             'createdAt' => Yii::t('app', 'Created At'),

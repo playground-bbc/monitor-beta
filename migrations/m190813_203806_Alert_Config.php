@@ -24,6 +24,7 @@ class m190813_203806_Alert_Config extends Migration
             'uuid'                => $this->string(),
             'product_description' => $this->string(40)->notNull(),
             'competitors'         => $this->string(40)->notNull(),
+            'urls'                => $this->text(),
             'country'             => $this->json(),
             'url_drive'           => $this->string(40),
             'start_date'          => $this->integer(),

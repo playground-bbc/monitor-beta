@@ -81,7 +81,8 @@ use mludvik\tagsinput\TagsInputWidget;
                             ],
                             'pluginEvents' => [
                                "select2:select" => "function(e) { 
-                                    return modalTwitter(e);
+                                    var resourceName = e.params.data.text; 
+                                    return modalReosurces(resourceName);
                                }",
                             ],
                             'toggleAllSettings' => [
@@ -265,4 +266,14 @@ $this->registerJsFile(
     ]
 );
 
+if (!$alert->isNewRecord) {
+    Yii::$app->view->registerJs('var alertId = "'. $alert->id.'";var appId = "'. Yii::$app->id.'" ',  \yii\web\View::POS_HEAD);
+    $this->registerJsFile(
+        '@web/js/app/update.js',
+        ['depends' => [
+            \app\assets\SweetAlertAsset::className(),
+            ]
+        ]
+    );
+}
 ?>

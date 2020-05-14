@@ -99,6 +99,7 @@ use mludvik\tagsinput\TagsInputWidget;
                             'data' => $drive->dictionaries,
                             'options' => [
                                 'id' => 'social_dictionaryId',
+                                'resourceName' => 'dictionaries',
                                 'placeholder' => 'Select a dictionaries...',
                                 'multiple' => true,
                                 'theme' => 'krajee',
@@ -145,11 +146,13 @@ use mludvik\tagsinput\TagsInputWidget;
             </div>
             <!-- config properties-->
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <?= $form->field($alert, 'free_words')->widget(Select2::classname(), [
                    // 'data' => $alert->freeKeywords,
                     'changeOnReset' => false,
                     'options' => [
+                            'id' => 'free_words',
+                            'resourceName' => 'Free Words',
                             'placeholder' => 'write a tags free words ...', 
                             'multiple' => true,
                           //  'value' => (isset($alert->freeKeywords)) ? $alert->freeKeywords : [],
@@ -162,25 +165,15 @@ use mludvik\tagsinput\TagsInputWidget;
                     ])->label('Tag free words'); 
                     ?>   
                 </div>
-                <div class="col-md-4">
-                    <?= $form->field($config, 'product_description')->widget(Select2::classname(), [
-                    //'data' => $data,
-                    'options' => ['placeholder' => 'write a tags product description ...', 
-                                   'multiple' => true,
-                                  // 'value' => [$config->product_description]
-                               ],
-                        'pluginOptions' => [
-                            'tags' => true,
-                            'tokenSeparators' => [',', ' '],
-                            'minimumInputLength' => 2
-                        ],
-                    ])->label('Tag product description'); 
-                    ?>   
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <?= $form->field($config, 'competitors')->widget(Select2::classname(), [
                     //'data' => $data,
-                    'options' => ['placeholder' => 'write a tags competitors ...', 'multiple' => true],
+                    'options' => [
+                        'id' => 'competitors',
+                        'resourceName' => 'Product Competition',
+                        'placeholder' => 'write a tags competitors ...', 
+                        'multiple' => true,
+                    ],
                         'pluginOptions' => [
                             'tags' => true,
                             'tokenSeparators' => [',', ' '],

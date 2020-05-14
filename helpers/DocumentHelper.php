@@ -46,6 +46,24 @@ class DocumentHelper
 
 	}
 
+    public static function moveFilesToRoot($alertId,$resource){
+        $s = DIRECTORY_SEPARATOR;
+        $folderTarget = 'processed';
+        $rootPath = \Yii::getAlias('@data')."{$s}{$alertId}{$s}{$resource}{$s}";
+        $pathTarget = \Yii::getAlias('@data')."{$s}{$alertId}{$s}{$resource}{$s}{$folderTarget}{$s}";
+        if (is_dir($pathTarget)) {
+            $filesTarget = \yii\helpers\FileHelper::findFiles($pathTarget,['except'=>['*.php','*.txt'],'recursive' => false]);
+            // move files
+            foreach($filesTarget as $file){
+                $split_path = explode("{$s}",$file);
+                $fileName = end($split_path);
+                if(copy("{$file}","{$rootPath}{$s}{$fileName}")){
+                    unlink("{$file}");
+                }
+            } 
+        }
+    }
+
 
 	public static function excelToArray($model,$attribute){
         // https://es.stackoverflow.com/questions/69486/phpexcel-genera-error-allowed-memory-size-of-bytes-exhausted

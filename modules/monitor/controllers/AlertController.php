@@ -124,6 +124,101 @@ class AlertController extends Controller
     }
 
     /**
+     * [actionDeleteTermAlert delete term search form alert]
+     * @param  [type] $alertId  [description]
+     * @param  [type] $termName [description]
+     * @return [type]           [description]
+     */
+    public function actionDeleteTermAlert($alertId,$termName)
+    {
+      \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+      $alert = $this->findModel($alertId);
+
+      $product = new \app\models\Products();
+      $productsIds = $product->getModelsIdByName([$termName]);
+
+      foreach ($productsIds as $productId => $product) {
+          \app\models\ProductsModelsAlerts::deleteAll('alertId = :alertId AND product_modelId = :product_modelId', [':alertId' => $alert->id,':product_modelId' => $productId]);
+          // delete mentions
+          \app\models\AlertsMencions::deleteAll('alertId = :alertId AND term_searched = :term_searched', [':alertId' => $alertId, ':term_searched' => $product]);
+      }
+
+      return ['status'=>true];
+    }
+
+    /**
+     * [actionDeleteFilterAlert delete a type dictionary from query related with alert an restore file json]
+     * @param  [type] $alertId        [id alert]
+     * @param  [type] $dictionaryName [name dictionary]
+     * @param  [type] $filterName     [type of word]
+     * @return [type]                 [description]
+     */
+    public function actionDeleteFilterAlert($alertId,$dictionaryName,$filterName)
+    {
+      \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+      $alert = $this->findModel($alertId);
+      $isDictionary = \app\models\Dictionaries::find()->where(['name' => $dictionaryName])->exists();
+      // if dictionaryName is equal filterName is there a dictionary
+      if ($dictionaryName == $filterName) {
+        
+        if ($isDictionary) {
+          $dictionary = \app\models\Dictionaries::findOne(['name' => $dictionaryName]);
+          $keywordsAlertExits = \app\models\Keywords::find()->where(['alertId' => $alertId,'dictionaryId'=> $dictionary->id])->exists();
+          if ($keywordsAlertExits) {
+            \app\models\Keywords::deleteAll('alertId = :alertId AND dictionaryId = :dictionaryId', [':alertId' => $alert->id,':dictionaryId' => $dictionary->id]);
+          }
+        }
+      }else{
+
+        if ($isDictionary) {
+           $dictionary = \app\models\Dictionaries::findOne(['name' => $dictionaryName]);
+           $keywordsAlertExits = \app\models\Keywords::find()->where(['alertId' => $alertId,'dictionaryId'=> $dictionary->id,'name' => $filterName])->exists();
+           if ($keywordsAlertExits) {
+             \app\models\Keywords::deleteAll('alertId = :alertId AND dictionaryId = :dictionaryId AND name = :name', [':alertId' => $alert->id,':dictionaryId' => $dictionary->id,':name' => $filterName]);
+           }
+        }
+
+      }
+
+      //move json file and delete mentions
+      foreach ($alert->alertsMentions as $alertMention) {
+        // move json file
+        \app\helpers\DocumentHelper::moveFilesToRoot($alert->id,$alertMention->resources->name);
+        if ($alertMention->mentionsCount) {
+          foreach ($alertMention->mentions as $mentions => $mention) {
+            $mention->delete();
+          }
+        }
+      }
+     
+      
+      $status = ($isDictionary) ? true: false;
+      return ['status'=>$status];
+    }
+    /**
+     * [actionAddFilterAlert adding dictionaries or filter in update]
+     * @param  [type] $alertId        [description]
+     * @param  [type] $dictionaryName [description]
+     * @param  [type] $filterName     [description]
+     * @return [type]                 [description]
+     */
+    public function actionAddFilterAlert($alertId,$dictionaryName,$filterName)
+    {
+      \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+      $alert = $this->findModel($alertId);
+      //move json file and delete mentions
+      foreach ($alert->alertsMentions as $alertMention) {// move json file
+        \app\helpers\DocumentHelper::moveFilesToRoot($alert->id,$alertMention->resources->name);
+        if ($alertMention->mentionsCount) {
+          foreach ($alertMention->mentions as $mentions => $mention) {
+            $mention->delete();
+          }
+        }
+      }
+      return ['status' => true];
+    }
+
+    /**
      * Lists all Alerts models.
      * @return mixed
      */

@@ -336,7 +336,18 @@ class AlertMentionsHelper
                 // set
                 $data['total'] = $total;
                 return $data; 
-                break;         
+                break; 
+            case 'Paginas Webs':
+                $total = 0;
+                foreach ($models as $model) {
+                    if ($model->mentionsCount) {
+                        $total += $model->mentionsCount;
+                    }
+                }
+                // set
+                $data['total'] = $total;
+                return $data; 
+                break;            
 
             default:
                 # code...

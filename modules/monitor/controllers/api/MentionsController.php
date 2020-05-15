@@ -141,13 +141,11 @@ class MentionsController extends Controller
     for($d = 0; $d < sizeof($modelDataCount); $d++){
       if(!is_null($modelDataCount[$d])){
         $name = $modelDataCount[$d][0];
-        $total = (int)$modelDataCount[$d][4];
+        $total = $modelDataCount[$d][4];
         
         $data[] = array($name,$total);
       }
     }
-
-
 
     return array('status' => true,'data' => $data,'modelDataCount' => $modelDataCount);
   }
@@ -243,10 +241,11 @@ class MentionsController extends Controller
     $products = [];
     foreach ($alerts_mentions as $alerts_mention) {
       if($alerts_mention->mentionsCount){
-        $product_model =  \app\helpers\AlertMentionsHelper::getProductByTermSearch($alerts_mention->term_searched);
+        /*$product_model =  \app\helpers\AlertMentionsHelper::getProductByTermSearch($alerts_mention->term_searched);
         if(!is_null($product_model)){
           $products[$product_model->name][$alerts_mention->resources->name][] = $alerts_mention->id;
-        }//
+        }//*/
+        $products[$alerts_mention->term_searched][$alerts_mention->resources->name][] = $alerts_mention->id;
       }// end if
     }// end foreach
     $data = [];
@@ -332,10 +331,32 @@ class MentionsController extends Controller
       }
     }
 
-    $mentions = \app\models\Mentions::find()->where(['alert_mentionId' => $alertsId])->with(['alertMention','alertMention.resources','origin'])->asArray()->all();
+    //$mentions = \app\models\Mentions::find()->where(['alert_mentionId' => $alertsId])->with(['alertMention','alertMention.resources','origin'])->asArray()->all();
+    
+    $db = \Yii::$app->db;
+    $duration = 60;
+    $rows = $db->cache(function ($db) use ($alertsId) {
+      return (new \yii\db\Query())
+        ->select([
+          'recurso' => 'r.name',
+          'term_searched' => 'a.term_searched',
+          'created_time' => 'm.created_time',
+          'name' => 'u.name',
+          'screen_name' => 'u.screen_name',
+          'subject' => 'm.subject',
+          'message_markup' => 'm.message_markup',
+          'url' => 'm.url',
+        ])
+        ->from('mentions m')
+        ->where(['alert_mentionId' => $alertsId])
+        ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
+        ->join('JOIN','resources r', 'r.id = a.resourcesId')
+        ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
+        ->all();
+    },$duration);
 
 
-    return array('data' => $mentions);
+    return array('data' => $rows);
 
   }
 

@@ -23,9 +23,10 @@ let controllerName = {
     "Facebook Comments": "Facebook-comments",
     "Facebook Comments": "Facebook-comments",
 };
-let tableConfig = {
+let tableConfigMentions = {
     'scrollY': '400px',
     'scrollCollapse': true,
+    //'serverSide': true,
     "processing": true,
     "ajax": {
         'url': baseUrlApi + 'list-mentions?alertId=' + id,
@@ -33,10 +34,10 @@ let tableConfig = {
     },
     "fixedColumns": true,
     "columns": [{
-        "data": "alertMention.resources.name",
+        "data": "recurso",
         "width": "200px"
     }, {
-        "data": "alertMention.term_searched",
+        "data": "term_searched",
         "width": "200px"
     }, {
         "data": "created_time",
@@ -44,21 +45,21 @@ let tableConfig = {
         "render": function(data) {
             var a = new Date(data * 1000);
             var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            var year = a.getFullYear();
-            var month = months[a.getMonth()];
-            var date = a.getDate();
-            var hour = a.getHours();
-            var min = a.getMinutes();
-            var sec = a.getSeconds();
+            var year = a.getUTCFullYear();
+            var month = months[a.getUTCMonth()];
+            var date = a.getUTCDate();
+            var hour = a.getUTCHours();
+            var min = a.getUTCMinutes();
+            var sec = a.getUTCSeconds();
             var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
             return time;
         },
         "width": "200px"
     }, {
-        "data": "origin.name",
+        "data": "name",
         "width": "200px"
     }, {
-        "data": "origin.screen_name",
+        "data": "screen_name",
         "width": "200px"
     }, {
         "data": "subject",

@@ -72,7 +72,7 @@ function initSearchTable(){
         $(this).html(  '<input type="text" size="10" placeholder="Search '+title+'"  />'  );
     } );
 
-    var table = $('#list-mentions').DataTable(tableConfig);
+    var table = $('#list-mentions').DataTable(tableConfigMentions);
     // Apply the search
     table.columns().eq( 0 ).each( function ( colIdx ) {
         $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {

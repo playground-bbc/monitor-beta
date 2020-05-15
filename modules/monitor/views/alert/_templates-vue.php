@@ -13,7 +13,7 @@ use yii\helpers\Html;
           <!-- small box -->
           <div class="small-box bg-info">
             <div class="inner">
-              <h3>{{count}}</h3>
+              <h3>{{count | formatNumber }}</h3>
 
               <p>Total de Entradas</p>
             </div>
@@ -28,7 +28,7 @@ use yii\helpers\Html;
           <!-- small box -->
           <div class="small-box bg-info">
             <div class="inner">
-              <h3>{{retweets}}</h3>
+              <h3>{{retweets | formatNumber }}</h3>
 
               <p>Retweets</p>
             </div>
@@ -43,7 +43,7 @@ use yii\helpers\Html;
           <!-- small box -->
           <div class="small-box bg-success">
             <div class="inner">
-              <h3>{{shares}}<sup style="font-size: 20px"></sup></h3>
+              <h3>{{shares | formatNumber }}<sup style="font-size: 20px"></sup></h3>
 
               <p>Instagram Shares</p>
             </div>
@@ -58,7 +58,7 @@ use yii\helpers\Html;
           <!-- small box -->
           <div class="small-box bg-warning">
             <div class="inner">
-              <h3>{{coments}}</h3>
+              <h3>{{coments | formatNumber }}</h3>
 
               <p>Comentarios Totales</p>
             </div>
@@ -73,7 +73,7 @@ use yii\helpers\Html;
           <!-- small box -->
           <div class="small-box bg-light">
             <div class="inner">
-              <h3>{{likes}}</h3>
+              <h3>{{likes | formatNumber }}</h3>
 
               <p>Instagram Likes</p>
             </div>
@@ -89,7 +89,7 @@ use yii\helpers\Html;
           <!-- small box -->
           <div class="small-box bg-danger">
             <div class="inner">
-              <h3>{{likes_comments}}</h3>
+              <h3>{{likes_comments | formatNumber }}</h3>
 
               <p>likes comments</p>
             </div>

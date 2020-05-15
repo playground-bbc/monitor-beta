@@ -160,7 +160,13 @@ class AlertMentionsHelper
                 break;  
             case 'Excel Document':
                 return [$resource_name,'0','0','0',$model->twitterTotal];
-                break;                  
+                break; 
+            case 'Paginas Webs':
+                return [$resource_name,'0','0','0',$model->total];                      
+                break;
+            case 'Paginas Webs':
+                return [$resource_name,'0','0','0',$model->total];                      
+                break;                           
 
             
             default:

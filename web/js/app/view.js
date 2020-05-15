@@ -1,6 +1,11 @@
 // flag to chart line
 let loadedChart = false;
 
+
+Vue.filter('formatNumber', function (value) {
+  return value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+})
+
 /**
  * Override the default yii confirm dialog. This function is 
  * called by yii when a confirmation is requested.

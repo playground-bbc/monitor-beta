@@ -3,11 +3,13 @@
 namespace app\modules\topic\controllers;
 
 use Yii;
+use yii\web\Controller;
+use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\web\NotFoundHttpException;
+
 use app\modules\topic\models\MTopics;
 use app\modules\topic\models\MTopicsSearch;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * Default controller for the `topic` module
@@ -21,10 +23,22 @@ class DefaultController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'create', 'view'],
+                'rules' => [
+                    [
+                        // 'actions' => ['create'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['POST'],
+                    'logout' => ['POST'],
+                    'index' => ['GET', 'POST'],
                 ],
             ],
         ];

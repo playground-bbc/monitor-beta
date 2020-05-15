@@ -51,6 +51,40 @@ class m190813_195501_Users extends Migration
             'created_at'    => 0,
             'updated_at'    => 0,
         ]);
+
+        $this->insert('{{%users}}', [
+            'username'      => 'abraham',
+            'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
+            // abraham123
+            'password_hash' => '$2y$13$q9jvTqfk.qHr8HvNE3t4JOFgMTInkRxFv5oysDlaUNI6ETkY.df8W',
+            'email'         => 'user2@gmail.com',
+            'status'        => 10,
+            'created_at'    => 0,
+            'updated_at'    => 0,
+        ]);
+
+        $this->insert('{{%users}}', [
+            'username'      => 'johanna',
+            'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
+            // johanna123
+            'password_hash' => '$2y$13$N/ADNnVF8LIB9CnFPBNgle4c6u8pe7260npSOEVcZOsTuCgUmN8um',
+            'email'         => 'user3@gmail.com',
+            'status'        => 10,
+            'created_at'    => 0,
+            'updated_at'    => 0,
+        ]);
+
+
+        $this->insert('{{%users}}', [
+            'username'      => 'dafne',
+            'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
+            // dafne123
+            'password_hash' => '$2y$13$8ffoD8gftx/eHWAUv0wAl.f7weVMfaO7GhKVH6PafsyC0ARbvrTme',
+            'email'         => 'user4@gmail.com',
+            'status'        => 10,
+            'created_at'    => 0,
+            'updated_at'    => 0,
+        ]);
     }
 
     /**

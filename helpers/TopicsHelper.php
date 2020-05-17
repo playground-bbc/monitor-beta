@@ -477,8 +477,71 @@ class TopicsHelper
 				}
 			}
 		}
-		/*echo "<pre>";
-		var_dump($stadistics);*/
 		return $stadistics;
+	}
+	/**	 
+	* [getAttributesForDetailView compose detailView array if there url on topic]
+	* @param  [obj] $model [topic  model]
+	* @return [array]              [arraty detailView]
+	*/
+	public static function getAttributesForDetailView($model)
+	{
+		$urls = \app\modules\topic\models\MUrlsTopics::find()->where(['topicId' => $model->id])->all();
+		$url_detail_arr = [];
+		if (!empty($urls)) {
+			$url_detail_arr = [
+				'label' => Yii::t('app','Scraping Paginas Web Urls'),
+                'format'    => 'raw',
+                //'attribute' => 'resourceId',
+                'value' => function() use($urls) {
+                    $html = '';
+                    foreach ($urls as $webPage) {
+                        $html .= " <span class='label label-success'><a style='color: white;' href='{$webPage->url}' target='_blank'>{$webPage->url}</a></span>";
+                    }
+                    return $html;
+                }
+
+			];
+		}
+
+		$detail_attributes = [
+            [
+                'label' => Yii::t('app','Estado'),
+                'format'    => 'raw',
+                'attribute' => 'status',
+                'value' => function($model) {
+                    return ($model->status) ? 'Active' : 'Inactive';
+                }
+            ],
+            'name',
+            [
+                'label' => Yii::t('app','Fecha Final'),
+                'format'    => 'raw',
+                'attribute' => 'end_date',
+                'value' => function($model) {
+                    date_default_timezone_set('UTC');
+                    return date('Y-m-d',$model->end_date);
+                }
+            ],
+            [
+                'label' => Yii::t('app','Recursos Sociales'),
+                'format'    => 'raw',
+                'attribute' => 'resourceId',
+                'value' => function($model) {
+                    $html = '';
+                    foreach ($model->mTopicResources as $topicResource) {
+                        $html .= " <span class='label label-info'>{$topicResource->resource->name}</span>";
+                    }
+                    return $html;
+                },
+
+            ],
+        ];
+
+        if (!empty($url_detail_arr)) {
+        	array_push($detail_attributes, $url_detail_arr);
+        }
+
+        return $detail_attributes;
 	}
 }

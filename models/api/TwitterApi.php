@@ -408,7 +408,11 @@ class TwitterApi extends Model {
 
 						$tweets[$product][$index]['created_at'] = $object[$o]['statuses'][$s]['created_at'];
 						// get retweet_count
-						$tweets[$product][$index]['retweet_count'] = $object[$o]['statuses'][$s]['retweet_count'];
+						if(array_key_exists('retweeted_status',$object[$o]['statuses'][$s])){
+							$tweets[$product][$index]['retweet_count'] = 0;
+						}else{
+							$tweets[$product][$index]['retweet_count'] = $object[$o]['statuses'][$s]['retweet_count'];
+						}
 						// get favorite_count
 						$tweets[$product][$index]['favorite_count'] = $object[$o]['statuses'][$s]['favorite_count'];
 						// get post_from

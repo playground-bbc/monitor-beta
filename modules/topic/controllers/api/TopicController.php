@@ -104,7 +104,7 @@ class TopicController extends Controller
 				 	$words[$index] = [
 				 		'text' => $model[$i]['word']['name'],
 				 		'weight' => 0,
-						'link' => $model[$i]['mAttachments'][0]['src_url'],
+						'url' => $model[$i]['mAttachments'][0]['src_url'],
 				 	];
 				 	for ($s=0; $s < sizeof($model[$i]['mStatistics']); $s++) { 
 				 		$words[$index]['weight'] += $model[$i]['mStatistics'][$s]['total'];

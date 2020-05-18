@@ -427,7 +427,7 @@ class AlertController extends Controller
 
         $alert->scenario = 'saveOrUpdate';
 
-        //$isDocumentExist = \app\helpers\DocumentHelper::isDocumentExist($alert->id,'Excel Document');
+        $isDocumentExist = \app\helpers\DocumentHelper::isDocumentExist($alert->id,'Excel Document');
 
         // reset alerts_mentions
         if (Yii::$app->getRequest()->getQueryParam('fresh') == 'true') {
@@ -445,7 +445,8 @@ class AlertController extends Controller
             $error = false;
             $messages;
 
-            $alert->userId = 1;
+            $alert->userId = Yii::$app->user->getId();
+            $alert->status = 1;
 
             if (!$alert->save()) {
                 $messages = $alert->errors;
@@ -487,7 +488,7 @@ class AlertController extends Controller
                     // get resource document
                     $resource = \app\models\Resources::findOne(['resourcesId' => 3]);
                     // add resource document to the alert
-                    array_push($alert->alertResourceId,$resource->id);
+                    //array_push($alert->alertResourceId,$resource->id);
                 }
             }
             // set resource

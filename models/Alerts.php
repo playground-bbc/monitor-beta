@@ -214,7 +214,7 @@ class Alerts extends \yii\db\ActiveRecord
     
     public function getSocial(){
         $socials = Resources::getDb()->cache(function ($db) {
-            return Resources::find()->where(['resourcesId' => [1,2]])->all();
+            return Resources::find()->where(['resourcesId' => [1,2,3]])->all();
         },60);
         $socialIds = \yii\helpers\ArrayHelper::map($socials,'id','name');
         return $socialIds;

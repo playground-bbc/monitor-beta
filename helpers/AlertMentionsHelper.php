@@ -498,4 +498,96 @@ class AlertMentionsHelper
         return false;
     }
 
+    /**	 
+	* [getAttributesForDetailView compose detailView array if there url on topic]
+	* @param  [obj] $model [topic  model]
+	* @return [array]              [arraty detailView]
+	*/
+	public static function getAttributesForDetailView($model)
+	{
+		$url_detail_arr = [];
+		if ($model->config->urls != '') {
+            $urls = explode(",",$model->config->urls);
+			$url_detail_arr = [
+				'label' => Yii::t('app','Scraping Paginas Web Urls'),
+                'format'    => 'raw',
+                //'attribute' => 'resourceId',
+                'value' => function() use($urls) {
+                    $html = '';
+                    foreach ($urls as $index => $url) {
+                        $html .= " <span class='label label-success'><a style='color: white;' href='{$url}' target='_blank'>{$url}</a></span>";
+                    }
+                    return $html;
+                }
+
+			];
+		}
+
+		$detail_attributes = [
+            [
+                'label' => Yii::t('app','Estado'),
+                'format'    => 'raw',
+                'attribute' => 'status',
+                'value' => function($model) {
+                    return ($model->status) ? 'Active' : 'Inactive';
+                }
+            ],
+            /*[
+                'label' => Yii::t('app','Usuario'),
+                'attribute' => 'userId',
+                'format' => 'raw',
+                'value' => function($model){
+                    return $model->user->username;
+                }
+            ],*/
+            [
+                'label' => Yii::t('app','Nombre de la Alerta'),
+                'attribute' => 'name',
+                'format' => 'raw',
+                'value' => function($model) {
+                  return $model->name;
+                }
+            ],
+            
+            [
+                'label' => Yii::t('app','Recursos Sociales'),
+                'format'    => 'raw',
+                'attribute' => 'alertResourceId',
+                'value' => function($model) {
+                    $html = '';
+                    foreach ($model->config->configSources as $alert) {
+                        $html .= "<span class='label label-info'>{$alert->alertResource->name}</span><status-alert id={$alert->alertResource->id} :resourceids={$alert->alertResource->id}></status-alert>";
+                    }
+                    return $html;
+                },
+
+            ],
+            [
+                'label' => Yii::t('app','Terminos a Buscar'),
+                'format'    => 'raw',
+                //'attribute' => 'alertResourceId',
+                'value' => \kartik\select2\Select2::widget([
+                    'name' => 'products',
+                    'size' => \kartik\select2\Select2::SMALL,
+                    'hideSearch' => false,
+                    'data' => $model->products,
+                    'options' => ['placeholder' => 'Terminos...'],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ]),
+
+            ],
+            
+            'config.start_date:datetime',
+            'config.end_date:datetime',
+        ];
+
+        if (!empty($url_detail_arr)) {
+        	array_push($detail_attributes, $url_detail_arr);
+        }
+
+        return $detail_attributes;
+	}
+
 }

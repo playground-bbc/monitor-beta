@@ -481,14 +481,14 @@ class AlertController extends Controller
                     $fileData
                 );
                 // add resource document to the alert
-                //array_push($alert->alertResourceId,$resource->id);
+                array_push($alert->alertResourceId,$resource->id);
             } else {
-                /*if($isDocumentExist){
-              // get resource document
-              $resource = \app\models\Resources::findOne(['resourcesId' => 3]);
-              // add resource document to the alert
-              array_push($alert->alertResourceId,$resource->id);
-            }*/
+                if($isDocumentExist){
+                    // get resource document
+                    $resource = \app\models\Resources::findOne(['resourcesId' => 3]);
+                    // add resource document to the alert
+                    array_push($alert->alertResourceId,$resource->id);
+                }
             }
             // set resource
             if (!$config->saveAlertconfigSources($alert->alertResourceId)) {

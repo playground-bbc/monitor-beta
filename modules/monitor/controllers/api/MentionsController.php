@@ -319,9 +319,6 @@ class MentionsController extends Controller
    * @return [type]          [description]
    */
   public function actionListMentions($alertId){
-
-   
-
     // list mentions: resource - products - author - mentions
     $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
     $alertsId = [];
@@ -538,7 +535,6 @@ class MentionsController extends Controller
           ->orderBy('created_time ASC')
           ->groupBy($expressionGroup)
           ->all();
-
           if(!in_array($alertMention->resources->name, $resourceNames)){
             $resourceNames[] = $alertMention->resources->name;
           }
@@ -589,7 +585,7 @@ class MentionsController extends Controller
       $i ++;
     }
 
-
+    //return array('resourceDateCount'=>$resourceDateCount);
     return array('status'=>true,'model' => $model,'data' => $data,'resourceNames' => $resourceNames);  
   }
 

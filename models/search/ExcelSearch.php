@@ -400,9 +400,12 @@ class ExcelSearch {
         $mention_data['plataforma'] = $mention['Plataforma'];
         $mention_data['source']     = $mention['Source'];
         $mention_data['sentiment']  = $mention['Sentiment'];
-
-        //$mention_date   = \app\helpers\DateHelper::asTimestamp($mention['Mention Date']);
-        $mention_date   = strtotime($mention['Mention Date']);
+       
+        $formate_date   = \DateTime::createFromFormat('d/m/Y H:i', $mention['Mention Date']);
+        $mention_date   = date_format($formate_date, 'U');
+       
+       
+        //$mention_date   = strtotime($mention['Mention Date']);
         $url            = (!empty($mention['Mention URL'])) ? $mention['Mention URL']: null;
         $domain_url     = (!is_null($url)) ? \app\helpers\StringHelper::getDomain($url): null;
         $message        = $mention['Post Snippet'];

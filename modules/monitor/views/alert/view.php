@@ -113,9 +113,9 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
         <div class="row">
             <total-mentions :count="count" :shares="shares" :retweets="retweets" :likes="likes" :coments="coments" :likes_comments="likes_comments">
         </div>
-        <div class="">
+        <!-- <div class="">
           <box-sources></box-sources>
-       </div>
+       </div> -->
        <div class="row">
             <div class="col-md-12">
                 <total-resources-chart>

@@ -86,6 +86,7 @@ class DefaultController extends Controller
 
             //save end date unix
             $model->end_date = Yii::$app->formatter->asTimestamp($model->end_date);
+            $model->userId = Yii::$app->user->getId();
             // save topic
             $model->save();
             // save resourceIds
@@ -144,6 +145,7 @@ class DefaultController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             //save end date unix
             $model->end_date = Yii::$app->formatter->asTimestamp($model->end_date);
+            $model->userId = Yii::$app->user->getId();
             // save topic
             $model->save();
             // save resourceIds

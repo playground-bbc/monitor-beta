@@ -40,7 +40,8 @@ class MTopicsSearch extends MTopics
      */
     public function search($params)
     {
-        $query = MTopics::find();
+        $userId = \Yii::$app->user->getId();    
+        $query = MTopics::find()->where(['userId' => $userId]);
 
         // add conditions that should always apply here
 

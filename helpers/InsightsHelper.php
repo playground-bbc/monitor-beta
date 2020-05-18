@@ -370,7 +370,7 @@ class InsightsHelper
     {
         $where = [
             'Facebook Comments' => ['post_impressions','post_engaged_users','post_reactions_by_type_total'],
-            'Instagram Comments' => ['likes','reach','coments','impressions','engagement'],
+            'Instagram Comments' => ['impressions','reach','engagement','likes','coments'],
         ];
 
         for ($p=0; $p < sizeof($posts_content) ; $p++) { 
@@ -383,7 +383,14 @@ class InsightsHelper
                     'name' => $where[$resourceName],
                 ])->orderBy(['end_time' => SORT_DESC ])->asArray()->limit(sizeof($where[$resourceName]))->all();
                 if (!is_null($insights)) {
-                    $posts_content[$p]['wInsights'] = $insights;
+                    $data = [];
+                    for($w=0; $w < sizeof($insights) ; $w++){
+                        $index = array_search($insights[$w]['name'],$where[$resourceName]);
+                        if(!is_bool($index)){
+                            $data[$index]= $insights[$w];
+                        }
+                    }
+                    $posts_content[$p]['wInsights'] = $data;
                 }
             }            
         }

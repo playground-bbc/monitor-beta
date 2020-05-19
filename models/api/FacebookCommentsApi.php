@@ -164,7 +164,6 @@ class FacebookCommentsApi extends Model {
 			do {
 				
 				try{
-					
 					$posts = $client->get($query_params['query'],[
 						'after' => $after,
 						'access_token' => $this->_page_access_token,
@@ -184,8 +183,9 @@ class FacebookCommentsApi extends Model {
 
 					// if get error data
 					if(\yii\helpers\ArrayHelper::getValue($posts->getData(),'error' ,false)){
+						var_dump($posts->getData());
 						// send email with data $responseData[$index]['error']['message']
-						break;
+						//break;
 					}
 					
 					// get the after
@@ -732,8 +732,8 @@ class FacebookCommentsApi extends Model {
 		$end_date = strtotime(\app\helpers\DateHelper::add($this->end_date,'+1 day'));
 		
 
-		$post_comments_query = "{$bussinessId}/published_posts?fields=from,full_picture,icon,is_popular,message,attachments{unshimmed_url},shares,created_time,comments{from,created_time,is_hidden,like_count,message,permalink_url,parent,comment_count,attachment,comments.limit($this->_limit_commets){likes.limit(10),comments{message,permalink_url}}},updated_time&until={$end_date}&since={$this->start_date}&limit={$this->_limit_post}";
-
+		//$post_comments_query = "{$bussinessId}/published_posts?fields=from,full_picture,icon,is_popular,message,attachments{unshimmed_url},shares,created_time,comments{from,created_time,is_hidden,like_count,message,permalink_url,parent,comment_count,attachment,comments.limit($this->_limit_commets){likes.limit(10),comments{message,permalink_url}}},updated_time&until={$end_date}&since={$this->start_date}&limit={$this->_limit_post}";
+		$post_comments_query = "{$bussinessId}/published_posts?fields=from,full_picture,icon,is_popular,message,attachments{unshimmed_url},shares,created_time,comments{from,created_time,is_hidden,like_count,message,permalink_url,parent,comment_count,attachment,comments.limit($this->_limit_commets){comments{message,permalink_url}}},updated_time&until={$end_date}&since={$this->start_date}&limit={$this->_limit_post}";
 		return $post_comments_query;
 	}
 

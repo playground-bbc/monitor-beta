@@ -49,7 +49,7 @@ class InsightsWidget extends \yii\bootstrap\Widget
             }else{
 
                 if (!$this->userCredencial->status) {
-                    $message = Yii::t('app','Parece que estas deslogueado: '.$url_link);
+                    $message = Yii::t('app','Por favor Inicie sesión con facebook: '.$url_link);
                     $class   = 'alert-warning';
                     return $this->render('alert',['message' => $message,'class' => $class]);
                 }

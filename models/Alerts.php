@@ -96,7 +96,7 @@ class Alerts extends \yii\db\ActiveRecord
      * [getBringAllAlertsToRun get all the alerts with resources,products only use to console actions]
      * @return [array] [if not alerts with condition return a empty array]
      */
-    public function getBringAllAlertsToRun($read = false){
+    public function getBringAllAlertsToRun($read = false,$resourceName = ''){
 
         // get time
         $expression = new \yii\db\Expression('NOW()');
@@ -105,58 +105,53 @@ class Alerts extends \yii\db\ActiveRecord
         // get all alert with relation config with the condicion start_date less or equals to $timestamp
         $alerts = $this->find()->where([
             'status' => self::STATUS_ACTIVE,
-        ])->with(['config' => function($query) use($timestamp) {
+        ])->with(['config' => function($query) use($timestamp,$read,$resourceName) {
             $query->andWhere([
                 'and',
                     ['<=', 'start_date', $timestamp],
-                   // ['>=', 'end_date', $timestamp],
                 ]);
-            $query->with(['configSources.alertResource']);
+            if ($read) {
+                if($resourceName != ''){
+                    $query->with(['configSources.alertResource' => function($query) use ($resourceName){
+                         $alisResource = [
+                             'Twitter' => 'Twitter',
+                             'LiveChat' => 'Live Chat',
+                             'LiveConversation' => 'Live Chat Conversations',
+                             'PaginasWebs' => 'Paginas Webs',
+                             'FacebookComments' => 'Facebook Comments',
+                             'InstagramComments' => 'Instagram Comments',
+                             'FacebookMessages' => 'Facebook Messages',
+                             'ExcelDocument' => 'Excel Document'
+                        ];
+                         $query->andWhere(['name' =>$alisResource[$resourceName]]);
+                    }]);
+                    
+                }else{
+                    $query->with(['configSources.alertResource' => function($query) use ($resourceName){
+                        $query->andWhere([
+                        'and',
+                            ['!=', 'name', 'Paginas Webs'],
+                        ]);
+                    }]);
+                }
+            }else{
+                $query->with(['configSources.alertResource']);
+            }
         }
         ])->orderBy('id DESC')->asArray()->all();
-
-        $alertsConfig = [];
+        //var_dump($alerts);
+        $alertsConfig = null;
         // there is alert in the model
         if(!empty($alerts)){
-            // loop searching alert with mentions relation and config relation
-            for($a = 0; $a < sizeOf($alerts); $a++){
-                if((!empty($alerts[$a]['config']))){
-                    // reduce configSources.alertResource
-                    for($s = 0; $s < sizeOf($alerts[$a]['config']['configSources']); $s ++){
-                        $alertResource = ArrayHelper::getValue($alerts[$a]['config']['configSources'][$s], 'alertResource.name');
-                        $alerts[$a]['config']['configSources'][$s] = $alertResource;
-                    } // end for $alerts[$a]['config']['configSources']
-                    array_push($alertsConfig, $alerts[$a]);
-                } // end if not empty
-            } // end loop alerts config
+            // reorder data
+            $alertsConfig = \app\helpers\AlertMentionsHelper::orderConfigSources($alerts);
             
             if ($read) {
                 $alertsConfig = \app\helpers\AlertMentionsHelper::checksSourcesCall($alertsConfig);
             }
-           // var_dump($alertsConfig);
-
             //get family/products/models
-            for($c = 0; $c < sizeOf($alertsConfig); $c++){
-                $products_models_alerts = ProductsModelsAlerts::findAll(['alertId' => $alertsConfig[$c]['id']]);
-                if(!empty($products_models_alerts)){
-                    $alertsConfig[$c]['products'] = [];
-                    foreach($products_models_alerts as $product){
-                        // models
-                        if(!in_array($product->productModel->name,$alertsConfig[$c]['products'])){
-                            array_push($alertsConfig[$c]['products'], $product->productModel->name);
-                        }
-                        // products
-                        if(!in_array($product->productModel->product->name,$alertsConfig[$c]['products'])){
-                            array_push($alertsConfig[$c]['products'], $product->productModel->product->name);
-                        }
-                        // category
-                        /*if(!in_array($product->productModel->product->category->name,$alertsConfig[$c]['products'])){
-                            array_push($alertsConfig[$c]['products'], $product->productModel->product->category->name);
-                        }*/
-                       // array_push($alertsConfig[$c]['products'], $product->productModel->product->category->productsFamily->name);
-                    }
-                }
-            }
+            $alertsConfig = \app\helpers\AlertMentionsHelper::setProductsSearch($alertsConfig);
+            
         }
        return $alertsConfig;
     }

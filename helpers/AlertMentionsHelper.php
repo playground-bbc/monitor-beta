@@ -473,7 +473,56 @@ class AlertMentionsHelper
         } // end llop alerts
         return $alerts;
     }
-
+    /**
+     * [orderConfigSources reorder alerts on config resource data]
+     * @param  [array] $alerts [all runnig alerts]
+     * @return [alertsConfig] $alerts [all runnig alerts]
+     */
+    public static function orderConfigSources($alerts)
+    {
+        $alertsConfig = [];
+        // loop searching alert with mentions relation and config relation
+        for($a = 0; $a < sizeOf($alerts); $a++){
+            if((!empty($alerts[$a]['config']))){
+                // reduce configSources.alertResource
+                for($s = 0; $s < sizeOf($alerts[$a]['config']['configSources']); $s ++){
+                    $alertResource = \yii\helpers\ArrayHelper::getValue($alerts[$a]['config']['configSources'][$s], 'alertResource.name');
+                    $alerts[$a]['config']['configSources'][$s] = $alertResource;
+                } // end for $alerts[$a]['config']['configSources']
+                array_push($alertsConfig, $alerts[$a]);
+            } // end if not empty
+        } // end loop alerts config
+        return $alertsConfig;
+    }
+    /**
+     * [setProductsSearch include product to search]
+     * @param  [array] $alertsConfig [all runnig alerts]
+     * @return [alertsConfig] $alertsConfig [all runnig alerts]
+     */
+    public static function setProductsSearch($alertsConfig){
+        for($c = 0; $c < sizeOf($alertsConfig); $c++){
+            $products_models_alerts = \app\models\ProductsModelsAlerts::findAll(['alertId' => $alertsConfig[$c]['id']]);
+            if(!empty($products_models_alerts)){
+                $alertsConfig[$c]['products'] = [];
+                foreach($products_models_alerts as $product){
+                    // models
+                    if(!in_array($product->productModel->name,$alertsConfig[$c]['products'])){
+                        array_push($alertsConfig[$c]['products'], $product->productModel->name);
+                    }
+                    // products
+                    if(!in_array($product->productModel->product->name,$alertsConfig[$c]['products'])){
+                        array_push($alertsConfig[$c]['products'], $product->productModel->product->name);
+                    }
+                    // category
+                    /*if(!in_array($product->productModel->product->category->name,$alertsConfig[$c]['products'])){
+                        array_push($alertsConfig[$c]['products'], $product->productModel->product->category->name);
+                    }*/
+                   // array_push($alertsConfig[$c]['products'], $product->productModel->product->category->productsFamily->name);
+                }
+            }
+        }
+        return $alertsConfig;
+    }
     /**
      * [getResourceIdByName get id of resource by name]
      * @param  [string] $resourceName [Ej:Twiiter]

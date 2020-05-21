@@ -45,7 +45,7 @@ use yii\helpers\Html;
             <div class="inner">
               <h3>{{shares | formatNumber }}<sup style="font-size: 20px"></sup></h3>
 
-              <p>Instagram Shares</p>
+              <p>Facebook Posts Shares</p>
             </div>
             <div class="icon">
               <i class="glyphicon glyphicon-share"></i>

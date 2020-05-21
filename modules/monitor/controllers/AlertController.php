@@ -638,7 +638,7 @@ class AlertController extends Controller
                 ]);
             }
             // delete history
-            \app\helpers\HistorySearchHelper::deleteHistory($alert->id);
+           // \app\helpers\HistorySearchHelper::deleteHistory($alert->id);
             // return view
             return $this->redirect(['view', 'id' => $alert->id]);
         }

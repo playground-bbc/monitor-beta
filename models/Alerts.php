@@ -139,7 +139,6 @@ class Alerts extends \yii\db\ActiveRecord
             }
         }
         ])->orderBy('id DESC')->asArray()->all();
-        //var_dump($alerts);
         $alertsConfig = null;
         // there is alert in the model
         if(!empty($alerts)){

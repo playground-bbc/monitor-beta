@@ -269,8 +269,7 @@ class InstagramCommentsApi extends Model {
 					for($p = 0; $p < sizeof($this->products); $p++){
 						// destrutura el product
 						$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p]);
-
-						/*$is_contains = (count($product_data) > 3) ? \app\helpers\StringHelper::containsAny($caption,$product_data) : \app\helpers\StringHelper::containsAll($caption,$product_data);*/
+						// $is_contains = (count($product_data) > 3) ? \app\helpers\StringHelper::containsAny($caption,$product_data) : \app\helpers\StringHelper::containsAll($caption,$product_data);
 						$is_contains =  \app\helpers\StringHelper::containsAny($caption,$product_data);
 						if($is_contains){
 							if($feed_count){

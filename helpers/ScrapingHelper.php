@@ -65,7 +65,6 @@ class ScrapingHelper{
 				$reason = $response->getReasonPhrase(); // OK
 				
 				if ($code == 200 && $reason == 'OK') {
-
 					$body = $response->getBody()->getContents();
 					// call crallwer
 					$crawler = new \Symfony\Component\DomCrawler\Crawler($body,$url);
@@ -81,8 +80,6 @@ class ScrapingHelper{
 						    }
 						    
 						} // for each links
-						
-						
 						// put original url
 						if (!in_array($url, $all_links)) {
 							array_push($all_links, $url);
@@ -100,17 +97,6 @@ class ScrapingHelper{
 				continue;
 			}
 		}
-
-		/*$urls = [
-			'http://testing-ground.scraping.pro/whoami'=>[
-				'domain' => 'scraping.pro',
-				'links'  => [
-					'http://testing-ground.scraping.pro/whoami',
-					'http://testing-ground.scraping.pro/textlist'
-				],
-			]
-		];*/
-
 		return $urls;
 		
 	}
@@ -139,7 +125,7 @@ class ScrapingHelper{
             foreach ($urls as $url => $values) {
                 if (!empty($values['links'])) {
                     for ($l=0; $l < sizeof($values['links']) ; $l++) { 
-                        $link = $values['links'][$l];
+						$link = $values['links'][$l];
                         try {
 						    $response = $client->request('GET',$link);
 						    $status_code = $client->getResponse()->getStatus();
@@ -160,7 +146,7 @@ class ScrapingHelper{
                     }// end loop for links
                 }// end if empty
             }// end loop foreach
-        }// end if empty
+		}// end if empty
         return $crawler;
     }
 	/**

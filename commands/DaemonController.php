@@ -56,7 +56,7 @@ class DaemonController extends Controller
      */
     public function actionAlertsRunWeb(){
         $alert = new Alerts();
-        $alertsConfig = $alert->getBringAllAlertsToRun(true,'Paginas Webs');
+        $alertsConfig = $alert->getBringAllAlertsToRun(true,'PaginasWebs');
         
         
         if(!empty($alertsConfig)){

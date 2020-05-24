@@ -38,7 +38,7 @@ class DaemonController extends Controller
      * [actionAlertsRun runs all alerts]
      * @return [type] [description]
      */
-    public function actionAlertsRun($resourceName){
+    public function actionAlertsRun($resourceName = ''){
         $alert = new Alerts();
         $alertsConfig = $alert->getBringAllAlertsToRun(true,$resourceName);
       

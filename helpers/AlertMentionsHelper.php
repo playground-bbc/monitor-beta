@@ -65,7 +65,7 @@ class AlertMentionsHelper
      * @return boolean                 [description]
      */
     public static function isAlertsMencionsExists($publication_id,$alertId){
-        if(\app\models\AlertsMencions::find()->where( [ 'publication_id' => $publication_id] )->exists()){
+        if(\app\models\AlertsMencions::find()->where(['alertId' => $alertId,'publication_id' => $publication_id])->exists()){
             return true;
         }
         return false;
@@ -84,6 +84,16 @@ class AlertMentionsHelper
         return false;
     }
 
+    public static function getCountAlertMentionsByResourceId($alertId,$resourceId){
+        $db = \Yii::$app->db;
+        $count = $db->cache(function ($db) use($alertId,$resourceId){
+            return (new \yii\db\Query())
+                ->from('alerts_mencions')
+                ->where(['alertId' => $alertId,'resourcesId' => $resourceId])
+                ->count();
+        },60);
+        return $count;
+    }
 
     /**
      * [getSocialNetworkInteractions return array of social with interation]
@@ -94,6 +104,7 @@ class AlertMentionsHelper
      */
     public static function getSocialNetworkInteractions($resource_name,$resource_id,$alertId)
     {
+        
         $model = new \app\models\AlertsMencions();
         $model->alertId = $alertId;
         $model->resourcesId = $resource_id;
@@ -106,10 +117,8 @@ class AlertMentionsHelper
                 break;
 
             case 'Facebook Messages':
-                $count = \app\models\AlertsMencions::find()->where(['alertId' => $alertId,'resourcesId' => $resource_id])->count();
-                /*$model->alertId = $alertId;
-                $model->resourcesId = $resource_id;*/
                 
+                $count = self::getCountAlertMentionsByResourceId($model->alertId,$model->resourcesId);
                 return [$resource_name,'0','0','0',$count];
                 break;    
 
@@ -118,9 +127,10 @@ class AlertMentionsHelper
                 return [$resource_name,'0',$model->likesInstagramPost,$model->likesFacebookComments,$model->total];
                 break;
             case 'Twitter':
-                return [$resource_name,$model->twitterRetweets,'0',$model->twitterLikes,$model->twitterTotal];
             
+                return [$resource_name,$model->twitterRetweets,'0',$model->twitterLikes,$model->twitterTotal];
                 break;
+                
             case 'Live Chat':
                 $models = \app\models\AlertsMencions::find()->where(['alertId' => $alertId,'resourcesId' => $resource_id])->all();
                 $expression = new Expression("`mention_data`->'$.id' AS ticketId");
@@ -537,7 +547,11 @@ class AlertMentionsHelper
             ->all();
         return \yii\helpers\ArrayHelper::getColumn($resourcesId,'id')[0];
     }
-
+    /**
+     * [isAlertHaveDictionaries get id of resource by name]
+     * @param  [alertID]           [id for alert]
+     * @return [boolean] 
+     */
     public static function isAlertHaveDictionaries($alertId)
     {
         if(!is_null($alertId)){
@@ -545,6 +559,58 @@ class AlertMentionsHelper
             return $keywords;
         }
         return false;
+    }
+
+    public static function getAlertsMentionsIdsByAlertIdAndResourcesIds($alertId,$resourceSocialIds = [])
+    {
+        $db = \Yii::$app->db;
+        $alerMentionsIds = $db->cache(function ($db) use($alertId,$resourceSocialIds){
+            $alerMentions = \app\models\AlertsMencions::find()->select('id')->where(['alertId' => $alertId,'resourcesId' => $resourceSocialIds])->asArray()->all();
+            $alerMentionsIds = [];
+            if(!empty($alerMentions)){
+                for ($a=0; $a < sizeOf($alerMentions) ; $a++) { 
+                    $alerMentionsIds[] = $alerMentions[$a]['id'];
+                }
+            }
+            return $alerMentionsIds;
+        },60);
+        return $alerMentionsIds;
+    }
+
+    public static function isAlertHasResourceByName($resourceName,$model){
+        
+        foreach($model->config->sources  as $source){
+            if($source->name == $resourceName){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * [setMentionData get and order values json on array]
+     * @param  [array] 
+     * @return [array] 
+     */
+    public static function setMentionData($mention_data_array){
+        $model= [];
+        if(!empty($mention_data_array)){
+            for($m=0;$m < sizeOf($mention_data_array); $m++){
+                if(!empty($mention_data_array[$m])){
+                    for ($d=0; $d < sizeOf($mention_data_array[$m]) ; $d++) { 
+                        $tmp = json_decode($mention_data_array[$m][$d]['mention_data'],true);
+                        foreach($tmp as $property => $value){
+                            if(isset($model[$property])){
+                                $model[$property] += $value; 
+                            }else{
+                                $model[$property] = $value;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $model;
     }
 
     /**	 
@@ -605,7 +671,7 @@ class AlertMentionsHelper
                 'value' => function($model) {
                     $html = '';
                     foreach ($model->config->configSources as $alert) {
-                        $html .= "<span class='label label-info'>{$alert->alertResource->name}</span><status-alert id={$alert->alertResource->id} :resourceids={$alert->alertResource->id}></status-alert>";
+                        $html .= "<span class='label label-info'>{$alert->alertResource->name}<status-alert id={$alert->alertResource->id} :resourceids={$alert->alertResource->id}></status-alert></span>";
                     }
                     return $html;
                 },
@@ -637,6 +703,9 @@ class AlertMentionsHelper
         }
 
         return $detail_attributes;
-	}
+    }
+    
+
+
 
 }

@@ -135,23 +135,15 @@ class AlertsMencions extends \yii\db\ActiveRecord
      */
     public function getShareFaceBookPost()
     {
-        $alertMentions = $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->all();
+
+        $db = \Yii::$app->db;
+        $alertMentions = $db->cache(function ($db) {
+            return $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->all();
+        },60);
         
-        
-        $origin_ids = [];
-        foreach ($alertMentions as $alertMention) {
-            if($alertMention->mentionsCount){
-                foreach ($alertMention->mentions as $mentions => $mention) {
-                    if(!in_array($mention->origin_id, $origin_ids)){
-                        $origin_ids[] = $mention->origin_id;
-                    }
-                }
-            }
-        }
         $shares = 0;
-        $post_models = \app\models\UsersMentions::find()->where(['id' => $origin_ids])->all();
-        foreach ($post_models as $post => $value) {
-            $shares +=  $value['user_data']['shares']['count'];
+        foreach ($alertMentions as $alertMention) {
+            $shares +=  $alertMention->mention_data['shares'];
         }
 
         return (string) $shares;
@@ -162,14 +154,16 @@ class AlertsMencions extends \yii\db\ActiveRecord
      */
     public function getLikesFacebookComments()
     {
-       $alertMentions = $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->all();
+        $db = \Yii::$app->db;
+        $alertMentions = $db->cache(function ($db){
+            return $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->all();
+        },60);
        $likes_count = 0;
 
        foreach ($alertMentions as $alertMention) {
             if($alertMention->mentionsCount){
                 foreach ($alertMention->mentions as $mentions => $mention) {
-                    $mention_data = $mention->mention_data;
-                    $likes_count += $mention_data['like_count'];
+                    $likes_count += $mention->mention_data['like_count'];
                 }
             }
         }
@@ -183,7 +177,10 @@ class AlertsMencions extends \yii\db\ActiveRecord
      */
     public function getTotal()
     {
-        $alertMentions = $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->all();
+        $db = \Yii::$app->db;
+        $alertMentions = $db->cache(function ($db){
+            return $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->all();
+        },60);
         $total = 0;
         foreach ($alertMentions as $alertMention) {
             $total += $alertMention->mentionsCount;

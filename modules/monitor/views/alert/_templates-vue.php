@@ -8,98 +8,22 @@ use yii\helpers\Html;
 
 <!-- template que muestra el total de todas las menciones -->
 <script type="text/x-template" id="view-total-mentions">
-     <div class="">
-        <div class="col-md-2">
+     <div class="row seven-cols">
+        <div v-for="(value,resource) in resourcescount" :class="calcColumns()">
           <!-- small box -->
-          <div class="small-box bg-info">
+          <div :class="getClass(resource)">
             <div class="inner">
-              <h3>{{count | formatNumber }}</h3>
+              <h3>{{value | formatNumber }}</h3>
 
-              <p>Total de Entradas</p>
+              <p>{{getTitle(resource)}}</p>
             </div>
             <div class="icon">
-              <i class="glyphicon glyphicon-hdd"></i>
+              <i :class="getIcon(resource)"></i>
             </div>
             <a href="#" class="small-box-footer">More info <i class="glyphicon glyphicon-chevron-right"></i></a>
           </div>
         </div>
-        <!-- ./col -->
-        <div class="col-md-2">
-          <!-- small box -->
-          <div class="small-box bg-info">
-            <div class="inner">
-              <h3>{{retweets | formatNumber }}</h3>
-
-              <p>Retweets</p>
-            </div>
-            <div class="icon">
-              <i class="socicon-twitter"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="glyphicon glyphicon-chevron-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-md-2">
-          <!-- small box -->
-          <div class="small-box bg-success">
-            <div class="inner">
-              <h3>{{shares | formatNumber }}<sup style="font-size: 20px"></sup></h3>
-
-              <p>Facebook Posts Shares</p>
-            </div>
-            <div class="icon">
-              <i class="glyphicon glyphicon-share"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-md-2">
-          <!-- small box -->
-          <div class="small-box bg-warning">
-            <div class="inner">
-              <h3>{{coments | formatNumber }}</h3>
-
-              <p>Comentarios Totales</p>
-            </div>
-            <div class="icon">
-              <i class="glyphicon glyphicon-comment"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-md-2">
-          <!-- small box -->
-          <div class="small-box bg-light">
-            <div class="inner">
-              <h3>{{likes | formatNumber }}</h3>
-
-              <p>Instagram Likes</p>
-            </div>
-            <div class="icon">
-              <i class="glyphicon glyphicon-heart"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
-        <!-- ./col -->
-        <div class="col-md-2">
-          <!-- small box -->
-          <div class="small-box bg-danger">
-            <div class="inner">
-              <h3>{{likes_comments | formatNumber }}</h3>
-
-              <p>likes comments</p>
-            </div>
-            <div class="icon">
-              <i class="glyphicon glyphicon-thumbs-up"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
+        
       </div>
 </script>
 
@@ -168,7 +92,6 @@ use yii\helpers\Html;
     </div>  
 </script>
 
-
 <!-- template chart by date google chart -->
 <script type="tex/x-template" id="view-date-resources-chart">
   <div v-if="loaded">
@@ -181,7 +104,6 @@ use yii\helpers\Html;
         </div>
     </div>  
 </script>
-
 
 <!-- template que muestra el total de todas las menciones por Red Social -->
 <script type="text/x-template" id="view-total-mentions-resources">
@@ -199,6 +121,7 @@ use yii\helpers\Html;
         </div>
     </div>
 </script>
+
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
     <div>
@@ -235,6 +158,7 @@ use yii\helpers\Html;
         </div>
     </div>
 </script>
+
 <!-- template que muestra las nubes de palabras -->
 <script type="text/x-template" id="cloud-words">
     <div v-if="loaded" class="col-md-12 well">
@@ -245,6 +169,7 @@ use yii\helpers\Html;
         <div id="jqcloud" class="jqcloud"></div>
     </div>
 </script>
+
 <!-- template que muestra las tablas recurso: fecha - total -->
 <script type="text/x-template" id="resource-date-mentions">
     <div v-if="loaded" class="panel-group" id="accordion">
@@ -283,6 +208,7 @@ use yii\helpers\Html;
         </div>
     </div>
 </script>
+
 <!-- template que muestra la tabla de lista de emojis -->
 <script type="text/x-template" id="emojis-list">
     <div v-if="loaded" class="panel-group" id="accordion">
@@ -316,6 +242,7 @@ use yii\helpers\Html;
       </div>
     </div>
 </script>
+
 <!-- template que muestra llos indicadores de cada red social -->
 <script type="text/x-template" id="status-alert">
   <span class="status-indicator" v-bind:class= "colorClass"></span>

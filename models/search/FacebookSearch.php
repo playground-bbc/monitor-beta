@@ -225,8 +225,8 @@ class FacebookSearch
 
 
     public function savePostMencions($post){
-        $user_data['is_popular'] = $post['is_popular'];
-        $user_data['shares'] = $post['shares'];
+        // $user_data['is_popular'] = $post['is_popular'];
+        // $user_data['shares'] = $post['shares'];
 
         $id = explode("_",$post['id']);
         $id = end($id);
@@ -242,7 +242,7 @@ class FacebookSearch
             [
                 'name'        => $author,
                 'screen_name' => $author,
-                'user_data'   => $user_data,
+              //  'user_data'   => $user_data,
                 'message'     => \app\helpers\StringHelper::remove_emoji($short_message),
             ]
         );
@@ -281,8 +281,6 @@ class FacebookSearch
         );
 
         if($mention->errors){
-            /* var_dump($originId);
-             var_dump($comment);*/
              var_dump($mention->errors);
              die();
         }

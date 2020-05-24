@@ -3,10 +3,32 @@
  * @param  {[type]} min-width: 1200px        [description]
  * @return {[type]}            [description]
  */
+@media (min-width: 768px) {
+  .seven-cols .col-md-1,
+  .seven-cols .col-sm-1,
+  .seven-cols .col-lg-1 {
+    width: 100%;
+    *width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .seven-cols .col-md-1,
+  .seven-cols .col-sm-1,
+  .seven-cols .col-lg-1 {
+    width: 14.285714285714285714285714285714%;
+    *width: 14.285714285714285714285714285714%;
+  }
+}
+
+/**
+ *  The following is not really needed in this case
+ *  Only to demonstrate the usage of @media for large screens
+ */
 @media (min-width: 1200px) {
-  .seven .col-md-1,
-  .seven .col-sm-1,
-  .seven .col-lg-1 {
+  .seven-cols .col-md-1,
+  .seven-cols .col-sm-1,
+  .seven-cols .col-lg-1 {
     width: 14.285714285714285714285714285714%;
     *width: 14.285714285714285714285714285714%;
   }
@@ -17,64 +39,47 @@
  *
  */
 .col-xs-5,
-
 .col-sm-5,
-
 .col-md-5,
-
 .col-lg-5 {
-
-  min-height: 1px; 
+  min-height: 1px;
 
   position: relative;
-
 }
 
 .col-xs-5 {
-
   float: left;
 
   width: 20%;
-
 }
 
-
 @media (min-width: 768px) {
-
   .col-sm-5 {
-
     float: left;
 
     width: 20%;
-
   }
-
 }
 
 @media (min-width: 992px) {
-
   .col-md-5 {
-
     float: left;
 
     width: 20%;
-
   }
-
 }
 
 @media (min-width: 1200px) {
-
   .col-lg-5 {
-
     float: left;
 
     width: 20%;
-
   }
-
 }
 
+.label-info {
+  margin-right: 5px;
+}
 
 /**
  *  css of admin tle
@@ -171,7 +176,12 @@
   transition: all 0.3s linear;
 }
 
-.small-box .icon > i.fa, .small-box .icon > i.fas, .small-box .icon > i.far, .small-box .icon > i.fab, .small-box .icon > i.glyphicon, .small-box .icon > i.ion {
+.small-box .icon > i.fa,
+.small-box .icon > i.fas,
+.small-box .icon > i.far,
+.small-box .icon > i.fab,
+.small-box .icon > i.glyphicon,
+.small-box .icon > i.ion {
   font-size: 70px;
   top: 20px;
 }
@@ -184,7 +194,12 @@
   font-size: 95px;
 }
 
-.small-box:hover .icon > i.fa, .small-box:hover .icon > i.fas, .small-box:hover .icon > i.far, .small-box:hover .icon > i.fab, .small-box:hover .icon > i.glyphicon, .small-box:hover .icon > i.ion {
+.small-box:hover .icon > i.fa,
+.small-box:hover .icon > i.fas,
+.small-box:hover .icon > i.far,
+.small-box:hover .icon > i.fab,
+.small-box:hover .icon > i.glyphicon,
+.small-box:hover .icon > i.ion {
   font-size: 75px;
 }
 
@@ -200,7 +215,6 @@
   }
 }
 
-
 .info-box {
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.2);
   border-radius: 0.25rem;
@@ -209,7 +223,7 @@
   display: flex;
   margin-bottom: 1rem;
   min-height: 80px;
-  padding: .5rem;
+  padding: 0.5rem;
   position: relative;
 }
 
@@ -301,12 +315,12 @@
 
 .info-box .info-box .bg-warning,
 .info-box .info-box .bg-gradient-warning {
-  color: #1F2D3D;
+  color: #1f2d3d;
 }
 
 .info-box .info-box .bg-warning .progress-bar,
 .info-box .info-box .bg-gradient-warning .progress-bar {
-  background-color: #1F2D3D;
+  background-color: #1f2d3d;
 }
 
 .info-box .info-box .bg-danger,
@@ -321,12 +335,12 @@
 
 .info-box .info-box .bg-light,
 .info-box .info-box .bg-gradient-light {
-  color: #1F2D3D;
+  color: #1f2d3d;
 }
 
 .info-box .info-box .bg-light .progress-bar,
 .info-box .info-box .bg-gradient-light .progress-bar {
-  background-color: #1F2D3D;
+  background-color: #1f2d3d;
 }
 
 .info-box .info-box .bg-dark,
@@ -412,4 +426,64 @@
 
 .elevation-5 {
   box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* jQCloud */
+.pointer-jqcloud {
+  cursor: pointer;
+}
+
+/* pointer indicator social media*/
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50em;
+  background: #f1f5f8;
+  margin-right: 0.5em;
+  margin-left: 0.5em;
+}
+.status-indicator--green {
+  background: #1f3;
+  box-shadow: 0 0 15px rgba(17, 255, 51, 2);
+  position: relative;
+}
+
+.status-indicator--yellow {
+  background: yellow;
+  box-shadow: 0 0 15px rgba(17, 255, 51, 2);
+  position: relative;
+}
+.status-indicator--green::after {
+  opacity: 0.5;
+  border-radius: 50em;
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1f3;
+  width: 10px;
+  height: 10px;
+  animation: blip 0.8s ease-in infinite;
+}
+.status-indicator--red {
+  background: #f13;
+  box-shadow: 0 0 15px rgba(255, 17, 51, 2);
+  position: relative;
+}
+.status-indicator--red::after {
+  opacity: 0.5;
+  border-radius: 50em;
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #f13;
+  width: 10px;
+  height: 10px;
+  animation: blip 0.8s ease-in infinite;
 }

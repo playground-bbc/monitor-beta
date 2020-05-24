@@ -90,7 +90,11 @@ class MentionsHelper
         return $model;
 
     }
-
+    /**
+     * [getGeolocation get location]
+     * @param  [int]  [ip for looking location]
+     * @return [array] 
+     */
     public static function getGeolocation($ip){
 
         $client = new Client();
@@ -106,5 +110,61 @@ class MentionsHelper
         return null;
 
     }
+    
+
+    public static function setNumberCommentsSocialMedia($alertId,$resourceSocialIds = []){
+        $alerMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($alertId,$resourceSocialIds);
+        $total = 0;
+        if(!empty($alerMentionsIds)){
+            $db = \Yii::$app->db;
+            $total = $db->cache(function ($db) use($alerMentionsIds){
+                return \app\models\Mentions::find()->where(['alert_mentionId' => $alerMentionsIds])->count();
+            },60);
+        }
+
+        return $total;    
+    }
+
+
+    public static function getDataMentionData($alertId,$resourceId,$targets){
+        $alerMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($alertId,$resourceId);
+        // set targets
+        $data = [];
+        foreach ($targets as $target) {
+            $data[$target] = 0;
+        }
+        
+        if(!empty($alerMentionsIds)){
+            $expression = '';
+            for ($t=0; $t < sizeOf($targets) ; $t++) { 
+                $expression .= "`mention_data`->'$.{$targets[$t]}' AS $targets[$t]";
+                if(isset($targets[$t + 1])){
+                    $expression.= ",";
+                }
+            }
+            $expression = new \yii\db\Expression($expression);
+            $db = \Yii::$app->db;
+            $result = $db->cache(function ($db) use($alerMentionsIds,$expression){
+                return (new \yii\db\Query)
+                ->select($expression)
+                ->from('mentions')
+                ->where(['mentions.alert_mentionId' => $alerMentionsIds])->all();
+            },60);
+            
+            if(!empty($result)){
+                for ($r=0; $r < sizeof($result) ; $r++) { 
+                    foreach ($result[$r] as $target => $value) {
+                        if(!is_null($value)){
+                            $data[$target] += $value;
+                        }
+                    }
+                }
+            } 
+            
+        }
+        return $data;
+    }
+
+
 	
 }

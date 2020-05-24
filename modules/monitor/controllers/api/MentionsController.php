@@ -62,61 +62,64 @@ class MentionsController extends Controller
 
    
     $model = $this->findModel($alertId);
-    // valores por default
-    $count = 0;
-    $shares = 0;
-    $retweets = 0;
-    $coments = 0;
-    $likes = 0;
-    $likes_comments = 0;
+
+    $alertResources = \yii\helpers\ArrayHelper::map($model->config->sources,'id','name');
+    $data = [];
+
     if($model){
-      // cuenta si la alerta tiene entradas
       $count = (new \yii\db\Query())
       ->from('alerts_mencions')
       ->join('JOIN', 'mentions', 'mentions.alert_mentionId = alerts_mencions.id')
       ->where(['alertId' => $alertId])
       ->count();
-      // contar los shares de la alerta
-      foreach ($model->alertsMentions as $alertMention) {
-        if(!is_null($alertMention->mention_data)){
-          if(\yii\helpers\ArrayHelper::keyExists('shares',$alertMention->mention_data)){
-            $shares += $alertMention->mention_data['shares'];
-            $coments += $alertMention->mentionsCount;
-          }
-          if(\yii\helpers\ArrayHelper::keyExists('like_count',$alertMention->mention_data)){
-            $likes += $alertMention->mention_data['like_count'];
-            $coments += $alertMention->mentionsCount;
+      
+      if($count){
+        // send query
+        $data_search = [];
+        $query = (new \yii\db\Query())
+        ->select(['mention_data'])
+        ->from('alerts_mencions')
+        ->where(['alertId' => $alertId])
+        ->andWhere(['not', ['mention_data' => null]]);
+
+        foreach($query->batch() as $alertMention){
+          $data_search[]= $alertMention;
+        }
+        
+        
+        $data = \app\helpers\AlertMentionsHelper::setMentionData($data_search);
+        
+        if(in_array('Facebook Comments',array_values($alertResources))){
+          $data['total_comments'] = \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
+        }
+        
+        if(in_array('Facebook Messages',array_values($alertResources))){
+          $data['total_inbox'] = \app\helpers\AlertMentionsHelper::getCountAlertMentionsByResourceId($model->id,array_search('Facebook Messages',$alertResources));
+        }
+
+        if(in_array('Instagram Comments',array_values($alertResources))){
+          $instagramId = array_search('Instagram Comments',$alertResources);
+          if(isset($data['total_comments'])){
+            $data['total_comments'] += \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,$instagramId);
+          }else{
+            $data['total_comments'] = \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,$instagramId);
           }
         }
-        // change to see retweets look up history in github
-        if($alertMention->mentionsCount){
 
-            foreach ($alertMention->mentions as $mentions => $mention) {
-              if (isset($mention->mention_data['like_count'])) {
-                if(\yii\helpers\ArrayHelper::keyExists('like_count',$mention->mention_data)){
-                  $likes_comments += $mention->mention_data['like_count'];
-                }
-              }
-
-              if (isset($mention->mention_data['retweet_count'])) {
-                if(\yii\helpers\ArrayHelper::keyExists('retweet_count',$mention->mention_data)){
-                  $retweets += $mention->mention_data['retweet_count'];
-
-                }
-              }
-            }
+        if(in_array('Twitter',array_values($alertResources))){
+          $twitterId = array_search('Twitter',$alertResources);
+          $values = \app\helpers\MentionsHelper::getDataMentionData($model->id,$twitterId,['retweet_count','favorite_count']);
+          foreach ($values as $key => $value) {
+            $data[$key] = $value;
+          }
         }
+        $data['count'] = $count;
       }
 
     }
+    
     return [
-      'status'=>true,
-      'count'=>$count,
-      'likes' => $likes,
-      'shares' => $shares,
-      'coments' => $coments,
-      'retweets' => $retweets,
-      'likes_comments' => $likes_comments
+      'data' => $data,
     ];
   }
 
@@ -156,9 +159,6 @@ class MentionsController extends Controller
    * @return [type]          [description]
    */
   public function actionCountSourcesMentions($alertId){
-
-    
-   
     // cuenta por menciones
     $model = \app\models\Alerts::findOne($alertId);
     $data = [];
@@ -285,8 +285,6 @@ class MentionsController extends Controller
     if(!count($dataCount)){
       $dataCount[] = array('Not Found',0,0,0,0,0,0);
     }
-
-
 
     return array('status'=>true,'resources'=> $data,'data' => $dataCount);
   }

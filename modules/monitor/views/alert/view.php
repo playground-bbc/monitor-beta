@@ -53,7 +53,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
     
     <div v-if="isData">
         <div class="row">
-            <total-mentions :count="count" :shares="shares" :retweets="retweets" :likes="likes" :coments="coments" :likes_comments="likes_comments">
+            <total-mentions :count="count" :resourcescount="resourcescount">
         </div>
         <!-- <div class="">
           <box-sources></box-sources>

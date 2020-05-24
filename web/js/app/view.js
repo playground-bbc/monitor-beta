@@ -127,9 +127,24 @@ const statusAlert = Vue.component("status-alert", {
  * @return {[component]}           [component]
  */
 const count_mentions = Vue.component("total-mentions", {
-  props: ["count", "shares", "retweets", "likes", "coments", "likes_comments"],
+  props: ["count", "resourcescount"],
   data: function () {
     return {};
+  },
+  methods: {
+    calcColumns() {
+      var size = Object.keys(this.resourcescount).length;
+      return columnsName[size - 1];
+    },
+    getClass(resource) {
+      return smallboxProperties[resource].class;
+    },
+    getTitle(resource) {
+      return smallboxProperties[resource].title;
+    },
+    getIcon(resource) {
+      return smallboxProperties[resource].icon;
+    },
   },
   template: "#view-total-mentions",
 });
@@ -974,12 +989,10 @@ const vm = new Vue({
       axios
         .get(baseUrlApi + "count-mentions" + "?alertId=" + this.alertId)
         .then((response) => {
-          this.count = response.data.count;
-          this.likes = response.data.likes;
-          this.shares = response.data.shares;
-          this.coments = response.data.coments;
-          this.retweets = response.data.retweets;
-          this.likes_comments = response.data.likes_comments;
+          if (response.status == 200 && response.statusText == "OK") {
+            this.count = response.data.data.count;
+            this.resourcescount = response.data.data;
+          }
         })
         .catch((error) => console.log(error));
       if (this.count > 0) {

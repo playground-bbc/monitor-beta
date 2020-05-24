@@ -318,18 +318,21 @@ class MentionsController extends Controller
    */
   public function actionListMentions($alertId){
     // list mentions: resource - products - author - mentions
-    $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
-    $alertsId = [];
-    foreach ($alertMentions as $alertMention){
-      if($alertMention->mentionsCount){
-        $alertsId[] = $alertMention->id;
-      }
-    }
+    $db = \Yii::$app->db;
+    $duration = 60;  
+    $alertMentions = $db->cache(function ($db) use ($alertId) {
+      return (new \yii\db\Query())
+        ->select('id')
+        ->from('alerts_mencions')
+        ->where(['alertId' => $alertId])
+        ->orderBy(['resourcesId' => 'ASC'])
+        ->all();
+    },$duration); 
+    
+    $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');  
 
     //$mentions = \app\models\Mentions::find()->where(['alert_mentionId' => $alertsId])->with(['alertMention','alertMention.resources','origin'])->asArray()->all();
     
-    $db = \Yii::$app->db;
-    $duration = 60;
     $rows = $db->cache(function ($db) use ($alertsId) {
       return (new \yii\db\Query())
         ->select([

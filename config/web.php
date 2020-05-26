@@ -20,6 +20,9 @@ $config = [
         'topic' => [
             'class' => 'app\modules\topic\Module',
         ],
+        'user' => [
+            'class' => 'app\modules\user\Module',
+        ],
     ],
     'components' => [
         'assetManager' => [

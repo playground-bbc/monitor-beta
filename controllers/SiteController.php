@@ -86,6 +86,7 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            \app\helpers\UserLogsHelper::save(Yii::$app->user->getId(),'User has Login');
             return $this->redirect(['//monitor/alert']);
         }
 
@@ -102,8 +103,8 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
+        \app\helpers\UserLogsHelper::save(Yii::$app->user->getId(),'User has Logout');
         Yii::$app->user->logout();
-
         //return $this->goHome();
         return $this->redirect('login');
     }

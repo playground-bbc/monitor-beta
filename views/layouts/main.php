@@ -11,6 +11,11 @@ use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
 
 use app\widgets\AlertFacebook;
+$condition = false;
+if(isset(Yii::$app->user->identity->username)){
+    $usernames = ['admin','mauro'];
+    $condition = (in_array(Yii::$app->user->identity->username,$usernames))? true : false;
+}
 
 AppAsset::register($this);
 ?>
@@ -40,6 +45,7 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
+            ['label' => 'Logs', 'url' => ['/user/logs'],'visible' => $condition], 
             ['label' => 'Menciones', 'url' => ['/topic/']],
             ['label' => 'Monitor', 'url' => ['/monitor/alert/index']],
             Yii::$app->user->isGuest ? (

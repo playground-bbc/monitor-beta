@@ -47,7 +47,9 @@
         "p3k/emoji-detector": "^0.2.1",
         "bower-asset/moment": "^2.24",
         "dompdf/dompdf": "^0.8.4",
-        "halaxa/json-machine": "^0.3.3"
+        "halaxa/json-machine": "^0.3.3",
+        "fabpot/goutte": "^3.2",
+        "cbschuld/browser.php": "^1.9"
 
     },
     "require-dev": {

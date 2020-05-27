@@ -2,7 +2,7 @@
 namespace app\helpers;
 
 use yii;
-require_once Yii::getAlias('@vendor') . '/autoload.php'; // call browser client
+require_once Yii::getAlias('@vendor') . '/cbschuld/browser.php/src/Browser.php'; // call browser client
 /**
  *
  * @author Eduardo Morales <eduardo@montana-studio.com>

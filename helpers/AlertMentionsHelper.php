@@ -438,7 +438,7 @@ class AlertMentionsHelper
         $minutes_to_call = \Yii::$app->params['facebook']['time_min_sleep']; 
 
 
-        $sourcesTargest = ['Instagram Comments','Facebook Comments','Facebook Messages'];
+        $sourcesTargest = ['Instagram Comments','Facebook Comments','Facebook Messages','Paginas Webs'];
         // loop alerts config
         for ($a=0; $a < sizeof($alerts) ; $a++) { 
             foreach ($alerts[$a]['config']['configSources'] as $resourceName) {
@@ -480,7 +480,7 @@ class AlertMentionsHelper
                     $alerts[$a]['config']['configSources'] = array_values($alerts[$a]['config']['configSources']);
                 }// end if !is_null
             }// end foreach config  config.sources
-        } // end llop alerts
+        } // end llop alerts.
         return $alerts;
     }
     /**

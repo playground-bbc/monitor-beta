@@ -161,9 +161,9 @@ class BaseApi extends Model {
 	 */
 	public function webPages($alerts = [])
 	{
-		$scraping = new \app\models\api\Scraping();
 		foreach ($alerts as $alert) {
 			if ($alert['config']['urls'] != '') {
+				$scraping = new \app\models\api\Scraping();
 				$query_params = $scraping->prepare($alert);
 				$crawlers = $scraping->getRequest();
 				$content  = \app\helpers\ScrapingHelper::getContent($crawlers);

@@ -48,7 +48,7 @@ class ScrapingHelper{
 			]
 		];
 	 */
-	public static function getLinksInUrlsWebPage($valid_urls = [])
+	public static function getLinksInUrlsWebPage($valid_urls = [],$alertId)
 	{
 		$urls = [];
 		// Initialize the client with the handler option
@@ -97,8 +97,64 @@ class ScrapingHelper{
 				continue;
 			}
 		}
+		$urls = self::getOrSetUrlsFromCache($urls,$alertId);
 		return $urls;
 		
+	}
+
+	/**
+	 * [getOrSetUrlsFromCache return urls from cache]
+	 * @param  array  $urls [urls valids]
+	 * @param  array  $id   [id from alert]
+	 * @return [array]      [all the sublinks by each url]
+	 *
+	 */
+	public static function getOrSetUrlsFromCache($urls,$alertId)
+	{
+		// ver si un nueva url no esta en cache y agregarla con value 0
+		$cache = \Yii::$app->cache;
+		$data = $cache->get("urls_cached_{$alertId}");
+		$time_expired = 86400; // seconds in a days
+		$urls_keys = array_keys($urls);
+		if ($data === false) {
+            // $data is not found in cache, calculate it from scratch
+            foreach($urls_keys as $index => $url){
+                $data[$url] = 0;
+            }
+            $cache->set("urls_cached_{$alertId}", $data, $time_expired);
+        } else {
+           // $data is found with data
+           // if a new url
+           foreach($urls_keys as $index => $url){
+                if(!isset($data[$url])){
+                    $data[$url] = 0; 
+                }
+            }
+
+		}
+		
+		$new_url = [];
+        foreach ($urls as $url => $properties) {
+            $limit = (sizeOf($properties['links']) > 1) ? 5 : sizeOf($properties['links']); 
+            $index = $data[$url];
+            $tmp = 0;
+            $new_url[$url]['domain'] = $properties['domain'];
+            for ($i=$index; $i < sizeOf($properties['links']) ; $i++) { 
+                if($tmp >= $limit){
+                    break;
+                }
+                $new_url[$url]['links'][] = $properties['links'][$i];
+                $tmp++;
+            }
+            if($i >= sizeOf($properties['links'])){
+                $data[$url] = 0;
+            }else{
+                $data[$url] = $i;
+            }
+            
+		}
+		$cache->set("urls_cached_{$alertId}", $data, $time_expired);
+		return $new_url;
 	}
 
 	/**

@@ -105,12 +105,13 @@ if (!$alert->isNewRecord) {
                             'id' => 'urls',
                             //'resourceName' => 'Product Competition',
                             'placeholder' => 'Ingrese url a Buscar', 
-                            'multiple' => true
+                            'multiple' => true,
                         ],
                             'pluginOptions' => [
                                 'tags' => true,
                                 'tokenSeparators' => [',', ' '],
-                                'minimumInputLength' => 2
+                                'minimumInputLength' => 2,
+                                'maximumSelectionLength' => 8
                             ],
                         ]); 
                     ?>  

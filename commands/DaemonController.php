@@ -56,6 +56,8 @@ class DaemonController extends Controller
      */
     public function actionAlertsRunWeb(){
         $alert = new Alerts();
+        $start = microtime(true);
+        echo(sprintf("A: %d bytes used\n", memory_get_usage()));
         $alertsConfig = $alert->getBringAllAlertsToRun(true,'PaginasWebs');
         
         
@@ -63,7 +65,9 @@ class DaemonController extends Controller
            $baseApi = new BaseApi();
            $api = $baseApi->callResourcesApi($alertsConfig);
         }
-        
+        $execution_time = (microtime(true) - $start)/60;
+        echo '<b>Total Execution Time:</b> '.$execution_time.' Mins'."\n";
+        echo(sprintf("A: %d bytes used\n", memory_get_usage()));
         return ExitCode::OK;
     }
     /**

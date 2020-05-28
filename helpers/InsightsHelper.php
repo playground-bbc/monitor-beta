@@ -16,9 +16,9 @@ class InsightsHelper
      * @param  [string] $params    [params in the call]
      * @return [array]            [data from the call or null]
      */
-    public static function getData($end_point,$params)
+    public static function getData($end_point,$params,$_baseUrl = '')
     {
-        $_baseUrl = 'https://graph.facebook.com/v6.0'; 
+        $_baseUrl = ($_baseUrl != '') ? $_baseUrl : 'https://graph.facebook.com/v6.0'; 
 
         $data = null;
         $client = new yii\httpclient\Client(['baseUrl' => $_baseUrl]);
@@ -69,7 +69,7 @@ class InsightsHelper
         if(!$model->save()){
             var_dump($model->errors);
         }
-
+        self::setRelationPostWithFamilyProducts($model);
         return $model;
 
     }
@@ -172,6 +172,99 @@ class InsightsHelper
             }
 
 		}
+    }
+    /**
+     * [setRelationPostWithFamilyProducts save relation if exist looking message content extract entities from text and compare with Prodcuts series and families series]
+     * @param  obj  $model      [model content]
+     */
+    public static function setRelationPostWithFamilyProducts($model){
+        $base_url = "https://api.dandelion.eu/";
+        $end_point = "datatxt/nex/v1";
+        $params = [
+            'text' => $model->message,
+            'lang' => 'es',
+            'token' => 'c29bd9219aa746198de326f0243de397'
+        ];
+
+        
+        $is_w_products_family_content = \app\models\WProductsFamilyContent::find()->where(
+            [
+                'contentId' => $model->id,
+            ]
+        )->exists();
+        if(!$is_w_products_family_content){
+            $data = \app\helpers\InsightsHelper::getData($end_point,$params,$base_url);
+            if($data){
+                if($data['annotations']){
+                    $anotations = \yii\helpers\ArrayHelper::map($data['annotations'],'spot','label','id');
+                    // order data from api
+                    $entyties = [];
+                    foreach($anotations as $values){
+                        if(!empty($values)){
+                            foreach($values as $index => $value){
+                                if(!in_array($index,$entyties,true)){
+                                    $entyties[] = $index;
+                                }
+                                if(!in_array($value,$entyties,true)){
+                                    $entyties[] = $value;
+                                }
+                            }
+                        }
+                    }
+                    $series_products_count =  \app\models\ProductsSeries::getDb()->cache(function ($db) {
+                        return  \app\models\ProductsSeries::find()->count();
+                    },60);
+    
+                    $products_family =  \app\models\ProductsFamily::getDb()->cache(function ($db) {
+                        return  \app\models\ProductsFamily::find()->all();
+                    },60);
+    
+                    $products_categories =  \app\models\ProductCategories::getDb()->cache(function ($db) {
+                        return  \app\models\ProductCategories::find()->all();
+                    },60);
+    
+                    $ids_series = [];
+                    // family firts 
+                    foreach($products_family as $product_family){
+                        if(\app\helpers\StringHelper::containsAny($product_family->name,$entyties)){
+                            if(!in_array($product_family->series->id,$ids_series)){
+                                $ids_series[] = $product_family->series->id;
+                            }
+                            
+                        }
+                    }
+                    // categories
+                    foreach($products_categories as $product_categories){
+                        if(\app\helpers\StringHelper::containsAny($product_categories->name,$entyties)){
+                            echo $product_categories->name."\n";
+                            if(!in_array($product_categories->productsFamily->series->id,$ids_series)){
+                                $ids_series[] = $product_categories->productsFamily->series->id;
+                            }
+                            
+                        }
+                    }
+                    if(!empty($ids_series)){
+                        for ($i=0; $i < sizeOf($ids_series) ; $i++) { 
+                            $is_model = \app\models\WProductsFamilyContent::find()->where(
+                                [
+                                    'contentId' => $model->id,
+                                    'serieId' => $ids_series[$i],
+                                ]
+                                )->exists();
+                            if(!$is_model){
+                                $contentProduct = new \app\models\WProductsFamilyContent();
+                                $contentProduct->contentId = $model->id;
+                                $contentProduct->serieId = $ids_series[$i];
+                                if(!$contentProduct->save()){
+                                    var_dump($contentProduct->errors);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
     }
 
     /**

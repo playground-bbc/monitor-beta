@@ -57,8 +57,9 @@ class Scraping extends Model
 	{
 		$valid_urls = \app\helpers\StringHelper::getValidUrls($urls_string);
 		// get all sub links by each url
-		$urls = \app\helpers\ScrapingHelper::getLinksInUrlsWebPage($valid_urls,$this->alertId);
-	
+		$urls = \app\helpers\ScrapingHelper::getLinksInUrlsWebPage($valid_urls);
+		// get from cache
+		$urls =  \app\helpers\ScrapingHelper::getOrSetUrlsFromCache($urls,'alert',$this->alertId);
 		return $urls;
 	}
 

@@ -64,8 +64,8 @@ class StringHelper
     /**
      * https://github.com/danielstjules/Stringy#containsanyarray-needles--boolean-casesensitive--true-
      */
-    public static function containsAny($sentence,$data){
-        return s($sentence)->containsAny($data,false);
+    public static function containsAny($sentence,$data,$caseSensitive = false){
+        return s($sentence)->containsAny($data,$caseSensitive);
     }
     /**
      * https://github.com/danielstjules/Stringy#containsallarray-needles--boolean-casesensitive--true-

@@ -48,7 +48,7 @@ class ScrapingHelper{
 			]
 		];
 	 */
-	public static function getLinksInUrlsWebPage($valid_urls = [],$alertId)
+	public static function getLinksInUrlsWebPage($valid_urls = [])
 	{
 		$urls = [];
 		// Initialize the client with the handler option
@@ -97,7 +97,6 @@ class ScrapingHelper{
 				continue;
 			}
 		}
-		$urls = self::getOrSetUrlsFromCache($urls,$alertId);
 		return $urls;
 		
 	}
@@ -109,11 +108,11 @@ class ScrapingHelper{
 	 * @return [array]      [all the sublinks by each url]
 	 *
 	 */
-	public static function getOrSetUrlsFromCache($urls,$alertId)
+	public static function getOrSetUrlsFromCache($urls,$key,$id)
 	{
 		// ver si un nueva url no esta en cache y agregarla con value 0
 		$cache = \Yii::$app->cache;
-		$data = $cache->get("urls_cached_{$alertId}");
+		$data = $cache->get("{$key}_{$id}");
 		$time_expired = 86400; // seconds in a days
 		$urls_keys = array_keys($urls);
 		if ($data === false) {
@@ -121,7 +120,7 @@ class ScrapingHelper{
             foreach($urls_keys as $index => $url){
                 $data[$url] = 0;
             }
-            $cache->set("urls_cached_{$alertId}", $data, $time_expired);
+            $cache->set("{$key}_{$id}", $data, $time_expired);
         } else {
            // $data is found with data
            // if a new url
@@ -153,7 +152,7 @@ class ScrapingHelper{
             }
             
 		}
-		$cache->set("urls_cached_{$alertId}", $data, $time_expired);
+		$cache->set("{$key}_{$id}", $data, $time_expired);
 		return $new_url;
 	}
 
@@ -356,15 +355,16 @@ class ScrapingHelper{
 	public static function removeStopWords($analysis = [])
 	{
 		if (!empty($analysis)) {
+			$data = [];
 			$stoplist = self::getStopList();
 			for ($a=0; $a < sizeof($analysis) ; $a++) { 
-				if (in_array($analysis[$a]['name'], $stoplist)) {
-					unset($analysis[$a]);
+				if (!\app\helpers\StringHelper::containsAny($analysis[$a]['name'],$stoplist,true)) {
+					$data[] = $analysis[$a];
 				}
 			}
+			unset($analysis);
 		}
-		$analysis = array_values($analysis);
-		return $analysis;
+		return $data;
 	}
 
 	public static function getStopList()
@@ -379,6 +379,10 @@ class ScrapingHelper{
 			'it',
 			'captcha',
 			//spanish
+			'del',
+			'los',
+			'este',
+			'para',
 			'que',
 			'hay',
 			'luego',
@@ -398,12 +402,10 @@ class ScrapingHelper{
 			'ellas',
 			'ellos',
 			'nosotros',
-			'que',
 			'como',
 			'por',
 			'para',
-
-
+			'una',
 		];
 	}
 }

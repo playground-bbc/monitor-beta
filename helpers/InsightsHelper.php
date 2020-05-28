@@ -236,7 +236,6 @@ class InsightsHelper
                     // categories
                     foreach($products_categories as $product_categories){
                         if(\app\helpers\StringHelper::containsAny($product_categories->name,$entyties)){
-                            echo $product_categories->name."\n";
                             if(!in_array($product_categories->productsFamily->series->id,$ids_series)){
                                 $ids_series[] = $product_categories->productsFamily->series->id;
                             }

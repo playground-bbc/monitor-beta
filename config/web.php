@@ -20,6 +20,9 @@ $config = [
         'topic' => [
             'class' => 'app\modules\topic\Module',
         ],
+        'insights' => [
+            'class' => 'app\modules\insights\Module',
+        ],
         'user' => [
             'class' => 'app\modules\user\Module',
         ],

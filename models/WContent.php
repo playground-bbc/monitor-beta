@@ -115,12 +115,4 @@ class WContent extends \yii\db\ActiveRecord
     {
         return $this->hasMany(WInsights::className(), ['content_id' => 'id']);
     }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getWProductsFamilyContent()
-    {
-        return $this->hasMany(WProductsFamilyContent::className(), ['contentId' => 'id']);
-    }
 }

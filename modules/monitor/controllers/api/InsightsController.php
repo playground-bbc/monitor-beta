@@ -104,7 +104,7 @@ class InsightsController extends Controller
                 'type_content_id' => $postContentId->id,
                 'resource_id' => $resourceId // get by source
             ]
-        )->with(['resource','wProductsFamilyContent.serie'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
+        )->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
 
 
 

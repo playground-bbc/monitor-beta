@@ -72,25 +72,13 @@ use yii\helpers\Html;
 	          <thead>
 	            <tr>
 	              <th scope="col">titulo post</th>
-				  <th scope="col">Familia Producto</th>
 	              <th v-for="header in insightsHeader" data-placement="top" :title="header  | setHeaderToolTips" scope="col">{{header | setHeadersPost}}</th>
 	            </tr>
 	          </thead>
 	          <tbody v-if="contentPosts">
 	            <tr v-for="post in contentPosts">
 	              <th scope="row"><a :href="post.permalink" data-placement="top" :title="post.message"  target="_blank">{{post.message  | stringSubstr}}</a></th>
-					<td v-if="post.wProductsFamilyContent.length" align="center">
-						<ul style="margin-top:10px;">
-						<li style="list-style:none; margin-right:30px" v-for="family in post.wProductsFamilyContent"><span class="label label-info">{{family.serie.abbreviation_name}}</span></li>
-						</ul>
-					</td>
-					<td v-else align="center">
-						<ul style="margin-top:10px;">
-							<li style="list-style:none; margin-right:30px">-</li>
-						</ul>
-					</td>
-				 
-				  <td align="center" v-for="insigth in post.wInsights">
+	              <td align="center" v-for="insigth in post.wInsights">
 	              		<div v-if="insigth.value">
 	              			{{insigth.value  | formatNumber }}
 	              		</div>
@@ -113,6 +101,7 @@ use yii\helpers\Html;
 		        <tr v-if="storysHeader">
 		          <th scope="col">Link</th>		
 		          <th v-for="header in storysHeader" scope="col">{{header}}</th>
+		          
 		        </tr>
 		      </thead>
 		      <tbody v-if="contentStorys">

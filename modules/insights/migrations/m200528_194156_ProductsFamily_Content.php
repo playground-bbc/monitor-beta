@@ -42,7 +42,9 @@ class m200528_194156_ProductsFamily_Content extends Migration
             'w_products_family_content',
             'contentId',
             'w_content',
-            'id'
+            'id',
+            'CASCADE',
+            'CASCADE'
             
         );
 

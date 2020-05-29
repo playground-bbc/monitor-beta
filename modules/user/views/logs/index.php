@@ -30,7 +30,19 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => Yii::t('app', 'username'),
                 'attribute' => 'username',
                 'format' => 'raw',
-                'value' => function($model) { 
+                'filter' => Select2::widget([
+                    'data' => \yii\helpers\ArrayHelper::map(\app\models\Users::find()->all(),'id','username'),
+                    'name' => 'UserLogsSearch[username]',
+                    'value' => $searchModel['username'],
+                    'attribute' => 'username',
+                    'options' => ['placeholder' => 'Select username...','multiple' => false],
+                    'theme' => 'krajee',
+                    'hideSearch' => true,
+                    'pluginOptions' => [
+                          'allowClear' => true,
+                     ],
+               ]),
+               'value' => function($model) { 
                     return $model->user->username;
                 },
             ],

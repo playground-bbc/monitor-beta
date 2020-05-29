@@ -54,6 +54,7 @@ class UserLogsSearch extends UserLogs
         $this->load($params);
         $dataProvider->sort->attributes['log_date'] = [
             'asc' => ['log_date' => SORT_ASC],
+            'desc' => ['log_date' => SORT_DESC],
         ];
 
         if (!$this->validate()) {

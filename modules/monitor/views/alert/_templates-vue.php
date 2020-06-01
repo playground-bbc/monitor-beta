@@ -1,5 +1,8 @@
 <?php 
 use yii\helpers\Html;
+use yii\grid\GridView;
+use yii\widgets\Pjax;
+use kartik\select2\Select2;
 ?>
 <!-- template que muestra el boton para solicitar el pdf -->
 <script type="text/x-template" id="view-button-report">
@@ -125,37 +128,79 @@ use yii\helpers\Html;
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
     <div>
-        <h4>Menciones</h4>
-        <div class="row">
-            <div class="col-md-12">
-                <table id="list-mentions" class="table table-striped table-bordered" cellspacing="0"  style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Recurso</th>
-                            <th>Producto</th>
-                            <th>Fecha</th>
-                            <th>Nombre</th>
-                            <th>Usuario</th>
-                            <th>Titulo</th>
-                            <th>mensaje</th>
-                            <th>Url</th>
-                        </tr>
-                    </thead>
-                    <tfoot>
-                        <tr>
-                            <th>Recurso</th>
-                            <th>Producto</th>
-                            <th>Fecha</th>
-                            <th>Nombre</th>
-                            <th>Usuario</th>
-                            <th>Titulo</th>
-                            <th>mensaje</th>
-                            <th>Url</th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
+    <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
+            'columns' => [
+                ['class' => 'yii\grid\SerialColumn'],
+                [
+                    'label' => Yii::t('app','Recurso Social'),
+                    'attribute' => 'resourceName',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['recurso'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','term searched'),
+                    'attribute' => 'termSearch',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['term_searched'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','fecha'),
+                    //'attribute' => 'userId',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','name'),
+                    'attribute' => 'name',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['name'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','screen_name'),
+                    'attribute' => 'screen_name',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['screen_name'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','subject'),
+                    'attribute' => 'subject',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['subject'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','message_markup'),
+                    'attribute' => 'message_markup',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['message_markup'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','url'),
+                    //'attribute' => 'userId',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return \yii\helpers\Html::a('link',$model['url']);
+                    }
+                ],
+            ],
+        ]); ?>
+    <?php Pjax::end() ?>
     </div>
 </script>
 

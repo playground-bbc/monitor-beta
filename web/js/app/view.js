@@ -721,6 +721,7 @@ const count_resources_date_chat = Vue.component("count-date-resources-chart", {
  * @return {[component]}           [component]
  */
 const listMentions = Vue.component("list-mentions", {
+  props: ["is_change"],
   template: "#mentions-list",
   data: function () {
     return {
@@ -728,14 +729,20 @@ const listMentions = Vue.component("list-mentions", {
     };
   },
   mounted() {
-    var table = this.setDataTable();
+    //var table = this.setDataTable();
+    $.pjax.reload({ container: "#mentions", timeout: false });
     setInterval(function () {
-      table.ajax.reload(null, false);
+      $.pjax.reload({ container: "#mentions", timeout: false });
     }, refreshTimeTable);
   },
   methods: {
     setDataTable() {
       return initSearchTable();
+    },
+  },
+  computed: {
+    isreload() {
+      return this.is_change;
     },
   },
 });
@@ -962,21 +969,11 @@ const vm = new Vue({
   data: {
     alertId: id,
     count: 0,
-    likes: 0,
-    shares: 0,
-    coments: 0,
-    retweets: 0,
     isData: false,
-    likes_comments: 0,
     resourcescount: [],
+    is_change: 0,
   },
   mounted() {
-    /*if (!localStorage.init) {
-			console.log("runnig init");
-			this.init();
-			localStorage.init = 1;
-		}*/
-    //this.init();
     setInterval(
       function () {
         this.fetchIsData();
@@ -997,13 +994,18 @@ const vm = new Vue({
         .catch((error) => console.log(error));
       if (this.count > 0) {
         this.isData = true;
+        if (localStorage.getItem("alert_count_" + id)) {
+          var count_storage = localStorage.getItem("alert_count_" + id);
+          if (count_storage != this.count) {
+            localStorage.setItem("alert_count_" + id, this.count);
+            this.is_change = 1;
+            //console.info("Hubo un cambio en el count");
+          }
+        } else {
+          localStorage.setItem("alert_count_" + id, this.count);
+          //console.info("set storage ...");
+        }
       }
-    },
-    init() {
-      axios
-        .get(baseUrlApi)
-        .then((response) => console.log("calling cronb tab"))
-        .catch((error) => console.log(error));
     },
   },
   components: {

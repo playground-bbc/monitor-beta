@@ -5,6 +5,7 @@ use yii\helpers\Html;
 use macgyer\yii2materializecss\widgets\data\DetailView;
 use kartik\select2\Select2;
 
+
 \app\assets\SweetAlertAsset::register($this);
 \app\assets\AxiosAsset::register($this);
 \app\assets\VueAsset::register($this);
@@ -55,9 +56,6 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
         <div class="row">
             <total-mentions :count="count" :resourcescount="resourcescount">
         </div>
-        <!-- <div class="">
-          <box-sources></box-sources>
-       </div> -->
        <div class="row">
             <div class="col-md-12">
                 <total-resources-chart>
@@ -79,22 +77,11 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
             </div>
         </div>
         <div id="mentions-list" class="row">
-            <list-mentions></list-mentions>
+            <list-mentions :is_change="is_change">
         </div>
         <div class="row">
-            <cloud-words></cloud-words>
+            <!-- <cloud-words></cloud-words> -->
         </div>
-        
-        <!-- <div class="row">
-            <list-emojis></list-emojis>
-        </div> -->
-            
-        
-        <!-- <div class="row">
-            <resource-date-mentions></resource-date-mentions>
-        </div> -->
-
-        
     </div>
     <div v-else>
         <div class="loader">
@@ -106,7 +93,12 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
 
 </div>
 
-<?= $this->render('_templates-vue');  ?>
+<?= $this->render('_templates-vue',
+    [
+        'dataProvider' => $dataProvider,
+        'searchModel' => $searchModel,
+    ]);  
+?>
 
 
 

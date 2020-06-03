@@ -140,7 +140,7 @@ let message_not_data =
 let title_delete = "Usted desea eliminar esta Alerta?";
 let text_delete =
   "Se procedera a <b>borar</b> los datos obtenidos por la alerta.";
-
+// property for each box on resource social
 let smallboxProperties = {
   count: {
     title: "Total de Entradas",
@@ -177,4 +177,23 @@ let smallboxProperties = {
     class: "small-box bg-info",
     icon: "socicon-messenger",
   },
+};
+
+// header to dataTable on graph
+let dataTableHeaders = {
+  Twitter: ["Retweets", "Favoritos", "Total"],
+  "Instagram Comments": ["Shares", "Instagram Likes"],
+};
+
+// color by social media
+let socialColors = {
+  // twitter
+  Retweets: "#3CAAED",
+  Favoritos: "#E30934",
+  Likes: "#EC1F2E",
+  // Instagram
+  Shares: "#DB23EA",
+  "Instagram Likes": "#E8A0C1",
+  // total
+  Total: "#05BD2C",
 };

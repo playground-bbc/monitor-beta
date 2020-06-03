@@ -80,7 +80,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
             <list-mentions :is_change="is_change">
         </div>
         <div class="row">
-            <!-- <cloud-words></cloud-words> -->
+            <cloud-words></cloud-words>
         </div>
     </div>
     <div v-else>

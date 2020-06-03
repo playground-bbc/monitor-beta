@@ -160,7 +160,7 @@ class MentionsController extends Controller
    */
   public function actionCountSourcesMentions($alertId){
     // cuenta por menciones
-    $model = \app\models\Alerts::findOne($alertId);
+    $model = $this->findModel($alertId);
     $data = [];
 
     foreach ($model->config->sources as $sources){
@@ -168,6 +168,7 @@ class MentionsController extends Controller
           $data[] = \app\helpers\AlertMentionsHelper::getSocialNetworkInteractions($sources->name,$sources->id,$model->id);
       }
     }
+    
     // chage values to int
     for($d = 0; $d < sizeof($data); $d++){
       if(!is_null($data[$d])){
@@ -181,11 +182,12 @@ class MentionsController extends Controller
     
     //var_dump($data);
     if(is_null($data[0])){
-      $data[0] = ['not found',0,0,0,0];
+      $data[0] = ['not found',0,0,0];
     }
 
+    $colors = ['#3CAAED','#EC1F2E','#3A05BD'];
     
-    return array('status'=>true,'data'=>$data);
+    return array('status'=>true,'data'=>$data,'colors' => $colors);
 
   }
   /**
@@ -218,10 +220,9 @@ class MentionsController extends Controller
     }
 
     if(empty($model)){
-      $model[] = ['not found',0,0,0,0,0];
+      $model[] = ['not found',0,0,0,0];
       $status = false;
     }
-
     return array('status'=>$status,'data'=>$model);
 
   }
@@ -241,10 +242,6 @@ class MentionsController extends Controller
     $products = [];
     foreach ($alerts_mentions as $alerts_mention) {
       if($alerts_mention->mentionsCount){
-        /*$product_model =  \app\helpers\AlertMentionsHelper::getProductByTermSearch($alerts_mention->term_searched);
-        if(!is_null($product_model)){
-          $products[$product_model->name][$alerts_mention->resources->name][] = $alerts_mention->id;
-        }//*/
         $products[$alerts_mention->term_searched][$alerts_mention->resources->name][] = $alerts_mention->id;
       }// end if
     }// end foreach
@@ -263,30 +260,24 @@ class MentionsController extends Controller
         $total = 0;
         $shares = null;
         $likes = 0;
-        $like_post = 0;
-        $retweets = 0;
-        $likes_twitter = 0;
         foreach ($values as $value) {
+          // add shares and retweets
           $shares += (isset($value['shares'])) ? $value['shares']: 0;
-          /*if(isset($value['shares'])){
-            if(intval($value['shares'])){
-              $shares += $value['shares'];
-            }
-          }*/
-          $likes  += (isset($value['likes'])) ? $value['likes']: 0;
-          $like_post  += (isset($value['like_post'])) ? $value['like_post']: 0;
-          $retweets  += (isset($value['retweets'])) ? $value['retweets']: 0;
-          $likes_twitter  += (isset($value['likes_twitter'])) ? $value['likes_twitter']: 0;
+          $shares  += (isset($value['retweets'])) ? $value['retweets']: 0;
+          // add likes post and favorites
+          $likes  += (isset($value['like_post'])) ? $value['like_post']: 0;
+          $likes  += (isset($value['likes_twitter'])) ? $value['likes_twitter']: 0;
+          // get total
           $total  += (isset($value['total'])) ? $value['total']: 0;
         }
-        $dataCount[] = array($product,$shares,$like_post,$likes,$retweets,$likes_twitter,$total);
+        $dataCount[] = array($product,$shares,$likes,$total);
     }
 
     if(!count($dataCount)){
-      $dataCount[] = array('Not Found',0,0,0,0,0,0);
+      $dataCount[] = array('Not Found',0,0,0);
     }
-
-    return array('status'=>true,'resources'=> $data,'data' => $dataCount);
+    $colors = ['#3CAAED','#EC1F2E','#3A05BD'];
+    return array('status'=>true,'data' => $dataCount,'colors' => $colors);
   }
 
 
@@ -570,7 +561,7 @@ class MentionsController extends Controller
       $model[$i] = array($date);
       $b = 1;
       foreach ($resourceNames as $index => $resourceName) {
-        $model[$i][$b] = null;
+        $model[$i][$b] = 0;
         for ($v=0; $v <sizeof($values) ; $v++) { 
           if ($resourceName == $values[$v]['resourceName']) {
               if(!empty($model[$i][$b])){
@@ -587,7 +578,7 @@ class MentionsController extends Controller
     }
 
     //return array('resourceDateCount'=>$resourceDateCount);
-    return array('status'=>true,'model' => $model,'data' => $data,'resourceNames' => $resourceNames);  
+    return array('status'=>true,'model' => $model,'resourceNames' => $resourceNames);  
   }
 
 

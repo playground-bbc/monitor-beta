@@ -113,22 +113,22 @@ class AlertMentionsHelper
             
             case 'Facebook Comments':
 
-                return [$resource_name,$model->shareFaceBookPost,'0',$model->likesFacebookComments,$model->total];
+                return [$resource_name,$model->shareFaceBookPost,$model->likesFacebookComments,$model->total];
                 break;
 
             case 'Facebook Messages':
                 
                 $count = self::getCountAlertMentionsByResourceId($model->alertId,$model->resourcesId);
-                return [$resource_name,'0','0','0',$count];
+                return [$resource_name,'0','0',$count];
                 break;    
 
             case 'Instagram Comments':
                 
-                return [$resource_name,'0',$model->likesInstagramPost,$model->likesFacebookComments,$model->total];
+                return [$resource_name,'0',$model->likesInstagramPost,$model->total];
                 break;
             case 'Twitter':
             
-                return [$resource_name,$model->twitterRetweets,'0',$model->twitterLikes,$model->twitterTotal];
+                return [$resource_name,$model->twitterRetweets,$model->twitterLikes,$model->twitterTotal];
                 break;
                 
             case 'Live Chat':
@@ -147,7 +147,7 @@ class AlertMentionsHelper
                 }
 
 
-                return [$resource_name,'0','0','0',$total];
+                return [$resource_name,'0','0',$total];
 
                 break;
 
@@ -165,17 +165,17 @@ class AlertMentionsHelper
                     $total += intval($rows);  
                 }
 
-                return [$resource_name,'0','0','0',$total];
+                return [$resource_name,'0','0',$total];
 
                 break;  
             case 'Excel Document':
-                return [$resource_name,'0','0','0',$model->twitterTotal];
+                return [$resource_name,'0','0',$model->twitterTotal];
                 break; 
             case 'Paginas Webs':
-                return [$resource_name,'0','0','0',$model->total];                      
+                return [$resource_name,'0','0',$model->total];                      
                 break;
             case 'Paginas Webs':
-                return [$resource_name,'0','0','0',$model->total];                      
+                return [$resource_name,'0','0',$model->total];                      
                 break;                           
 
             

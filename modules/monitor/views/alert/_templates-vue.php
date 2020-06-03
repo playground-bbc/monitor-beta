@@ -3,6 +3,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 use kartik\select2\Select2;
+use yii\widgets\ActiveForm;
 ?>
 <!-- template que muestra el boton para solicitar el pdf -->
 <script type="text/x-template" id="view-button-report">
@@ -128,7 +129,11 @@ use kartik\select2\Select2;
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
     <div>
+
+    
+
     <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
+        <?php  echo $this->render('_search-word', ['model' => $searchModel]); ?>
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
             'filterModel' => $searchModel,
@@ -195,12 +200,14 @@ use kartik\select2\Select2;
                     //'attribute' => 'userId',
                     'format' => 'raw',
                     'value' => function($model){
-                        return \yii\helpers\Html::a('link',$model['url']);
+                        return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
                     }
                 ],
             ],
         ]); ?>
     <?php Pjax::end() ?>
+
+    
     </div>
 </script>
 

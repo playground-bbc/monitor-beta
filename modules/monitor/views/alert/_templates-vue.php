@@ -66,10 +66,10 @@ use yii\widgets\ActiveForm;
     <hr>
   </div>
   <div v-else>
-        <div class="loader">
-          <div class="spinner"></div>
-        </div>
-    </div>  
+    <div class="loader">
+      <div class="spinner"></div>
+    </div>
+  </div>  
 </script>
 
 <script type="text/x-template" id="view-post-mentions-chart">

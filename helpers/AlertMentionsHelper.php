@@ -174,10 +174,6 @@ class AlertMentionsHelper
             case 'Paginas Webs':
                 return [$resource_name,'0','0',$model->total];                      
                 break;
-            case 'Paginas Webs':
-                return [$resource_name,'0','0',$model->total];                      
-                break;                           
-
             
             default:
                 # code...

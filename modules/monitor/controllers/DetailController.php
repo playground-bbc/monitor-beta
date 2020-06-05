@@ -10,8 +10,15 @@ class DetailController extends \yii\web\Controller
     {
         $model = $this->findModel($id,$resourceId);
         $resource = \app\models\Resources::findOne($resourceId);
-        return $this->render('index',['model' => $model,'resource' => $resource]);
+        
+        return $this->render('index',[
+            'model' => $model,
+            'resource' => $resource
+        ]);
     }
+
+
+
 
     public function actionView()
     {

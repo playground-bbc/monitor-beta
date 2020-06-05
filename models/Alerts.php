@@ -151,6 +151,7 @@ class Alerts extends \yii\db\ActiveRecord
             $alertsConfig = \app\helpers\AlertMentionsHelper::setProductsSearch($alertsConfig);
             
         }
+       
        return $alertsConfig;
     }
 
@@ -265,25 +266,6 @@ class Alerts extends \yii\db\ActiveRecord
      */
     public function getProducts(){
 
-        /*$productsIds = ProductsModelsAlerts::find()->where(['alertId' => $this->id])->all();;*/
-
-        /*
-        $rows = (new \yii\db\Query())
-        ->select(['products_models.id','products_models.name'])
-        ->from('products_models')
-        ->join('JOIN', 'products_models_alerts', 'products_models_alerts.product_modelId = products_models.id')
-        ->where(['products_models_alerts.alertId' => $this->id])
-        ->groupBy('products_models.name')
-        ->all();
-        
-        $product_models = [];
-
-        for($r = 0; $r < sizeOf($rows); $r++){
-            $product_models[$rows[$r]['id']] = $rows[$r]['name'];
-
-        }
-        */
-
         $productsIds = ProductsModelsAlerts::find()->where(['alertId' => $this->id])->all();
         $product_models = [];
 
@@ -294,6 +276,15 @@ class Alerts extends \yii\db\ActiveRecord
         return $product_models;
 
 
+    }
+
+    public function getTermsFind(){
+        $alertsMentions = AlertsMencions::find()->where(['alertId' => $this->id])->all();
+        $product_models = [];
+        foreach($alertsMentions as $alertMention){
+            $product_models[$alertMention->term_searched] = $alertMention->term_searched;
+        }
+        return $product_models;
     }
 
 

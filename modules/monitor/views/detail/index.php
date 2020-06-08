@@ -35,8 +35,8 @@ use yii\widgets\DetailView;
                         [
                             'label' => Yii::t('app','Recurso'),
                             'format'    => 'raw',
-                            'value' => function($resource) {
-                                return $resource->name;
+                            'value' => function($model) use($resource) {
+                                return Html::encode($resource->name);
                             }
                         ],
                         [

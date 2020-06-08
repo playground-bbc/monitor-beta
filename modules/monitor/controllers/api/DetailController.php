@@ -77,13 +77,18 @@ class DetailController extends Controller {
     public function actionBoxInfo($alertId,$resourceId,$term = ''){
         
         $model = $this->findModel($alertId,$resourceId);
-        $alertResources = \yii\helpers\ArrayHelper::map($model->config->sources,'id','name');
+        $resource = \app\models\Resources::findOne($resourceId);
 
         $propertyBoxs = [];
 
-        if(in_array('Twitter',array_values($alertResources))){
+        if($resource->name == "Twitter"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesTwitter($model->id,$resourceId,$term);
         }
+
+        if($resource->name == "Live Chat"){
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChat($model->id,$resourceId,$term);
+        }
+
 
         return ['propertyBoxs' => $propertyBoxs];
     }

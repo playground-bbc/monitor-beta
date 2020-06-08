@@ -89,6 +89,10 @@ class DetailController extends Controller {
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChat($model->id,$resourceId,$term);
         }
 
+        if($resource->name == "Live Chat Conversations"){
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChatConversation($model->id,$resourceId,$term);
+        }
+
 
         return ['propertyBoxs' => $propertyBoxs];
     }

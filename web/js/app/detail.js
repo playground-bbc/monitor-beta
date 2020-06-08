@@ -36,7 +36,7 @@ const detailComponent = Vue.component("detail", {
         // console.log(this.term);
         this.fetchIsData();
       }.bind(this),
-      5000 // numbers second reload
+      10000 // numbers second reload
     );
   },
   methods: {

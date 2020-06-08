@@ -88,30 +88,6 @@ class m190820_184157_ProductsModels_alerts extends Migration
      */
     public function safeDown()
     {
-        // drops foreign key for table `{{%Alerts}}`
-        $this->dropForeignKey(
-            '{{%fk-products_models_alerts-alerts}}',
-            '{{%products_models_alerts}}'
-        );
-
-        // drops index for column `idAlert`
-        $this->dropIndex(
-            '{{%idx-products_models_model-products_models}}',
-            '{{%products_models_alerts}}'
-        );
-
-        // drops foreign key for table `{{%products_models}}`
-        $this->dropForeignKey(
-            '{{%fk-products_models_model-products_models}}',
-            '{{%products_models_alerts}}'
-        );
-
-        // drops index for column `product_modelId`
-        $this->dropIndex(
-            '{{%fk-products_models_model-products_models}}',
-            '{{%products_models_alerts}}'
-        );
-
         $this->dropTable('{{%products_models_alerts}}');
     }    
 }

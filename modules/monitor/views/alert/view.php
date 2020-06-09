@@ -49,8 +49,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
         'attributes' => \app\helpers\AlertMentionsHelper::getAttributesForDetailView($model)
     ]) ?>
 
-
-    <modal-alert></modal-alert>
+    <modal-alert :count="count"></modal-alert>
     
     <div v-if="isData">
         <div class="row">
@@ -58,29 +57,30 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
         </div>
        <div class="row">
             <div class="col-md-12">
-                <total-resources-chart>
+            
+                <total-resources-chart :is_change="is_change" >
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <post-interation-chart>
+                <post-interation-chart :is_change="is_change">
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <products-interations-chart>
+                <products-interations-chart :is_change="is_change"> 
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <count-date-resources-chart>
+                <count-date-resources-chart :is_change="is_change">
             </div>
         </div>
         <div id="mentions-list" class="row">
             <list-mentions :is_change="is_change">
         </div>
         <div class="row">
-            <cloud-words></cloud-words>
+            <cloud-words :is_change="is_change">
         </div>
     </div>
     <div v-else>

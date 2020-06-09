@@ -87,7 +87,6 @@ class FacebookSearch
         // if  dictionaries and  !boolean
         if($this->isDictionaries && !$this->isBoolean){
             // init search
-          //  echo "only dictionaries \n";
             $mentions = $this->data;
             $data = $this->searchDataByDictionary($mentions);
             $search = $this->saveMentions($data);
@@ -195,8 +194,6 @@ class FacebookSearch
                 } // if comments
             }// end loop posts
         }// for each feeds
-
-
 
         return $feeds;
     }

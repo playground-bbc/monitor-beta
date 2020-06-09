@@ -364,7 +364,7 @@ class MentionsController extends Controller
     foreach ($keywords as $keyword){
       if($keyword->keywordsMentions){
         $wordsModel[$index]['text']      = $keyword->name;
-        $wordsModel[$index]['weight']    = $keyword->getKeywordsMentions()->count();
+        $wordsModel[$index]['weight']    = (int)$keyword->getKeywordsMentions()->count();
         $index++; 
       }
     }

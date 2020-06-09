@@ -44,6 +44,31 @@ class AlertController extends Controller
                     'index' => ['GET', 'POST'],
                 ],
             ],
+            [
+                'class' => 'yii\filters\PageCache',
+                'only' => ['index'],
+                'duration' => 60,
+                'variations' => [
+                    \Yii::$app->language,
+                ],
+                'dependency' => [
+                    'class' => 'yii\caching\DbDependency',
+                    'sql' => 'SELECT * FROM alerts WHERE userId='.Yii::$app->user->getId(),
+                ],
+            ],
+            [
+                'enabled' => Yii::$app->request->isGet && !Yii::$app->user->isGuest,
+                'class' => 'yii\filters\PageCache',
+                'only' => ['view'],
+                'duration' => 60,
+                'variations' => [
+                    \Yii::$app->language,
+                ],
+                'dependency' => [
+                    'class' => 'yii\caching\DbDependency',
+                    'sql' => 'SELECT * FROM alerts WHERE userId='.Yii::$app->user->getId().' AND id='.Yii::$app->request->get('id'),
+                ],
+            ],
         ];
     }
 

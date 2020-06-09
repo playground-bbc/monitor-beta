@@ -127,6 +127,7 @@ const statusAlert = Vue.component("status-alert", {
  * @return {[component]}           [component]
  */
 const count_mentions = Vue.component("total-mentions", {
+  template: "#view-total-mentions",
   props: ["count", "resourcescount"],
   data: function () {
     return {};
@@ -146,7 +147,6 @@ const count_mentions = Vue.component("total-mentions", {
       return smallboxProperties[resource].icon;
     },
   },
-  template: "#view-total-mentions",
 });
 
 /**
@@ -212,6 +212,7 @@ const box_sources = Vue.component("box-sources", {
  * @return {[component]}           [component]
  */
 const count_resources_chat = Vue.component("total-resources-chart", {
+  props: ["is_change"],
   template: "#view-total-resources-chart",
   data: function () {
     return {
@@ -271,14 +272,21 @@ const count_resources_chat = Vue.component("total-resources-chart", {
     this.response = [this.dataTable];
     // Load the Visualization API and the corechart package.
     google.charts.load("current", { packages: ["corechart"] });
+    // get firts data
+    this.fetchResourceCount();
+    // load chart
+    if (this.loaded) {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
+    }
 
     setInterval(
       function () {
         if (this.loaded) {
           google.charts.setOnLoadCallback(this.drawColumnChart);
         }
-
-        this.fetchResourceCount();
+        if (this.is_change) {
+          this.fetchResourceCount();
+        }
       }.bind(this),
       refreshTime
     );
@@ -323,6 +331,7 @@ const count_resources_chat = Vue.component("total-resources-chart", {
  * @return {[component]}           [component]
  */
 const post_interations_chart = Vue.component("post-interation-chart", {
+  props: ["is_change"],
   template: "#view-post-mentions-chart",
   data: function () {
     return {
@@ -384,14 +393,21 @@ const post_interations_chart = Vue.component("post-interation-chart", {
     this.response = [this.dataTable];
     // Load the Visualization API and the corechart package.
     google.charts.load("current", { packages: ["corechart"] });
+    // get firts data
+    this.fetchResourceCount();
+    // load chart
+    if (this.loaded) {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
+    }
 
     setInterval(
       function () {
-        this.fetchResourceCount();
         if (this.loaded) {
           google.charts.setOnLoadCallback(this.drawColumnChart);
         }
-        this.fetchResourceCount();
+        if (this.is_change) {
+          this.fetchResourceCount();
+        }
       }.bind(this),
       refreshTime
     );
@@ -438,6 +454,7 @@ const post_interations_chart = Vue.component("post-interation-chart", {
  * @return {[component]}           [component]
  */
 const products_interations_chart = Vue.component("products-interations-chart", {
+  props: ["is_change"],
   template: "#view-products-interations-chart",
   data: function () {
     return {
@@ -498,7 +515,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
         //hAxis: {minValue: 50},
         width: 1200,
         height: 400,
-        colors: [],
+        colors: ["#3CAAED", "#EC1F2E", "#3A05BD"],
         animation: {
           startup: true,
           duration: 1500,
@@ -511,11 +528,21 @@ const products_interations_chart = Vue.component("products-interations-chart", {
     this.response = [this.dataTable];
     // Load the Visualization API and the corechart package.
     google.charts.load("current", { packages: ["corechart"] });
+    // get firts data
     this.fetchResourceCount();
+    // load chart
+    if (this.loaded) {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
+    }
+
     setInterval(
       function () {
-        google.charts.setOnLoadCallback(this.drawColumnChart);
-        this.fetchResourceCount();
+        if (this.loaded) {
+          google.charts.setOnLoadCallback(this.drawColumnChart);
+        }
+        if (this.is_change) {
+          this.fetchResourceCount();
+        }
       }.bind(this),
       refreshTime
     );
@@ -560,6 +587,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
  * @return {[component]}           [component]
  */
 const count_resources_date_chat = Vue.component("count-date-resources-chart", {
+  props: ["is_change"],
   template: "#view-date-resources-chart",
   data: function () {
     return {
@@ -574,12 +602,20 @@ const count_resources_date_chat = Vue.component("count-date-resources-chart", {
   mounted() {
     // Load the Visualization API and the corechart package.
     google.charts.load("current", { packages: ["corechart", "line"] });
+    // get firts data
+    this.fetchResourceCount();
+    // load chart
+    if (this.loaded) {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
+    }
 
     setInterval(
       function () {
-        this.fetchResourceCount();
         if (this.loaded) {
           google.charts.setOnLoadCallback(this.drawColumnChart);
+        }
+        if (this.is_change) {
+          this.fetchResourceCount();
         }
       }.bind(this),
       refreshTime
@@ -691,18 +727,18 @@ const listMentions = Vue.component("list-mentions", {
   mounted() {
     //var table = this.setDataTable();
     $.pjax.reload({ container: "#mentions", timeout: false });
-    setInterval(function () {
-      $.pjax.reload({ container: "#mentions", timeout: false });
-    }, refreshTimeTable);
+    setInterval(
+      function () {
+        if (this.is_change) {
+          $.pjax.reload({ container: "#mentions", timeout: false });
+        }
+      }.bind(this),
+      refreshTime
+    );
   },
   methods: {
     setDataTable() {
       return initSearchTable();
-    },
-  },
-  computed: {
-    isreload() {
-      return this.is_change;
     },
   },
 });
@@ -713,6 +749,7 @@ const listMentions = Vue.component("list-mentions", {
  * @return {[component]}           [component]
  */
 const cloudWords = Vue.component("cloud-words", {
+  props: ["is_change"],
   template: "#cloud-words",
   data: function () {
     return {
@@ -725,7 +762,7 @@ const cloudWords = Vue.component("cloud-words", {
       function () {
         this.fetchWords();
       }.bind(this),
-      refreshTime
+      20000
     );
   },
   methods: {
@@ -858,20 +895,21 @@ const listEmojis = Vue.component("list-emojis", {
  */
 
 const sweetAlert = Vue.component("modal-alert", {
+  props: ["count"],
   template: "#modal-alert",
   data: function () {
     return {
       alertId: id,
       response: null,
       isShowModal: false,
-      count: 0,
+      //count: 0,
       flag: false,
     };
   },
   mounted() {
+    //this.fetchCount();
     setInterval(
       function () {
-        this.fetchCount();
         if (this.count) {
           this.fetchStatus();
           if (this.isShowModal && !this.flag) {
@@ -936,9 +974,10 @@ const vm = new Vue({
     isData: false,
     //retweets: 0,
     resourcescount: [],
-    is_change: 0,
+    is_change: false,
   },
   mounted() {
+    //this.fetchIsData();
     setInterval(
       function () {
         this.fetchIsData();
@@ -963,12 +1002,14 @@ const vm = new Vue({
           var count_storage = localStorage.getItem("alert_count_" + id);
           if (count_storage != this.count) {
             localStorage.setItem("alert_count_" + id, this.count);
-            this.is_change = 1;
-            //console.info("Hubo un cambio en el count");
+            this.is_change = true;
+            console.info("Hubo un cambio en el count");
+          } else {
+            this.is_change = false;
           }
         } else {
           localStorage.setItem("alert_count_" + id, this.count);
-          //console.info("set storage ...");
+          console.info("set storage ...");
         }
       }
     },

@@ -123,6 +123,7 @@ class InstagramSearch
                     
                     if(!is_null($alertsMencionsModel) && !empty($posts[$p]['comments'])){
                        for($c = 0; $c <  sizeof($posts[$p]['comments']); $c++){
+                           //var_dump($posts[$p]['comments'][$c]);
                             $user = $this->saveUserMencions($posts[$p]['comments'][$c]['username']);
                             if(empty($user->errors)){
                                 $posts[$p]['comments'][$c]['permalink'] = $permalink;
@@ -174,6 +175,8 @@ class InstagramSearch
         foreach($mentions as $product => $feeds){
             for($f = 0; $f < sizeof($feeds); $f++){
                 if(ArrayHelper::keyExists('comments', $feeds[$f], false) && !empty($feeds[$f]['comments'])){
+                    // var_dump($feeds[$f]['comments']);
+                    // var_dump($mentions[$product][$f]['comments']);
                     for($c = 0; $c <  sizeof($feeds[$f]['comments']); $c++){
                         $wordsId = [];
                         for($w = 0; $w < sizeof($words); $w++){
@@ -205,17 +208,34 @@ class InstagramSearch
                                     if(!empty($wordsIdReplies)){
                                         $mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['wordsId'] = $wordsIdReplies;
                                     }
+                                    else{
+                                        unset($mentions[$product][$f]['comments'][$c]['replies']['data'][$r]);
+                                        // restore key
+                                        $mentions[$product][$f]['comments'][$c]['replies']['data'] = array_values($mentions[$product][$f]['comments'][$c]['replies']['data']);
+                                    }
                                 } // end loop replies
                             } // end if count replies data
                         } // end if replies
                         if(!empty($wordsId)){
                             $mentions[$product][$f]['comments'][$c]['wordsId'] = $wordsId;
                         }
+                        // fix search
+                        // else{
+                        //     unset($mentions[$product][$f]['comments'][$c]);
+                        //     unset($feeds[$f]['comments'][$c]);
+                        //     // restore key
+                        //     $mentions[$product][$f]['comments'] = array_values($mentions[$product][$f]['comments']);
+                        //     $feeds[$f]['comments'] = array_values($feeds[$f]['comments']);
+                        //     var_dump($mentions[$product][$f]['comments']);
+                        //     var_dump($feeds[$f]['comments']);
+                        //     die();
+                        // }
                     }// end loop comments
                 }// end if keyExists && !empty
             }// end loop feeds
         }// for each
-        
+        // print_r($mentions);
+        // die();
         return $mentions;
     }
 

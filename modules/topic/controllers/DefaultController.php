@@ -41,6 +41,18 @@ class DefaultController extends Controller
                     'index' => ['GET', 'POST'],
                 ],
             ],
+            [
+                'class' => 'yii\filters\PageCache',
+                'only' => ['index'],
+                'duration' => 60,
+                'variations' => [
+                    \Yii::$app->language,
+                ],
+                'dependency' => [
+                    'class' => 'yii\caching\DbDependency',
+                    'sql' => 'SELECT * FROM m_topics WHERE userId='.Yii::$app->user->getId(),
+                ],
+            ],
         ];
     }
 

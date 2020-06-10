@@ -416,7 +416,16 @@ class InstagramSearch
      * @return [obj] [return object client]
      */
     private function _getUser($username){
-        $client = new Client();
+        
+        $client = new \yii\httpclient\Client([
+            'parsers' => [
+                // configure options of the JsonParser, parse JSON as objects
+                \yii\httpclient\Client::FORMAT_JSON => [
+                    'class' => 'yii\httpclient\JsonParser',
+                    'asArray' => false,
+                ]
+            ],
+        ]);
         $response = $client->createRequest()
             ->setMethod('GET')
             ->setUrl("https://www.instagram.com/{$username}/?__a=1")

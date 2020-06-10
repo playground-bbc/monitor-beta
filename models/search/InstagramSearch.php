@@ -276,7 +276,7 @@ class InstagramSearch
     public function saveUserMencions($username){
         
         if(!\app\models\UsersMentions::find()->where( [ 'screen_name' => $username] )->exists()){
-            $user_response = $this->_getUser($username);
+            $user_response = json_decode($this->_getUser($username),true);
 
             if(!is_null($user_response)){
                 if(!is_null($user_response['graphql'])){
@@ -422,7 +422,7 @@ class InstagramSearch
             ->setUrl("https://www.instagram.com/{$username}/?__a=1")
             ->send();
         if ($response->isOk) {
-            return $response->data;
+            return \yii\helpers\Json::encode($response->data);
         }
         return null;
     }

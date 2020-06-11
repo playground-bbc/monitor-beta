@@ -222,23 +222,27 @@ class AlertsMencions extends \yii\db\ActiveRecord
         return (string) $retweets_count;
     }
     /**
-     * [getTwitterLikes return likes or favorite twitter]
+     * [getTwitterCountProperty return likes or favorite twitter]
      * @return [type] [description]
      */
-    public function getTwitterLikes()
+    public function getTwitterCountProperty()
     {
         $likes_count = 0;
-        $alertMentions = $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->all();
-        foreach ($alertMentions as $alertMention) {
-            if($alertMention->mentionsCount){
-                foreach ($alertMention->mentions as $mentions => $mention) {
-                    $mention_data = $mention->mention_data;
-                    $likes_count += $mention_data['favorite_count'];
-                }
+        $retweets_count = 0;
 
+        $db = \Yii::$app->db;
+        $alertMentions = $this->find()->where(['alertId' => $this->alertId,'resourcesId' => $this->resourcesId])->with('mentions')->asArray()->all();;
+
+        for ($a=0; $a < sizeOf($alertMentions) ; $a++) { 
+            if(count($alertMentions[$a]['mentions'])){
+                for ($m=0; $m < sizeOf($alertMentions[$a]['mentions']) ; $m++) { 
+                    $mention_data = json_decode($alertMentions[$a]['mentions'][$m]['mention_data'],true);
+                    $likes_count += $mention_data['favorite_count'];
+                    $retweets_count += $mention_data['retweet_count'];
+                }
             }
         }
-        return (string) $likes_count;
+        return ['Twitter',(string) $likes_count,(string) $retweets_count];
     }
     /**
      * [getTwitterTotal twitter total]

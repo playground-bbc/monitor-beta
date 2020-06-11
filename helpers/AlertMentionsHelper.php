@@ -128,7 +128,9 @@ class AlertMentionsHelper
                 break;
             case 'Twitter':
             
-                return [$resource_name,$model->twitterRetweets,$model->twitterLikes,$model->twitterTotal];
+                $totalProperty = $model->twitterCountProperty;
+                array_push($totalProperty,$model->twitterTotal);
+                return $totalProperty;
                 break;
                 
             case 'Live Chat':
@@ -174,10 +176,9 @@ class AlertMentionsHelper
             case 'Paginas Webs':
                 return [$resource_name,'0','0',$model->total];                      
                 break;
-            case 'Paginas Webs':
+            case 'Noticias Webs':
                 return [$resource_name,'0','0',$model->total];                      
-                break;                           
-
+                break;     
             
             default:
                 # code...

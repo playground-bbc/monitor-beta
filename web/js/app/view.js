@@ -531,7 +531,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
     // get firts data
     this.fetchResourceCount();
     // load chart
-    if (this.loaded) {
+    if (this.response.length) {
       google.charts.setOnLoadCallback(this.drawColumnChart);
     }
 
@@ -725,20 +725,26 @@ const listMentions = Vue.component("list-mentions", {
     };
   },
   mounted() {
-    //var table = this.setDataTable();
-    $.pjax.reload({ container: "#mentions", timeout: false });
+    //$.pjax.reload({ container: "#mentions", async: true });
+    // $.pjax.reload({ container: "#mentions" });
+    //$.pjax.reload({ container: "#mentions" });
+    //jQuery.pjax.reload({ container: "#mentions" });
+    $.pjax.reload({ container: "#mentions", async: false });
     setInterval(
       function () {
         if (this.is_change) {
-          $.pjax.reload({ container: "#mentions", timeout: false });
+          $.pjax.reload({ container: "#mentions", async: false });
         }
       }.bind(this),
-      refreshTime
+      refreshTime + 5000
     );
   },
   methods: {
     setDataTable() {
-      return initSearchTable();
+      return initMentionsSearchTable();
+    },
+    reload() {
+      $.pjax.reload({ container: "#mentions", async: false });
     },
   },
 });
@@ -792,15 +798,11 @@ const cloudWords = Vue.component("cloud-words", {
           click: function () {
             //$("#list-mentions").DataTable().search(r.text).draw();
             //$("#mentionsearch-id").attr("value", id);
+            $('input[name="MentionSearch[message_markup]"]').attr("value", "");
+            $("#mentionsearch-message_markup").attr("value", "");
             $('input[name="id"]').attr("value", id);
             $("#mentionsearch-message_markup").attr("value", r.text);
             $("#search").click();
-            $("html, body").animate(
-              {
-                scrollTop: $("#mentions-list").offset().top,
-              },
-              2000
-            );
           },
         };
         r.html = { class: "pointer-jqcloud" };

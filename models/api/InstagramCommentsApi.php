@@ -163,7 +163,7 @@ class InstagramCommentsApi extends Model {
 						'appsecret_proof' => $this->_appsecret_proof
 					])
 					->setOptions([
-			        'timeout' => 5, // set timeout to 5 seconds for the case server is not responding
+			        'timeout' => 15, // set timeout to 5 seconds for the case server is not responding
 			    	])->send();
 
 					
@@ -356,7 +356,10 @@ class InstagramCommentsApi extends Model {
 					    ->setData([
 					    	'after' => $after,
 					    	'appsecret_proof' => $this->_appsecret_proof
-					    ])
+						])
+						->setOptions([
+							'timeout' => 15, // set timeout to 5 seconds for the case server is not responding
+						])
 					    ->send();
 
 
@@ -461,7 +464,10 @@ class InstagramCommentsApi extends Model {
 					    ->setUrl($query)
 					    ->setData([
 					    	'appsecret_proof' => $this->_appsecret_proof
-					    ])
+						])
+						->setOptions([
+							'timeout' => 15, // set timeout to 5 seconds for the case server is not responding
+						])
 					    ->send();
 
 
@@ -687,12 +693,12 @@ class InstagramCommentsApi extends Model {
 	 */
 	private function _getClient(){
 		$this->_client = new Client(['baseUrl' => $this->_baseUrl]);
-		/*$client = new Client([
-		    // Base URI is used with relative requests
-		    'base_uri' => $this->_baseUrl,
-		    // You can set any number of default request options.
-		    'timeout'  => 2.0,
-		]);*/
+		// $this->_client = new Client([
+		//     // Base URI is used with relative requests
+		//     'base_uri' => $this->_baseUrl,
+		//     // You can set any number of default request options.
+		//     'timeout'  => 2.0,
+		// ]);
 		return $this->_client;
 	}
 

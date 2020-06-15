@@ -26,6 +26,12 @@ $config = [
         'user' => [
             'class' => 'app\modules\user\Module',
         ],
+        // kartik
+        'gridview' => [
+            'class' => '\kartik\grid\Module',
+            'bsVersion' => 3,
+            //'downloadAction' => 'gridview/export/download',
+        ]
     ],
     'components' => [
         'assetManager' => [

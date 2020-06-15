@@ -1,6 +1,6 @@
 <?php 
 use yii\helpers\Html;
-use yii\grid\GridView;
+use kartik\grid\GridView;
 use yii\widgets\Pjax;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
@@ -132,83 +132,107 @@ use yii\widgets\ActiveForm;
 </script>
 
 <!-- template que muestra todas las menciones -->
+<!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
-    <div>
+  <div>
+    <!-- <button v-on:click="reload">Reload</button> -->
       <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
-          <?php  echo $this->render('_search-word', ['model' => $searchModel]); ?>
-          <?= GridView::widget([
-              'dataProvider' => $dataProvider,
-              'filterModel' => $searchModel,
-              'columns' => [
-                  ['class' => 'yii\grid\SerialColumn'],
-                  [
-                      'label' => Yii::t('app','Recurso Social'),
-                      'attribute' => 'resourceName',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return $model['recurso'];
-                      }
-                  ],
-                  [
-                      'label' => Yii::t('app','term searched'),
-                      'attribute' => 'termSearch',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return $model['term_searched'];
-                      }
-                  ],
-                  [
-                      'label' => Yii::t('app','fecha'),
-                      //'attribute' => 'userId',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                      }
-                  ],
-                  [
-                      'label' => Yii::t('app','name'),
-                      'attribute' => 'name',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return $model['name'];
-                      }
-                  ],
-                  [
-                      'label' => Yii::t('app','screen_name'),
-                      'attribute' => 'screen_name',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return $model['screen_name'];
-                      }
-                  ],
-                  [
-                      'label' => Yii::t('app','subject'),
-                      'attribute' => 'subject',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return $model['subject'];
-                      }
-                  ],
-                  [
-                      'label' => Yii::t('app','message_markup'),
-                      'attribute' => 'message_markup',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return $model['message_markup'];
-                      }
-                  ],
-                  [
-                      'label' => Yii::t('app','url'),
-                      //'attribute' => 'userId',
-                      'format' => 'raw',
-                      'value' => function($model){
-                          return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
-                      }
-                  ],
+        <?=   $this->render('_search-word', ['model' => $searchModel]); ?>
+        <?= GridView::widget([
+          'dataProvider' => $dataProvider,
+          'filterModel' => $searchModel,
+          'autoXlFormat'=>true,
+          'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
+          'toggleDataContainer' => ['class' => 'btn-group mr-2'],
+          'export'=>[
+              'showConfirmAlert'=>false,
+              'target'=>GridView::TARGET_BLANK
+          ],
+          'columns' => [
+            [
+                  'label' => Yii::t('app','Recurso Social'),
+                  'attribute' => 'resourceName',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['recurso'];
+                  }
               ],
-          ]); ?>
-      <?php Pjax::end() ?>
-    </div>
+              [
+                  'label' => Yii::t('app','Término buscado'),
+                  'headerOptions' => ['style' => 'width:12%'],
+                  'attribute' => 'termSearch',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['term_searched'];
+                  }
+              ],
+              [
+                  'label' => Yii::t('app','Fecha'),
+                  'headerOptions' => ['style' => 'width:8%'],
+                  //'attribute' => 'userId',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                  }
+              ],
+              [
+                  'label' => Yii::t('app','Nombre'),
+                  'attribute' => 'name',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['name'];
+                  }
+              ],
+              [
+                  'label' => Yii::t('app','Username'),
+                  'attribute' => 'screen_name',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['screen_name'];
+                  }
+              ],
+              [
+                  'label' => Yii::t('app','Titulo'),
+                  'attribute' => 'subject',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['subject'];
+                  }
+              ],
+              [
+                  'label' => Yii::t('app','Mencion'),
+                  'attribute' => 'message_markup',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['message_markup'];
+                  }
+              ],
+              [
+                  'label' => Yii::t('app','Url'),
+                  //'attribute' => 'userId',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
+                  }
+              ],
+          ],
+          'class' => 'yii\grid\Column',
+          'pjax'=>false,
+          'pjaxSettings'=>[
+            'options'=>[
+              'id'=> 'mentions'
+            ]
+          ],
+          'showPageSummary'=>true,
+          'panel'=>[
+              'type'=>'primary',
+              'heading'=>'Menciones'
+          ],
+        ]); ?>
+    <?php Pjax::end() ?>
+
+    
+  </div>
 </script>
 
 <!-- template que muestra las nubes de palabras -->

@@ -20,6 +20,8 @@ class MentionSearch extends Mentions
     public $screen_name;
     public $subject;
     public $message_markup;
+    // for search grid
+    public $pageSize = 10;
 
     /**
      * {@inheritdoc}
@@ -55,8 +57,9 @@ class MentionSearch extends Mentions
         $dataProvider = new \yii\data\ArrayDataProvider([
             'allModels' => $model,
             'pagination' => [
-                'pageSize' => 10,
-            ]
+                'pageSize' => $this->pageSize,
+            ],
+            'totalCount' => $this->getTotalCount($alertId)
         ]);
 
 
@@ -73,6 +76,16 @@ class MentionSearch extends Mentions
 
     public function getData($params,$alertId){
         
+        $limit = -1;
+        $offset = -1;
+        // set limit and offset
+        if(\yii\helpers\ArrayHelper::keyExists('page',$params) && \yii\helpers\ArrayHelper::keyExists('per-page',$params)){
+            // limit = pageSize * page && offset = limit -
+            $limit = (int) $this->pageSize * $params['page'];
+            $$offset = (int) $params['page'] / $this->pageSize;
+        }else{
+            $limit = $this->pageSize;
+        }
         $db = \Yii::$app->db;
         $duration = 60;  
     
@@ -153,5 +166,43 @@ class MentionSearch extends Mentions
 
 
         return $rows;
+    }
+    
+    public function getTotalCount($alertId){
+       
+        $db = \Yii::$app->db;
+        $duration = 60; 
+
+        $alertMentions = $db->cache(function ($db) use ($alertId) {
+            return (new \yii\db\Query())
+              ->select('id')
+              ->from('alerts_mencions')
+              ->where(['alertId' => $alertId])
+              ->orderBy(['resourcesId' => 'ASC'])
+              ->all();
+          },$duration); 
+          
+          $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');  
+          
+          $totalCount = (new \yii\db\Query())
+          ->select([
+            'recurso' => 'r.name',
+            'term_searched' => 'a.term_searched',
+            'created_time' => 'm.created_time',
+            'name' => 'u.name',
+            'screen_name' => 'u.screen_name',
+            'subject' => 'm.subject',
+            'message_markup' => 'm.message_markup',
+            'url' => 'm.url',
+          ])
+          ->from('mentions m')
+          ->where(['alert_mentionId' => $alertsId])
+          ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
+          ->join('JOIN','resources r', 'r.id = a.resourcesId')
+          ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
+          ->count();
+
+        return $totalCount;  
+
     }
 }

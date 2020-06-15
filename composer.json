@@ -49,7 +49,9 @@
         "dompdf/dompdf": "^0.8.4",
         "halaxa/json-machine": "^0.3.3",
         "fabpot/goutte": "^3.2",
-        "cbschuld/browser.php": "^1.9"
+        "cbschuld/browser.php": "^1.9",
+        "kartik-v/yii2-grid": "@dev",
+        "kartik-v/yii2-export": "@dev"
 
     },
     "require-dev": {

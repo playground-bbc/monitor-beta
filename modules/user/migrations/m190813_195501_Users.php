@@ -85,6 +85,17 @@ class m190813_195501_Users extends Migration
             'created_at'    => 0,
             'updated_at'    => 0,
         ]);
+
+        $this->insert('{{%users}}', [
+            'username'      => 'david',
+            'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
+            // david123
+            'password_hash' => '$2y$13$67Dq3ZJh5Yw6b8a6NyEWnOUtrBqN4E/4QopbBmcKtQOaX1Apjp.pa',
+            'email'         => 'user5@gmail.com',
+            'status'        => 10,
+            'created_at'    => 0,
+            'updated_at'    => 0,
+        ]);
     }
 
     /**

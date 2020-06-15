@@ -10,9 +10,6 @@ use yii\widgets\ActiveForm;
 <!-- template que muestra los componentes-->
 <script type="text/x-template" id="detail">
   <div>
-  <pre>
-    {{$data}}
-  </pre>
   <hr> 
   <div v-if="!loading && count" class="col-md-12">
     <box-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term"></box-detail>

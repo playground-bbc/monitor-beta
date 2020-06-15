@@ -234,9 +234,13 @@ class TwitterSearch
      */
     private function saveUserMencions($user){
 
-
+        $user_data['url'] = $user['url'];
+        $user_data['location'] = $user['location'];
+        $profile_image_url = $user['profile_image_url'];
+        
         $user_data['followers_count'] = $user['followers_count'];
         $user_data['friends_count'] = $user['friends_count'];
+        
         $author = (!\app\helpers\StringHelper::isEmpty($user['author_name'])) ? $user['author_name']: $user['author_username'] ;
         $origin = \app\helpers\MentionsHelper::saveUserMencions(
             [
@@ -246,6 +250,7 @@ class TwitterSearch
                 'name'        => $author,
                 'screen_name' => $user['author_username'],
                 'user_data'   => $user_data,
+                'profile_image_url' => $profile_image_url
             ]
         );
 

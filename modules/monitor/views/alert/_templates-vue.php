@@ -10,6 +10,11 @@ use yii\widgets\ActiveForm;
   <button class="btn btn-info" v-on:click.prevent="send" v-bind:class="{ disabled: isdisabled}">Reporte</button>
 </script>
 
+<!-- template que muestra llos indicadores de cada red social -->
+<script type="text/x-template" id="status-alert">
+  <span class="status-indicator" v-bind:class= "colorClass"></span>
+</script> 
+
 <!-- template que muestra el total de todas las menciones -->
 <script type="text/x-template" id="view-total-mentions">
      <div class="row seven-cols">
@@ -61,10 +66,10 @@ use yii\widgets\ActiveForm;
     <hr>
   </div>
   <div v-else>
-        <div class="loader">
-          <div class="spinner"></div>
-        </div>
-    </div>  
+    <div class="loader">
+      <div class="spinner"></div>
+    </div>
+  </div>  
 </script>
 
 <script type="text/x-template" id="view-post-mentions-chart">
@@ -129,85 +134,80 @@ use yii\widgets\ActiveForm;
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
     <div>
-
-    
-
-    <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
-        <?php  echo $this->render('_search-word', ['model' => $searchModel]); ?>
-        <?= GridView::widget([
-            'dataProvider' => $dataProvider,
-            'filterModel' => $searchModel,
-            'columns' => [
-                ['class' => 'yii\grid\SerialColumn'],
-                [
-                    'label' => Yii::t('app','Recurso Social'),
-                    'attribute' => 'resourceName',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['recurso'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','term searched'),
-                    'attribute' => 'termSearch',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['term_searched'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','fecha'),
-                    //'attribute' => 'userId',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','name'),
-                    'attribute' => 'name',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['name'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','screen_name'),
-                    'attribute' => 'screen_name',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['screen_name'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','subject'),
-                    'attribute' => 'subject',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['subject'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','message_markup'),
-                    'attribute' => 'message_markup',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['message_markup'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','url'),
-                    //'attribute' => 'userId',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
-                    }
-                ],
-            ],
-        ]); ?>
-    <?php Pjax::end() ?>
-
-    
+      <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
+          <?php  echo $this->render('_search-word', ['model' => $searchModel]); ?>
+          <?= GridView::widget([
+              'dataProvider' => $dataProvider,
+              'filterModel' => $searchModel,
+              'columns' => [
+                  ['class' => 'yii\grid\SerialColumn'],
+                  [
+                      'label' => Yii::t('app','Recurso Social'),
+                      'attribute' => 'resourceName',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['recurso'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','term searched'),
+                      'attribute' => 'termSearch',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['term_searched'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','fecha'),
+                      //'attribute' => 'userId',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','name'),
+                      'attribute' => 'name',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['name'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','screen_name'),
+                      'attribute' => 'screen_name',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['screen_name'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','subject'),
+                      'attribute' => 'subject',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['subject'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','message_markup'),
+                      'attribute' => 'message_markup',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['message_markup'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','url'),
+                      //'attribute' => 'userId',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
+                      }
+                  ],
+              ],
+          ]); ?>
+      <?php Pjax::end() ?>
     </div>
 </script>
 
@@ -294,11 +294,6 @@ use yii\widgets\ActiveForm;
       </div>
     </div>
 </script>
-
-<!-- template que muestra llos indicadores de cada red social -->
-<script type="text/x-template" id="status-alert">
-  <span class="status-indicator" v-bind:class= "colorClass"></span>
-</script> 
 
 <!-- template que muestra el modal -->
 <script type="text/x-template" id="modal-alert">

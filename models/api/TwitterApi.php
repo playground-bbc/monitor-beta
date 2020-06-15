@@ -438,6 +438,7 @@ class TwitterApi extends Model {
 			$data_user['user_id']         = $tweet['user']['id']; 
 			$data_user['author_name']     = \app\helpers\StringHelper::remove_emoji($tweet['user']['name']); 
 			$data_user['author_username'] = \app\helpers\StringHelper::remove_emoji($tweet['user']['screen_name']);
+			$data_user['profile_image_url']  = $tweet['user']['profile_image_url'];
 			$data_user['location']        = $tweet['user']['location'];
 			$data_user['description']     = $tweet['user']['description'];
 			$data_user['url']             = $tweet['user']['url'];

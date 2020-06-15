@@ -14,13 +14,7 @@ let refreshTime = 15000;
 let refreshSweetAlert = 30000;
 let refreshTimeTable = 40000;
 let data_chart = new Object();
-let controllerName = {
-  Twitter: "Twitter",
-  "Live Chat": "Live-chat",
-  "Live Chat Conversations": "Live-chat-conversations",
-  "Facebook Comments": "Facebook-comments",
-  "Facebook Comments": "Facebook-comments",
-};
+
 let tableConfigMentions = {
   scrollY: "400px",
   scrollCollapse: true,

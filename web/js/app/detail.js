@@ -1,9 +1,9 @@
 "use strict";
 
-const origin = location.origin;
-const appId = location.pathname.split("/")[1];
+// const origin = location.origin;
+// const appId = location.pathname.split("/")[1];
 
-const baseDetailApi = `${origin}/${appId}/web/monitor/api/detail/`;
+// const baseDetailApi = `${origin}/${appId}/web/monitor/api/detail/`;
 
 /**
  * detailComponent: send call to api if there record load the rest the components or load spinder in th template
@@ -41,10 +41,7 @@ const detailComponent = Vue.component("detail", {
   },
   methods: {
     fetchIsData() {
-      axios
-        .get(
-          `${baseDetailApi}count?alertId=${this.alertid}&resourceId=${this.resourceid}&term=${this.term}`
-        )
+      getCountMentionsDetail(this.alertid, this.resourceid, this.term)
         .then((response) => {
           if (response.status == 200 && response.statusText == "OK") {
             this.count = response.data.countMentions;
@@ -137,10 +134,7 @@ const boxComponent = Vue.component("box-detail", {
   },
   methods: {
     fetchBoxInfo() {
-      axios
-        .get(
-          `${baseDetailApi}box-info?alertId=${this.alertid}&resourceId=${this.resourceid}&term=${this.term}`
-        )
+      getBoxInfoDetail(this.alertid, this.resourceid, this.term)
         .then((response) => {
           if (response.status == 200 && response.statusText == "OK") {
             this.box_properties = response.data.propertyBoxs;
@@ -164,13 +158,3 @@ const boxComponent = Vue.component("box-detail", {
 const detail = new Vue({
   el: "#alerts-detail",
 });
-
-let columnsName = [
-  "col-md-12",
-  "col-md-6",
-  "col-md-4",
-  "col-md-3",
-  "col-md-5",
-  "col-md-2",
-  "col-md-1",
-];

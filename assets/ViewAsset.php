@@ -27,6 +27,8 @@ class ViewAsset extends AssetBundle
     public $js = [
         // include js for general variables
         'js/app/variables.js',
+        // include js for general call api
+        'js/app/service.js',
         // include js for general functions
         'js/app/functions.js',
         // include js for View view

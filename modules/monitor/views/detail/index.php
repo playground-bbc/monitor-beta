@@ -13,6 +13,7 @@ use yii\widgets\DetailView;
         <div class="row">
             <div class="col-md-12">
             <h1><?= Html::encode($resource->name) ?></h1>
+            <?= Html::hiddenInput('alertId', $model->id,['id' => 'alertId']); ?>
 
             <p>
                 <?= Html::a('Regresar', ['alert/view', 'id' => $model->id], ['class' => 'btn btn-default']) ?>

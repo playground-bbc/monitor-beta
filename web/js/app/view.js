@@ -91,11 +91,9 @@ const statusAlert = Vue.component("status-alert", {
   },
   methods: {
     fetchStatus() {
-      axios
-        .get(baseUrlApi + "status-alert" + "?alertId=" + id)
-        .then((response) => {
-          this.response = response.data.data;
-        });
+      getStatusMentionsResources(id).then((response) => {
+        this.response = response.data.data;
+      });
     },
   },
   computed: {
@@ -145,63 +143,6 @@ const count_mentions = Vue.component("total-mentions", {
     },
     getIcon(resource) {
       return smallboxProperties[resource].icon;
-    },
-  },
-});
-
-/**
- * [componente que muestra las cajas de cada red social]
- * template: '#view-box-sources' [description]
- * @return {[component]}           [component]
- */
-const box_sources = Vue.component("box-sources", {
-  template: "#view-box-sources",
-  data: function () {
-    return {
-      loaded: false,
-      response: null,
-      counts: 0,
-      isseven: false,
-      column: null,
-    };
-  },
-  mounted() {
-    setInterval(
-      function () {
-        this.fetchStatus();
-      }.bind(this),
-      refreshTime
-    );
-  },
-  methods: {
-    fetchStatus() {
-      axios
-        .get(baseUrlApi + "box-sources-count" + "?alertId=" + id)
-        .then((response) => {
-          this.response = response.data.data;
-          this.counts = this.response.length;
-          this.loaded = true;
-        });
-    },
-    calcColumns() {
-      if (this.counts == 7) {
-        this.isseven = true;
-      }
-      return columnsName[this.counts - 1];
-    },
-    getIcon(resourceName) {
-      return resourceIcons[resourceName];
-    },
-  },
-  filters: {
-    ensureRightPoints: function (value) {
-      if (!value) return "";
-      value = value.toString();
-      if (value.length > 12) {
-        value = value.slice(0, 11);
-        value = value.concat("...");
-      }
-      return value;
     },
   },
 });
@@ -293,8 +234,7 @@ const count_resources_chat = Vue.component("total-resources-chart", {
   },
   methods: {
     fetchResourceCount() {
-      axios
-        .get(baseUrlApi + "count-sources-mentions" + "?alertId=" + this.alertId)
+      getTotalResource(this.alertId)
         .then((response) => {
           if (typeof this.response === "object") {
             this.options.colors = response.data.colors;
@@ -414,8 +354,7 @@ const post_interations_chart = Vue.component("post-interation-chart", {
   },
   methods: {
     fetchResourceCount() {
-      axios
-        .get(baseUrlApi + "top-post-interation" + "?alertId=" + this.alertId)
+      getPostInterations(this.alertId)
         .then((response) => {
           if (typeof this.response === "object") {
             if (response.data.status) {
@@ -549,8 +488,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
   },
   methods: {
     fetchResourceCount() {
-      axios
-        .get(baseUrlApi + "product-interation" + "?alertId=" + this.alertId)
+      getProductInterations(this.alertId)
         .then((response) => {
           if (typeof this.response === "object") {
             this.options.colors = response.data.colors;
@@ -623,8 +561,7 @@ const count_resources_date_chat = Vue.component("count-date-resources-chart", {
   },
   methods: {
     fetchResourceCount() {
-      axios
-        .get(baseUrlApi + "mention-on-date" + "?alertId=" + this.alertId)
+      getCountDateResources(this.alertId)
         .then((response) => {
           if (typeof this.response === "object") {
             this.response = response.data.model;
@@ -773,20 +710,18 @@ const cloudWords = Vue.component("cloud-words", {
   },
   methods: {
     fetchWords() {
-      axios
-        .get(baseUrlApi + "list-words" + "?alertId=" + id)
-        .then((response) => {
-          this.response = response.data.wordsModel;
-          if (this.response.length) {
-            this.loaded = true;
-            var words = this.handlers(this.response);
-            var some_words_with_same_weight = $("#jqcloud").jQCloud(words, {
-              width: 1000,
-              height: 350,
-              delay: 50,
-            });
-          }
-        });
+      getWords(id).then((response) => {
+        this.response = response.data.wordsModel;
+        if (this.response.length) {
+          this.loaded = true;
+          var words = this.handlers(this.response);
+          var some_words_with_same_weight = $("#jqcloud").jQCloud(words, {
+            width: 1000,
+            height: 350,
+            delay: 50,
+          });
+        }
+      });
     },
     reload() {
       var words = this.handlers(this.response);
@@ -817,45 +752,6 @@ const cloudWords = Vue.component("cloud-words", {
 });
 
 /**
- * [tabla de las fechas de las mencines por x red social]
- * template: '#mentions-list' [description]
- * @return {[component]}           [component]
- */
-const tableDate = Vue.component("resource-date-mentions", {
-  template: "#resource-date-mentions",
-  data: function () {
-    return {
-      response: null,
-      loaded: false,
-    };
-  },
-  mounted() {
-    setInterval(
-      function () {
-        this.fetchMentionsDate();
-      }.bind(this),
-      refreshTime
-    );
-  },
-  methods: {
-    fetchMentionsDate() {
-      axios
-        .get(baseUrlApi + "resource-on-date" + "?alertId=" + id)
-        .then((response) => {
-          this.response = response.data.resourceDateCount;
-          if (typeof this.response === "object") {
-            this.loaded = true;
-          }
-        })
-        .catch((error) => console.log(error));
-    },
-    collapseValue(target = "", index) {
-      return `${target}collapse${index + 1}`;
-    },
-  },
-});
-
-/**
  * [liswtado de emojis encontrados]
  * template: '#emojis-list' [description]
  * @return {[component]}           [component]
@@ -878,14 +774,12 @@ const listEmojis = Vue.component("list-emojis", {
   },
   methods: {
     fetchEmojis() {
-      axios
-        .get(baseUrlApi + "list-emojis" + "?alertId=" + id)
-        .then((response) => {
-          if (typeof response.data.data.length === "undefined") {
-            this.response = response.data.data;
-            this.loaded = true;
-          }
-        });
+      getEmojis(id).then((response) => {
+        if (typeof response.data.data.length === "undefined") {
+          this.response = response.data.data;
+          this.loaded = true;
+        }
+      });
     },
   },
 });
@@ -904,12 +798,10 @@ const sweetAlert = Vue.component("modal-alert", {
       alertId: id,
       response: null,
       isShowModal: false,
-      //count: 0,
       flag: false,
     };
   },
   mounted() {
-    //this.fetchCount();
     setInterval(
       function () {
         if (this.count) {
@@ -923,23 +815,13 @@ const sweetAlert = Vue.component("modal-alert", {
     );
   },
   methods: {
-    fetchCount() {
-      axios
-        .get(baseUrlApi + "count-mentions" + "?alertId=" + this.alertId)
-        .then((response) => {
-          this.count = response.data.count;
-        })
-        .catch((error) => console.log(error));
-    },
     fetchStatus() {
-      axios
-        .get(baseUrlApi + "status-alert" + "?alertId=" + id)
-        .then((response) => {
-          this.response = response.data.data;
-          if (this.response != undefined || this.response != null) {
-            this.setStatus();
-          }
-        });
+      getStatusMentionsResources(id).then((response) => {
+        this.response = response.data.data;
+        if (this.response != undefined || this.response != null) {
+          this.setStatus();
+        }
+      });
     },
     setStatus() {
       if (this.response != undefined || this.response != null) {
@@ -989,8 +871,7 @@ const vm = new Vue({
   },
   methods: {
     fetchIsData() {
-      axios
-        .get(baseUrlApi + "count-mentions" + "?alertId=" + this.alertId)
+      getCountMentions(this.alertId)
         .then((response) => {
           if (response.status == 200 && response.statusText == "OK") {
             this.count = response.data.data.count;
@@ -1019,7 +900,7 @@ const vm = new Vue({
   components: {
     report_button,
     count_mentions,
-    box_sources,
+    //box_sources,
     count_resources_chat,
     post_interations_chart,
     products_interations_chart,
@@ -1027,7 +908,7 @@ const vm = new Vue({
     //count_resources,
     listMentions,
     cloudWords,
-    tableDate,
+    //tableDate,
     //listEmojis,
     sweetAlert,
   },

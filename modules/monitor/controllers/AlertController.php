@@ -13,7 +13,7 @@ use app\helpers\DateHelper;
 
 use app\models\Alerts;
 use app\models\AlertsConfig;
-use app\models\search\AlertSearch;
+use app\models\grid\AlertSearch;
 
 /**
  * AlertController implements the CRUD actions for Alerts model.
@@ -281,7 +281,7 @@ class AlertController extends Controller
      */
     public function actionView($id)
     {
-        $searchModel = new \app\models\search\MentionSearch();
+        $searchModel = new \app\models\grid\MentionSearch();
         $dataProvider = $searchModel->search(\Yii::$app->request->queryParams,$id);
 
         return $this->render('view', [

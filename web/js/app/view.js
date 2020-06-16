@@ -399,7 +399,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
     return {
       alertId: id,
       response: [],
-      loaded: true,
+      loaded: false,
       dataTable: ["Producto", "Shares/Retweets", "Likes", "Total"],
       view: null,
       column: [
@@ -451,7 +451,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
         focusTarget: "category",
         title: "Gráfico de número de interacciones por productos",
         vAxis: { format: "decimal" },
-        //hAxis: {minValue: 50},
+        hAxis: { titleTextStyle: { color: "Black" }, format: "string" },
         width: 1200,
         height: 400,
         colors: ["#3CAAED", "#EC1F2E", "#3A05BD"],
@@ -470,7 +470,8 @@ const products_interations_chart = Vue.component("products-interations-chart", {
     // get firts data
     this.fetchResourceCount();
     // load chart
-    if (this.response.length) {
+    if (this.loaded) {
+      //console.log(this.response);
       google.charts.setOnLoadCallback(this.drawColumnChart);
     }
 

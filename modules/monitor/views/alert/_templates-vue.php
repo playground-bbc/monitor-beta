@@ -136,7 +136,7 @@ use yii\widgets\ActiveForm;
 <script type="text/x-template" id="mentions-list">
   <div>
     <!-- <button v-on:click="reload">Reload</button> -->
-      <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
+    <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
         <?=   $this->render('_search-word', ['model' => $searchModel]); ?>
         <?= GridView::widget([
           'dataProvider' => $dataProvider,
@@ -230,8 +230,6 @@ use yii\widgets\ActiveForm;
           ],
         ]); ?>
     <?php Pjax::end() ?>
-
-    
   </div>
 </script>
 

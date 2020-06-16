@@ -22,6 +22,8 @@ class MentionSearch extends Mentions
     public $message_markup;
     // for search grid
     public $pageSize = 10;
+    // detail
+    public $resourceId;
 
     /**
      * {@inheritdoc}
@@ -30,6 +32,7 @@ class MentionSearch extends Mentions
     {
         return [
             [['resourceName','termSearch','name','screen_name','subject','message_markup'], 'string'],
+            [['resourceId'], 'integer'],
             [['resourceName'], 'safe'],
         ];
     }
@@ -53,13 +56,13 @@ class MentionSearch extends Mentions
     public function search($params,$alertId)
     {   
         $model = $this->getData($params,$alertId);
-
+        
         $dataProvider = new \yii\data\ArrayDataProvider([
             'allModels' => $model,
             'pagination' => [
                 'pageSize' => $this->pageSize,
             ],
-            'totalCount' => $this->getTotalCount($alertId)
+            'totalCount' => $this->getTotalCount($alertId,$params)
         ]);
 
 
@@ -87,13 +90,19 @@ class MentionSearch extends Mentions
             $limit = $this->pageSize;
         }
         $db = \Yii::$app->db;
-        $duration = 60;  
+        $duration = 60;
+        
+        $where['alertId'] = $alertId;
+        if(isset($params['resourceId'])){
+            $where['resourcesId'] = $params['resourceId'];
+        }
+        
     
-        $alertMentions = $db->cache(function ($db) use ($alertId) {
+        $alertMentions = $db->cache(function ($db) use ($where) {
           return (new \yii\db\Query())
             ->select('id')
             ->from('alerts_mencions')
-            ->where(['alertId' => $alertId])
+            ->where($where)
             ->orderBy(['resourcesId' => 'ASC'])
             ->all();
         },$duration); 
@@ -168,16 +177,25 @@ class MentionSearch extends Mentions
         return $rows;
     }
     
-    public function getTotalCount($alertId){
+    public function getTotalCount($alertId,$resourceId = null,$params = null){
        
         $db = \Yii::$app->db;
         $duration = 60; 
+        
+        $where['alertId'] = $alertId;
+        if(isset($params['resourceId'])){
+            $where['resourcesId'] = $params['resourceId'];
+        }
+        
+        if(isset($params['MentionSearch']['termSearch'])){
+            $where['term_searched'] = $params['MentionSearch']['termSearch'];
+        }
 
-        $alertMentions = $db->cache(function ($db) use ($alertId) {
+        $alertMentions = $db->cache(function ($db) use ($where) {
             return (new \yii\db\Query())
               ->select('id')
               ->from('alerts_mencions')
-              ->where(['alertId' => $alertId])
+              ->where($where)
               ->orderBy(['resourcesId' => 'ASC'])
               ->all();
           },$duration); 

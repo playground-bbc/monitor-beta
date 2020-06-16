@@ -1,10 +1,5 @@
 "use strict";
 
-// const origin = location.origin;
-// const appId = location.pathname.split("/")[1];
-
-// const baseDetailApi = `${origin}/${appId}/web/monitor/api/detail/`;
-
 /**
  * detailComponent: send call to api if there record load the rest the components or load spinder in th template
  */
@@ -151,6 +146,44 @@ const boxComponent = Vue.component("box-detail", {
     calcColumns() {
       var size = Object.keys(this.box_properties).length;
       return columnsName[size - 1];
+    },
+  },
+});
+
+const gridMentions = Vue.component("grid-detail", {
+  props: {
+    isChange: {
+      type: Boolean,
+      required: true,
+    },
+    alertid: {
+      type: Number,
+      required: true,
+    },
+    resourceid: {
+      type: Number,
+      required: true,
+    },
+    term: {
+      type: String,
+      required: true,
+    },
+  },
+  template: "#grid-mention-detail",
+  data: function () {
+    return {};
+  },
+  mounted() {
+    this.searchForm();
+  },
+  methods: {
+    searchForm() {
+      $('input[name="MentionSearch[message_markup]"]').attr("value", "");
+      $("#mentionsearch-message_markup").attr("value", "");
+      $('input[name="id"]').attr("value", this.alertid);
+      $('input[name="resourceId"]').attr("value", this.resourceid);
+      $("#mentionsearch-termsearch").attr("value", this.term);
+      $("#search").click();
     },
   },
 });

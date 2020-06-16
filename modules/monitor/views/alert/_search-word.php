@@ -3,6 +3,8 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
+$action = (isset($view)) ? $view : 'view';
+
 ?>
 
 <div class="">
@@ -10,7 +12,7 @@ use yii\widgets\ActiveForm;
     $form = ActiveForm::begin(
         [
           'id' => 'mentions-search',
-          'action' => ['view'],
+          'action' => [$action],
           'method' => 'get',
           'options' => [
               'data-pjax' => 1,
@@ -19,8 +21,10 @@ use yii\widgets\ActiveForm;
             ],
         ]);
     ?>
-
+    
     <?= Html::hiddenInput('id','') ?>
+    
+    <?= Html::hiddenInput('resourceId','') ?>
 
     <?= $form->field($model, 'resourceName') ?>
 

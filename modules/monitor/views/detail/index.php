@@ -68,5 +68,9 @@ use yii\widgets\DetailView;
     </div>
 </div>
 
-<?= $this->render('_templates-vue');  
+<?= $this->render('_templates-vue',[
+    'searchModel' => $searchModel,
+    'dataProvider' => $dataProvider,
+    'view' => 'index'
+]);  
 ?>

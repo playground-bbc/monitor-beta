@@ -1,9 +1,10 @@
 <?php 
 use yii\helpers\Html;
-use yii\grid\GridView;
+use kartik\grid\GridView;
 use yii\widgets\Pjax;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
+
 ?>
 
 
@@ -13,6 +14,7 @@ use yii\widgets\ActiveForm;
   <hr> 
   <div v-if="!loading && count" class="col-md-12">
     <box-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term"></box-detail>
+    <grid-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term"></grid-detail>
   </div>
   <div v-else-if="loading">
       <div class="loader">
@@ -45,6 +47,109 @@ use yii\widgets\ActiveForm;
         <!-- /.info-box-content -->
       </div>
       <!-- /.info-box -->
+    </div>
+  </div> 
+</script>
+
+<!-- grid mentions -->
+<script type="text/x-template" id="grid-mention-detail">
+  <div  class="row">
+    <div class="col-md-12">
+      <?php Pjax::begin(['id' => 'mentions-detail', 'timeout' => 10000, 'enablePushState' => false]) ?>
+      <?=   $this->render('/alert/_search-word', ['model' => $searchModel,'view' => $view]); ?>
+          <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
+            'autoXlFormat'=>true,
+            'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
+            'toggleDataContainer' => ['class' => 'btn-group mr-2'],
+            'export'=>[
+                'showConfirmAlert'=>false,
+                'target'=> GridView::TARGET_BLANK
+            ],
+            'columns' => [
+              [
+                  'label' => Yii::t('app','Recurso Social'),
+                  'attribute' => 'resourceName',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['recurso'];
+                  }
+              ],
+              [
+                  'label' => Yii::t('app','Término buscado'),
+                  'headerOptions' => ['style' => 'width:12%'],
+                  'attribute' => 'termSearch',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['term_searched'];
+                  }
+              ],
+                
+                [
+                    'label' => Yii::t('app','Fecha'),
+                    'headerOptions' => ['style' => 'width:8%'],
+                    //'attribute' => 'userId',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','Nombre'),
+                    'attribute' => 'name',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['name'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','Username'),
+                    'attribute' => 'screen_name',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['screen_name'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','Titulo'),
+                    'attribute' => 'subject',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['subject'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','Mencion'),
+                    'attribute' => 'message_markup',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return $model['message_markup'];
+                    }
+                ],
+                [
+                    'label' => Yii::t('app','Url'),
+                    //'attribute' => 'userId',
+                    'format' => 'raw',
+                    'value' => function($model){
+                        return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
+                    }
+                ],
+            ],
+            'class' => 'yii\grid\Column',
+            'pjax'=>false,
+            'pjaxSettings'=>[
+              'options'=>[
+                'id'=> 'mentions'
+              ]
+            ],
+            'showPageSummary'=>true,
+            'panel'=>[
+                'type'=>'primary',
+                'heading'=>'Menciones'
+            ],
+          ]); ?>
+      <?php Pjax::end() ?>
     </div>
   </div> 
 </script>

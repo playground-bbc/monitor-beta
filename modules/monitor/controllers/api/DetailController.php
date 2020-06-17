@@ -96,7 +96,13 @@ class DetailController extends Controller {
         if($resource->name == "Facebook Comments"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookComments($model->id,$resourceId,$term);
         }
+        if($resource->name == "Facebook Messages"){
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookMessages($model->id,$resourceId,$term);
+        }
 
+        if($resource->name == "Instagram Comments"){
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesInstagramComments($model->id,$resourceId,$term);
+        }
         return ['propertyBoxs' => $propertyBoxs];
     }
 

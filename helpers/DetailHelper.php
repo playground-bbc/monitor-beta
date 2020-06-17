@@ -177,6 +177,62 @@ class DetailHelper {
         return $properties; 
     }
     /**
+     * return property view box.Facebook Messages
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @param string $term
+     * @param integer $feedId
+     * @return $properties with properties record
+     */
+    public static function setBoxPropertiesFaceBookMessages($alertId,$resourceId,$term,$feedId = null){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        if($term != ""){
+            $where['term_searched'] = $term;
+        }
+
+        $properties = self::getPropertyBoxByResourceName('Facebook Messages');
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // get total messages
+                $properties['inbox_count']['total'] += count($alertMentions[$m]['mentions']);
+            }
+        }
+        return $properties; 
+    }
+    /**
+     * return property view box.Instagram Comments
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @param string $term
+     * @param integer $feedId
+     * @return $properties with properties record
+     */
+    public static function setBoxPropertiesInstagramComments($alertId,$resourceId,$term,$feedId = null){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        if($term != ""){
+            $where['term_searched'] = $term;
+        }
+
+        $properties = self::getPropertyBoxByResourceName('Instagram Comments');
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // get total messages
+                $properties['comments_count']['total'] += count($alertMentions[$m]['mentions']);
+                // get total likes
+                $mention_data = json_decode($alertMentions[$m]['mention_data'],true);
+                $properties['likes_count']['total'] += (isset($mention_data['like_count'])) ? $mention_data['like_count']: 0; 
+            }
+        }
+        return $properties; 
+    }
+
+    /**
      * return count by status ticket
      * @param string $status
      * @param array $alertMentionsIds
@@ -274,7 +330,7 @@ class DetailHelper {
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-default elevation-1',
-                    'title' => 'Total Comentarios',
+                    'title' => 'Total Comentarios y Respuestas',
                     'icon' => 'glyphicon glyphicon-comment'
                 ],
                 'shares_count'=>[
@@ -311,6 +367,31 @@ class DetailHelper {
                     'background_color' => 'info-box-icon bg-default elevation-1',
                     'title' => 'Total Haha',
                     'icon' => 'glyphicon glyphicon-user'
+                ],
+            ],
+            'Facebook Messages' => [
+                'inbox_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Inbox',
+                    'icon' => 'glyphicon glyphicon-envelope'
+                ],
+            ],
+            'Instagram Comments' => [
+                'comments_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Comentarios y Respuestas',
+                    'icon' => 'glyphicon glyphicon-comment'
+                ],
+                'likes_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Likes',
+                    'icon' => 'glyphicon glyphicon-thumbs-up'
                 ],
             ]
 

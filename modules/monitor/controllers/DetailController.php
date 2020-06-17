@@ -12,7 +12,7 @@ class DetailController extends \yii\web\Controller
         $resource = \app\models\Resources::findOne($resourceId);
         
         $searchModel = new \app\models\grid\MentionSearch();
-        $dataProvider = $searchModel->search(\Yii::$app->request->queryParams,$id,$resource->id);
+        $dataProvider = $searchModel->search(\Yii::$app->request->queryParams,$id);
         
         return $this->render('index',[
             'model' => $model,

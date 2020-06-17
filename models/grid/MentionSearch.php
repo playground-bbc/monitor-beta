@@ -55,6 +55,7 @@ class MentionSearch extends Mentions
      */
     public function search($params,$alertId)
     {   
+        
         $model = $this->getData($params,$alertId);
         
         $dataProvider = new \yii\data\ArrayDataProvider([
@@ -62,7 +63,7 @@ class MentionSearch extends Mentions
             'pagination' => [
                 'pageSize' => $this->pageSize,
             ],
-            'totalCount' => $this->getTotalCount($alertId,$params)
+            'totalCount' => count($model)
         ]);
 
 
@@ -173,11 +174,10 @@ class MentionSearch extends Mentions
             
         }
 
-
         return $rows;
     }
     
-    public function getTotalCount($alertId,$resourceId = null,$params = null){
+    public function getTotalCount($alertId,$params = null){
        
         $db = \Yii::$app->db;
         $duration = 60; 
@@ -190,6 +190,7 @@ class MentionSearch extends Mentions
         if(isset($params['MentionSearch']['termSearch'])){
             $where['term_searched'] = $params['MentionSearch']['termSearch'];
         }
+        
 
         $alertMentions = $db->cache(function ($db) use ($where) {
             return (new \yii\db\Query())
@@ -201,6 +202,7 @@ class MentionSearch extends Mentions
           },$duration); 
           
           $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');  
+         
           
           $totalCount = (new \yii\db\Query())
           ->select([
@@ -219,8 +221,8 @@ class MentionSearch extends Mentions
           ->join('JOIN','resources r', 'r.id = a.resourcesId')
           ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
           ->count();
-
-        return $totalCount;  
+          
+        return (int)$totalCount;  
 
     }
 }

@@ -79,10 +79,10 @@ const detailComponent = Vue.component("detail", {
         if (text !== "Terminos...") {
           // v-model looks for
           this.term = $("#w0 option:selected").text();
-          this.loading = true;
         } else {
           this.term = "";
         }
+        this.loading = true;
       });
     },
   },
@@ -118,14 +118,6 @@ const boxComponent = Vue.component("box-detail", {
   },
   mounted() {
     this.fetchBoxInfo();
-    setInterval(
-      function () {
-        if (this.isChange) {
-          this.fetchBoxInfo();
-        }
-      }.bind(this),
-      10000 // numbers second reload
-    );
   },
   methods: {
     fetchBoxInfo() {
@@ -178,6 +170,7 @@ const gridMentions = Vue.component("grid-detail", {
   },
   methods: {
     searchForm() {
+      console.info(this.alertid, this.resourceid, this.term);
       $('input[name="MentionSearch[message_markup]"]').attr("value", "");
       $("#mentionsearch-message_markup").attr("value", "");
       $('input[name="id"]').attr("value", this.alertid);

@@ -229,18 +229,20 @@ class FacebookSearch
         $id = end($id);
 
 
-        $author = \app\helpers\StringHelper::remove_emoji($post['from']);
-        $message = $post['message'];
-        $short_message = \app\helpers\StringHelper::ensureRightPoints(\app\helpers\StringHelper::substring($message,0,385));
+        //$author = \app\helpers\StringHelper::remove_emoji($post['from']);
+        $author = 'User Facebook';
+        //$message = $post['message'];
+        //$short_message = \app\helpers\StringHelper::ensureRightPoints(\app\helpers\StringHelper::substring($message,0,385));
         $origin = \app\helpers\MentionsHelper::saveUserMencions(
             [
-                'user_uuid' => $id
+                'name' => $author
             ],
             [
+                'user_uuid'   => $id,
                 'name'        => $author,
                 'screen_name' => $author,
               //  'user_data'   => $user_data,
-                'message'     => \app\helpers\StringHelper::remove_emoji($short_message),
+               // 'message'     => \app\helpers\StringHelper::remove_emoji($short_message),
             ]
         );
 

@@ -91,6 +91,9 @@ class MentionsController extends Controller
         
         if(in_array('Facebook Comments',array_values($alertResources))){
           $data['total_comments'] = \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
+          if(isset($data['reations'])){
+            unset($data['reations']);
+          }
         }
         
         if(in_array('Facebook Messages',array_values($alertResources))){

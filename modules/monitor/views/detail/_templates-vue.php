@@ -41,7 +41,7 @@ use yii\widgets\ActiveForm;
         <div class="info-box-content">
           <span class="info-box-text"><small>{{box_property.title}}</small></span>
           <span class="info-box-number">
-            <small>{{box_property.total}}</small>
+            <small>{{box_property.total | formatNumber }}</small>
           </span>
         </div>
         <!-- /.info-box-content -->

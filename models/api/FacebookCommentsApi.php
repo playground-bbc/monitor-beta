@@ -64,7 +64,8 @@ class FacebookCommentsApi extends Model {
 			//get from alermentios
 			$alertsMencions = \app\models\AlertsMencions::find()->where([
 	    		'alertId'       => $this->alertId,
-		        'resourcesId'   => $this->resourcesId,
+				'resourcesId'   => $this->resourcesId,
+				'condition'     => 'ACTIVE',
 		        'type'        	=> 'comments',
 	    	])->all();
 
@@ -328,8 +329,6 @@ class FacebookCommentsApi extends Model {
 		/*if(isset($params)){
 			$feeds = $this->_isLastComments($feeds,$params);
 		}*/
-	
-
 
 		return $feeds;
 		
@@ -489,6 +488,13 @@ class FacebookCommentsApi extends Model {
 					}else{
 						$model[$p]['shares'] = 0;
 					}
+					// get reations
+					if (isset($feeds_reviews[$p]['data'][$d]['insights'])) {
+						if(count($feeds_reviews[$p]['data'][$d]['insights']['data'])){
+							$model[$p]['reations'] = $feeds_reviews[$p]['data'][$d]['insights']['data'][0]['values'][0]['value'];	
+						}
+					}
+					
 					// full_picture
 					if(isset($feeds_reviews[$p]['data'][$d]['full_picture'])){
 						$model[$p]['picture'] = $feeds_reviews[$p]['data'][$d]['full_picture'];
@@ -522,7 +528,6 @@ class FacebookCommentsApi extends Model {
 				}
 			}
 		}
-
 		return $model;
 	}
 
@@ -600,6 +605,7 @@ class FacebookCommentsApi extends Model {
 		
 
 		for($d = 0 ; $d < sizeOf($data); $d++){
+			
 			for($p = 0; $p < sizeof($this->products); $p++){
 				// destrutura el product
 				$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p]);
@@ -610,7 +616,12 @@ class FacebookCommentsApi extends Model {
 				$url  = $data[$d]['unshimmed_url'];
 				$id_feed = $data[$d]['id'];
 				// get share
-				$share_feed['shares'] = (isset($data[$d]['shares']['count'])) ? $data[$d]['shares']['count'] : 0;
+				$data_feed['shares'] = (isset($data[$d]['shares']['count'])) ? $data[$d]['shares']['count'] : 0;
+				// get reations
+				if(isset($data[$d]['reations']) && count($data[$d]['reations'])){
+					$data_feed['reations'] = $data[$d]['reations'];
+				}
+				
 				
 				$date = \app\helpers\DateHelper::asTimestamp($data[$d]['created_time']);
 
@@ -628,7 +639,7 @@ class FacebookCommentsApi extends Model {
 
 							$where['publication_id'] = $id_feed;
 							
-							\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['term_searched' => $this->products[$p],'date_searched' => $date,'title' => $sentence, 'url' => $url,'mention_data' => $share_feed]);
+							\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['term_searched' => $this->products[$p],'date_searched' => $date,'title' => $sentence, 'url' => $url,'mention_data' => $data_feed]);
 							$model[$this->products[$p]][] = $data[$d];
 							
 							$feed_count --;
@@ -669,7 +680,8 @@ class FacebookCommentsApi extends Model {
 					}// end loop products
 				}
 			}// end loop data
-		}// end loop pagination		
+		}// end loop pagination	
+		
 		return $feeds_candidate;
 	}
 
@@ -730,10 +742,8 @@ class FacebookCommentsApi extends Model {
 
 		$bussinessId = Yii::$app->params['facebook']['business_id'];
 		$end_date = strtotime(\app\helpers\DateHelper::add($this->end_date,'+1 day'));
-		
-
 		//$post_comments_query = "{$bussinessId}/published_posts?fields=from,full_picture,icon,is_popular,message,attachments{unshimmed_url},shares,created_time,comments{from,created_time,is_hidden,like_count,message,permalink_url,parent,comment_count,attachment,comments.limit($this->_limit_commets){likes.limit(10),comments{message,permalink_url}}},updated_time&until={$end_date}&since={$this->start_date}&limit={$this->_limit_post}";
-		$post_comments_query = "{$bussinessId}/published_posts?fields=from,full_picture,icon,is_popular,message,attachments{unshimmed_url},shares,created_time,comments{from,created_time,is_hidden,like_count,message,permalink_url,parent,comment_count,attachment,comments.limit($this->_limit_commets){comments{message,permalink_url}}},updated_time&until={$end_date}&since={$this->start_date}&limit={$this->_limit_post}";
+		$post_comments_query = "{$bussinessId}/published_posts?fields=from,full_picture,icon,is_popular,message,attachments{unshimmed_url},shares,created_time,comments{from,created_time,is_hidden,like_count,message,permalink_url,parent,comment_count,attachment,comments.limit($this->_limit_commets){comments{message,permalink_url}}},insights.metric(post_reactions_by_type_total),updated_time&until={$end_date}&since={$this->start_date}&limit={$this->_limit_post}";
 		return $post_comments_query;
 	}
 

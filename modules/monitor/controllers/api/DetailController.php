@@ -93,6 +93,9 @@ class DetailController extends Controller {
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChatConversation($model->id,$resourceId,$term);
         }
 
+        if($resource->name == "Facebook Comments"){
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookComments($model->id,$resourceId,$term);
+        }
 
         return ['propertyBoxs' => $propertyBoxs];
     }

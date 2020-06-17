@@ -139,6 +139,44 @@ class DetailHelper {
         return $properties; 
     }
     /**
+     * return property view box.Facebook Comments
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @param string $term
+     * @param integer $feedId
+     * @return $properties with properties record
+     */
+    public static function setBoxPropertiesFaceBookComments($alertId,$resourceId,$term,$feedId = null){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        if($term != ""){
+            $where['term_searched'] = $term;
+        }
+
+        $properties = self::getPropertyBoxByResourceName('Facebook Comments');
+        $db = \Yii::$app->db;
+        $duration = 5;
+
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // get total comments
+                $properties['comments_count']['total'] += count($alertMentions[$m]['mentions']);
+                // get total shares
+                $mention_data = json_decode($alertMentions[$m]['mention_data'],true);
+                if(isset($mention_data['shares'])){
+                    $properties['shares_count']['total'] += $mention_data['shares']; 
+                }
+                if(isset($mention_data['reations'])){
+                    $properties['likes_count']['total'] += (isset($mention_data['reations']['like'])) ? $mention_data['reations']['like']: 0; 
+                    $properties['loves_count']['total'] += (isset($mention_data['reations']['love'])) ? $mention_data['reations']['love']: 0; 
+                    $properties['wow_count']['total'] += (isset($mention_data['reations']['wow'])) ? $mention_data['reations']['wow']: 0; 
+                    $properties['haha_count']['total'] += (isset($mention_data['reations']['haha'])) ? $mention_data['reations']['haha']: 0; 
+                }
+            }
+        }
+        return $properties; 
+    }
+    /**
      * return count by status ticket
      * @param string $status
      * @param array $alertMentionsIds
@@ -229,6 +267,50 @@ class DetailHelper {
                     'background_color' => 'info-box-icon bg-default elevation-1',
                     'title' => 'Total Chats',
                     'icon' => 'glyphicon glyphicon-comment'
+                ],
+            ],
+            'Facebook Comments' => [
+                'comments_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Comentarios',
+                    'icon' => 'glyphicon glyphicon-comment'
+                ],
+                'shares_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Compartidos',
+                    'icon' => 'glyphicon glyphicon-share'
+                ],
+                'likes_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Likes',
+                    'icon' => 'glyphicon glyphicon-thumbs-up'
+                ],
+                'loves_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Loves',
+                    'icon' => 'glyphicon glyphicon-heart'
+                ],
+                'wow_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Wow',
+                    'icon' => 'glyphicon glyphicon-user'
+                ],
+                'haha_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Haha',
+                    'icon' => 'glyphicon glyphicon-user'
                 ],
             ]
 

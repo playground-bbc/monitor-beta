@@ -1,5 +1,8 @@
 "use strict";
 
+Vue.filter("formatNumber", function (value) {
+  return value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+});
 /**
  * detailComponent: send call to api if there record load the rest the components or load spinder in th template
  */

@@ -103,6 +103,10 @@ class DetailController extends Controller {
         if($resource->name == "Instagram Comments"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesInstagramComments($model->id,$resourceId,$term);
         }
+
+        if($resource->name == "Paginas Webs"){
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesPaginasWebs($model->id,$resourceId,$term);
+        }
         return ['propertyBoxs' => $propertyBoxs];
     }
 

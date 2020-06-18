@@ -24,6 +24,7 @@ class MentionSearch extends Mentions
     public $pageSize = 10;
     // detail
     public $resourceId;
+    public $social_id;
 
     /**
      * {@inheritdoc}
@@ -32,7 +33,7 @@ class MentionSearch extends Mentions
     {
         return [
             [['resourceName','termSearch','name','screen_name','subject','message_markup'], 'string'],
-            [['resourceId'], 'integer'],
+            [['resourceId','social_id'], 'integer'],
             [['resourceName'], 'safe'],
         ];
     }
@@ -119,6 +120,7 @@ class MentionSearch extends Mentions
           'screen_name' => 'u.screen_name',
           'subject' => 'm.subject',
           'message_markup' => 'm.message_markup',
+          'social_id' => 'm.social_id',
           'url' => 'm.url',
         ])
         ->from('mentions m')
@@ -126,9 +128,17 @@ class MentionSearch extends Mentions
         ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
         ->join('JOIN','resources r', 'r.id = a.resourcesId')
         ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
+        ->orderBy(['m.created_time' => 'ASC'])
         ->all();
 
         if ($this->load($params)) {
+
+            if($this->social_id != ''){
+                $name = strtolower(trim($this->social_id));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->recurso : $role['social_id'])), $name) !== false);
+                });
+            }
 
             if($this->resourceName != ''){
                 $name = strtolower(trim($this->resourceName));

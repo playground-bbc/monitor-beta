@@ -201,7 +201,10 @@ class LiveTicketSearch {
        
         $date = \app\helpers\DateHelper::asTimestamp($mention['date']);
         $mention_data = [];
-        $mention_data['id']     = $mention['id'];
+        $mention_data['id']  = $mention['id'];
+        // keep track by social id
+        $social_id = hexdec( substr(sha1($mention['id']), 0, 15) );
+
         $mention_data['status'] = $mention['status'];
         //$mention_data['geo']    = ($user->user_data['type'] == 'client') ? $mention['geolocation']: null;
         $mention_data['source'] = $mention['source']['type'];
@@ -239,8 +242,7 @@ class LiveTicketSearch {
             $model->message_markup  = $message_markup;
             $model->url             = $url;
             $model->domain_url      = $domain_url;
-         //   $model->location        = $location;
-            $model->social_id       = null;
+            $model->social_id       = $social_id;
             
             $model->save();
         }

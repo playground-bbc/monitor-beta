@@ -69,6 +69,14 @@ use yii\widgets\ActiveForm;
             ],
             'columns' => [
               [
+                  'label' => Yii::t('app','Social id'),
+                  'attribute' => 'social_id',
+                  'format' => 'raw',
+                  'value' => function($model){
+                      return $model['social_id'];
+                  }
+              ],
+              [
                   'label' => Yii::t('app','Recurso Social'),
                   'attribute' => 'resourceName',
                   'format' => 'raw',

@@ -133,7 +133,10 @@ $escape = new JsExpression("function(m) { return m; }");
                 'value' => function($model) {
                     $html = '';
                     foreach ($model->config->configSources as $alert) {
-                        $html .= " <span class='label label-info'>{$alert->alertResource->name}</span>";
+                        $url = \yii\helpers\Url::to(['/monitor/detail','id' => $model->id,'resourceId' => $alert->alertResource->id]);
+                        $span = "<span class='label label-info'>{$alert->alertResource->name}<status-alert id={$alert->alertResource->id} :resourceids={$alert->alertResource->id}></status-alert></span>";
+                        $hiperLink =  \yii\helpers\Html::a($span,$url,['target'=>'_blank', 'data-pjax'=>"0"]);
+                        $html .= $hiperLink;
                     }
                     return $html;
                 }

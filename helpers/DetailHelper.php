@@ -232,6 +232,27 @@ class DetailHelper {
         return $properties; 
     }
 
+    public static function setBoxPropertiesPaginasWebs($alertId,$resourceId,$term,$feedId = null){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        if($term != ""){
+            $where['term_searched'] = $term;
+        }
+
+        $properties = self::getPropertyBoxByResourceName('Paginas Webs');
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // total web pages
+                $properties['webpages_count']['total'] ++;
+                // get total messages
+                $properties['mention_count']['total'] += count($alertMentions[$m]['mentions']);
+            }
+        }
+        return $properties; 
+    }
+
     /**
      * return count by status ticket
      * @param string $status
@@ -330,7 +351,7 @@ class DetailHelper {
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-default elevation-1',
-                    'title' => 'Total Comentarios y Respuestas',
+                    'title' => 'Total Comentarios',
                     'icon' => 'glyphicon glyphicon-comment'
                 ],
                 'shares_count'=>[
@@ -383,7 +404,7 @@ class DetailHelper {
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-default elevation-1',
-                    'title' => 'Total Comentarios y Respuestas',
+                    'title' => 'Total Comentarios',
                     'icon' => 'glyphicon glyphicon-comment'
                 ],
                 'likes_count'=>[
@@ -392,6 +413,22 @@ class DetailHelper {
                     'background_color' => 'info-box-icon bg-default elevation-1',
                     'title' => 'Total Likes',
                     'icon' => 'glyphicon glyphicon-thumbs-up'
+                ],
+            ],
+            'Paginas Webs' => [
+                'mention_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Coincidencias',
+                    'icon' => 'glyphicon glyphicon-ok'
+                ],
+                'webpages_count'=>[
+                    'id' => random_int(100, 999),
+                    'total' => 0,
+                    'background_color' => 'info-box-icon bg-default elevation-1',
+                    'title' => 'Total Paginas webs',
+                    'icon' => 'socicon-internet'
                 ],
             ]
 

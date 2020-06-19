@@ -402,7 +402,7 @@ class InsightsApi extends Model
 				for ($p=0; $p < sizeof($posts) ; $p++) { 
 					$where['content_id'] = \app\helpers\FacebookHelper::getIdPostFacebook($posts[$p]['id']);
 					$properties = [
-						'message'   => $posts[$p]['message'],
+						'message'   => (isset($posts[$p]['message'])) ? $posts[$p]['message'] : '',
 						'permalink' => $posts[$p]['permalink_url'],
 						'image_url' => $posts[$p]['picture'],
 						'timespan'  => \app\helpers\DateHelper::asTimestamp($posts[$p]['updated_time']),

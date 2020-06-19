@@ -275,9 +275,10 @@ class InsightsHelper
     {
     	if (!empty($attachments)) {
     		for ($a=0; $a < sizeof($attachments) ; $a++) { 
+                $attachment_title = isset($attachments[$a]['title']) ? $attachments[$a]['title'] : '';
     			$is_attachment = \app\models\WAttachments::find()->where(
     				[
-    					'title' => $attachments[$a]['title'],
+    					'title' => $attachment_title,
     					'content_id' => $contentId,
     					'type' => $attachments[$a]['media_type'],
     				]
@@ -288,7 +289,7 @@ class InsightsHelper
 
     				if ($attachments[$a]['media_type'] != 'album') {
     					$model->content_id = $contentId;
-    					$model->title = $attachments[$a]['title'];
+    					$model->title = $attachment_title;
     					$model->type = $attachments[$a]['media_type'];
     					$model->src_url = $attachments[$a]['media']['image']['src'];
                         if(!$model->save()){
@@ -304,7 +305,7 @@ class InsightsHelper
                                for ($s=0; $s < sizeof($subattachments); $s++) { 
                                     $model = new \app\models\WAttachments();
                                     $model->content_id = $contentId;
-                                    $model->title = $attachments[$a]['title'];
+                                    $model->title = $attachment_title;
                                     $model->type = $attachments[$a]['media_type'];
                                     $model->src_url = $subattachments[$s]['media']['image']['src'];
                                     if(!$model->save()){

@@ -125,14 +125,28 @@ function getCountMentionsDetail(alertid, resourceid, term) {
 
 /**
  * View: Detail
+ * Vue Component: detail
+ *  call api to return data for depend select2
+ * @param {Number} id
+ * @param {Number} resourceId
+ * @param {String} term
+ */
+function getDataSelectDetail(alertid, resourceid, term) {
+  return apiClientDetail.get(
+    `select-depend?alertId=${alertid}&resourceId=${resourceid}&term=${term}`
+  );
+}
+
+/**
+ * View: Detail
  * Vue Component: box-detail
  *  call api to return box inf properties
  * @param {Number} id
  * @param {Number} resourceId
  * @param {String} term
  */
-function getBoxInfoDetail(alertid, resourceid, term) {
+function getBoxInfoDetail(alertid, resourceid, term, socialId) {
   return apiClientDetail.get(
-    `box-info?alertId=${alertid}&resourceId=${resourceid}&term=${term}`
+    `box-info?alertId=${alertid}&resourceId=${resourceid}&term=${term}&socialId=${socialId}`
   );
 }

@@ -2,6 +2,7 @@
 namespace app\helpers;
 
 use yii;
+use yii\helpers\Html;
 use yii\db\Expression;
 
 /**
@@ -61,7 +62,7 @@ class DetailHelper {
      * @param string $term
      * @return $properties with properties record
      */
-    public static function setBoxPropertiesLiveChat($alertId,$resourceId,$term){
+    public static function setBoxPropertiesLiveChat($alertId,$resourceId,$term,$socialId){
 
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
         if($term != ""){
@@ -77,6 +78,11 @@ class DetailHelper {
             return array_keys(\yii\helpers\ArrayHelper::map($ids,'id','alertId'));
         },$duration); 
 
+        $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
+        if($socialId != ""){
+            $mentionWhere['social_id'] = $socialId;
+        } 
+
         $expression = new Expression("`mention_data`->'$.id' AS ticketId");
         // count number tickets
         // SELECT `mention_data`->'$.id' AS ticketId FROM `mentions` where alert_mentionId = 9 GROUP BY `ticketId` DESC
@@ -84,7 +90,7 @@ class DetailHelper {
             ->cache($duration)
             ->select($expression)
             ->from('mentions')
-            ->where(['alert_mentionId' => $alertMentionsIds])
+            ->where($mentionWhere)
             ->groupBy(['ticketId'])
             ->count();
 
@@ -93,7 +99,7 @@ class DetailHelper {
         $status = ['tickets_open' => '"open"','tickets_pending' => '"pending"','tickets_solved'=> '"solved"'];
 
         foreach($status as $head => $status_value){
-            $properties[$head]['total'] = self::countBytypeStatus($status_value,$alertMentionsIds);
+            $properties[$head]['total'] = self::countBytypeStatus($status_value,$mentionWhere);
         }
 
 
@@ -231,8 +237,14 @@ class DetailHelper {
         }
         return $properties; 
     }
-
-    public static function setBoxPropertiesPaginasWebs($alertId,$resourceId,$term,$feedId = null){
+    /**
+     * return property view box.Paginas Wbes
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @param string $term
+     * @return $properties with properties record
+     */
+    public static function setBoxPropertiesPaginasWebs($alertId,$resourceId,$term){
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
         if($term != ""){
             $where['term_searched'] = $term;
@@ -259,7 +271,7 @@ class DetailHelper {
      * @param array $alertMentionsIds
      * @return $ticketCountStatus  by status
      */
-    public static function countBytypeStatus($status, $alertMentionsIds)
+    public static function countBytypeStatus($status, $mentionWhere)
     {
         // SELECT `mention_data`->'$.id' AS ticketId FROM `mentions` WHERE JSON_CONTAINS(mention_data,'"solved"','$.status') and alert_mentionId = 5 GROUP by ticketId
         $expression = new Expression("`mention_data`->'$.id' AS ticketId");
@@ -270,7 +282,7 @@ class DetailHelper {
             ->select($expression)
             ->from('mentions')
             ->where($expressionWhere)
-            ->andWhere(['alert_mentionId' => $alertMentionsIds])
+            ->andWhere($mentionWhere)
             ->groupBy(['ticketId'])
             ->count();
 
@@ -435,6 +447,99 @@ class DetailHelper {
         ];
         
         return $properties[$resourceName];
+    }
+    /**
+     * return group columns for detail grid index detail
+     * @param string $resourceName
+     * @return array $columns
+     */
+    public static function setGridDetailColumnsOnDetailView($model,$resource){
+        
+        $columns = [
+            [
+                'label' => Yii::t('app','Estado'),
+                'format'    => 'raw',
+                'attribute' => 'status',
+                'value' => function($model) {
+                    return ($model->status) ? 'Active' : 'Inactive';
+                }
+            ],
+            [
+                'label' => Yii::t('app','Recurso'),
+                'format'    => 'raw',
+                'value' => function($model) use($resource) {
+                    return Html::encode($resource->name);
+                }
+            ],
+            [
+                'label' => Yii::t('app','Terminos a Buscar'),
+                'format'    => 'raw',
+                'value' => \kartik\select2\Select2::widget([
+                    'name' => 'products',
+                    'size' => \kartik\select2\Select2::SMALL,
+                    'hideSearch' => false,
+                    'data' => $model->termsFind,
+                    'options' => ['placeholder' => 'Terminos...'],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ]),
+
+            ],
+        ];
+
+
+        if($resource->name == "Live Chat"){
+            $columnTicket = [
+                'label' => Yii::t('app','Tickets a Buscar'),
+                'format'    => 'raw',
+                'value' => \kartik\select2\Select2::widget([
+                    'id' => 'depend_select',
+                    'name' => 'ticket',
+                    'size' => \kartik\select2\Select2::SMALL,
+                    'hideSearch' => false,
+                    'data' => [],
+                    'options' => ['placeholder' => 'Tickets a Filtrar...'],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ]),
+            ];
+            array_push($columns,$columnTicket);
+        }
+        return $columns;
+    }
+
+
+    public static function getTicketLiveChat($alertId,$resourceId,$term){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
+
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        $data = [];
+        
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // SELECT social_id,subject FROM `mentions` WHERE alert_mentionId=101 GROUP BY `social_id`
+                $rows = (new \yii\db\Query())
+                      ->select(['social_id','subject'])
+                      ->from('mentions')
+                      ->where(['alert_mentionId' => $alertMentions[$m]['id']])
+                      ->groupBy('social_id')
+                      ->all();
+                     
+                if(count($rows)){
+                    foreach($rows as $row){
+                        array_push($data,['id' => $row['social_id'], 'text' => $row['subject']]);
+                    }
+                    
+                }      
+            }
+        }
+
+        return $data;
+
     }
 }
 

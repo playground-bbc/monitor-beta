@@ -74,42 +74,54 @@ class DetailController extends Controller {
      * @return $count the total record
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionBoxInfo($alertId,$resourceId,$term = ''){
+    public function actionBoxInfo($alertId,$resourceId,$term = '',$socialId = ""){
         
         $model = $this->findModel($alertId,$resourceId);
-        $resource = \app\models\Resources::findOne($resourceId);
+        $resourceName = \app\helpers\AlertMentionsHelper::getResourceNameById($resourceId);
 
         $propertyBoxs = [];
 
-        if($resource->name == "Twitter"){
+        if($resourceName == "Twitter"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesTwitter($model->id,$resourceId,$term);
         }
 
-        if($resource->name == "Live Chat"){
-            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChat($model->id,$resourceId,$term);
+        if($resourceName == "Live Chat"){
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChat($model->id,$resourceId,$term,$socialId);
         }
 
-        if($resource->name == "Live Chat Conversations"){
+        if($resourceName == "Live Chat Conversations"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChatConversation($model->id,$resourceId,$term);
         }
 
-        if($resource->name == "Facebook Comments"){
+        if($resourceName == "Facebook Comments"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookComments($model->id,$resourceId,$term);
         }
-        if($resource->name == "Facebook Messages"){
+        if($resourceName == "Facebook Messages"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookMessages($model->id,$resourceId,$term);
         }
 
-        if($resource->name == "Instagram Comments"){
+        if($resourceName == "Instagram Comments"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesInstagramComments($model->id,$resourceId,$term);
         }
 
-        if($resource->name == "Paginas Webs"){
+        if($resourceName == "Paginas Webs"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesPaginasWebs($model->id,$resourceId,$term);
         }
         return ['propertyBoxs' => $propertyBoxs];
     }
 
+    public function actionSelectDepend($alertId,$resourceId,$term = ''){
+        
+        $model = $this->findModel($alertId,$resourceId);
+        $resourceName = \app\helpers\AlertMentionsHelper::getResourceNameById($resourceId);
+
+        $data = [['id' => '', 'text' => '']];
+        if($resourceName == "Live Chat"){
+            $data =  \app\helpers\DetailHelper::getTicketLiveChat($model->id,$resourceId,$term);
+        }
+        
+        return ['data' => $data];
+    }
     /**
      * Finds the Alerts model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

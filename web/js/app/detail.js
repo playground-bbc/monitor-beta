@@ -24,6 +24,7 @@ const detailComponent = Vue.component("detail", {
       isChange: false,
       count: 0,
       term: "",
+      socialId: "",
       msg: `<strong>Info!</strong> No se encuentra datos disponible`,
     };
   },
@@ -82,11 +83,45 @@ const detailComponent = Vue.component("detail", {
         if (text !== "Terminos...") {
           // v-model looks for
           this.term = $("#w0 option:selected").text();
+          this.setCallSelectDepen();
         } else {
           this.term = "";
+          $("#depend_select").empty().trigger("change");
         }
         this.loading = true;
       });
+
+      $("#depend_select").change((e) => {
+        var text = $("#depend_select option:selected").text();
+        if (text !== "Tickets a Buscar") {
+          // v-model looks for
+          this.socialId = $("#depend_select option:selected").val();
+        } else {
+          this.socialId = "";
+        }
+        this.loading = true;
+      });
+    },
+    setCallSelectDepen() {
+      if (document.body.contains(document.getElementById("depend_select"))) {
+        getDataSelectDetail(this.alertid, this.resourceid, this.term)
+          .then((response) => {
+            if (response.status == 200 && response.statusText == "OK") {
+              if (response.data.data.length) {
+                response.data.data.forEach(function (element) {
+                  var option = new Option(element.text, element.id, true, true);
+                  $("#depend_select").append(option).trigger("change");
+                });
+              } else {
+                $("#depend_select").empty().trigger("change");
+              }
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            // see error by dialog
+          });
+      }
     },
   },
 });
@@ -112,6 +147,10 @@ const boxComponent = Vue.component("box-detail", {
       type: String,
       required: true,
     },
+    socialId: {
+      type: String,
+      required: true,
+    },
   },
   template: "#box-info-detail",
   data: function () {
@@ -124,7 +163,7 @@ const boxComponent = Vue.component("box-detail", {
   },
   methods: {
     fetchBoxInfo() {
-      getBoxInfoDetail(this.alertid, this.resourceid, this.term)
+      getBoxInfoDetail(this.alertid, this.resourceid, this.term, this.socialId)
         .then((response) => {
           if (response.status == 200 && response.statusText == "OK") {
             this.box_properties = response.data.propertyBoxs;
@@ -163,6 +202,10 @@ const gridMentions = Vue.component("grid-detail", {
       type: String,
       required: true,
     },
+    socialId: {
+      type: String,
+      required: true,
+    },
   },
   template: "#grid-mention-detail",
   data: function () {
@@ -173,10 +216,10 @@ const gridMentions = Vue.component("grid-detail", {
   },
   methods: {
     searchForm() {
-      console.info(this.alertid, this.resourceid, this.term);
       $('input[name="MentionSearch[message_markup]"]').attr("value", "");
       $("#mentionsearch-message_markup").attr("value", "");
       $('input[name="id"]').attr("value", this.alertid);
+      $("#mentionsearch-social_id").attr("value", this.socialId);
       $('input[name="resourceId"]').attr("value", this.resourceid);
       $("#mentionsearch-termsearch").attr("value", this.term);
       $("#search").click();

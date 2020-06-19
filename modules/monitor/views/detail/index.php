@@ -24,38 +24,7 @@ use yii\widgets\DetailView;
             <div class="col-md-12">
                 <?= DetailView::widget([
                     'model' => $model,
-                    'attributes' => [
-                        [
-                            'label' => Yii::t('app','Estado'),
-                            'format'    => 'raw',
-                            'attribute' => 'status',
-                            'value' => function($model) {
-                                return ($model->status) ? 'Active' : 'Inactive';
-                            }
-                        ],
-                        [
-                            'label' => Yii::t('app','Recurso'),
-                            'format'    => 'raw',
-                            'value' => function($model) use($resource) {
-                                return Html::encode($resource->name);
-                            }
-                        ],
-                        [
-                            'label' => Yii::t('app','Terminos a Buscar'),
-                            'format'    => 'raw',
-                            'value' => \kartik\select2\Select2::widget([
-                                'name' => 'products',
-                                'size' => \kartik\select2\Select2::SMALL,
-                                'hideSearch' => false,
-                                'data' => $model->termsFind,
-                                'options' => ['placeholder' => 'Terminos...'],
-                                'pluginOptions' => [
-                                    'allowClear' => true
-                                ],
-                            ]),
-
-                        ],
-                    ]
+                    'attributes' => \app\helpers\DetailHelper::setGridDetailColumnsOnDetailView($model,$resource),
                 ]) ?>
             </div>
         </div>

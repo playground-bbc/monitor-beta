@@ -548,6 +548,21 @@ class AlertMentionsHelper
             ->all();
         return \yii\helpers\ArrayHelper::getColumn($resourcesId,'id')[0];
     }
+
+    /**
+     * [getResourceNameById get name of resource by id]
+     * @param  [int] $resourceName [Ej:1]
+     * @return [string]               [nae Twiiter]
+     */
+    public static function getResourceNameById($resourceId)
+    {
+        $resourceName = (new \yii\db\Query())
+            ->select('name')
+            ->from('resources')
+            ->where(['id' => $resourceId])
+            ->one();
+        return $resourceName['name'];
+    }
     /**
      * [isAlertHaveDictionaries get id of resource by name]
      * @param  [alertID]           [id for alert]

@@ -26,6 +26,8 @@ $action = (isset($view)) ? $view : 'view';
     
     <?= Html::hiddenInput('resourceId','') ?>
 
+    <?= $form->field($model, 'social_id') ?>
+
     <?= $form->field($model, 'resourceName') ?>
 
     <?= $form->field($model, 'termSearch') ?>

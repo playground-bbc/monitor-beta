@@ -13,8 +13,8 @@ use yii\widgets\ActiveForm;
   <div>
   <hr> 
   <div v-if="!loading && count" class="col-md-12">
-    <box-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term"></box-detail>
-    <grid-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term"></grid-detail>
+    <box-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term" :socialId="socialId"></box-detail>
+    <grid-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term" :socialId="socialId"></grid-detail>
   </div>
   <div v-else-if="loading">
       <div class="loader">
@@ -68,31 +68,7 @@ use yii\widgets\ActiveForm;
                 'target'=> GridView::TARGET_BLANK
             ],
             'columns' => [
-              [
-                  'label' => Yii::t('app','Social id'),
-                  'attribute' => 'social_id',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['social_id'];
-                  }
-              ],
-              [
-                  'label' => Yii::t('app','Recurso Social'),
-                  'attribute' => 'resourceName',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['recurso'];
-                  }
-              ],
-              [
-                  'label' => Yii::t('app','Término buscado'),
-                  'headerOptions' => ['style' => 'width:12%'],
-                  'attribute' => 'termSearch',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['term_searched'];
-                  }
-              ],
+              
                 
                 [
                     'label' => Yii::t('app','Fecha'),

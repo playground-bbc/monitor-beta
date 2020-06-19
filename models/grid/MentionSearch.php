@@ -25,6 +25,7 @@ class MentionSearch extends Mentions
     // detail
     public $resourceId;
     public $social_id;
+    public $mention_data;
 
     /**
      * {@inheritdoc}
@@ -32,7 +33,7 @@ class MentionSearch extends Mentions
     public function rules()
     {
         return [
-            [['resourceName','termSearch','name','screen_name','subject','message_markup'], 'string'],
+            [['resourceName','termSearch','name','screen_name','subject','message_markup','mention_data'], 'string'],
             [['resourceId','social_id'], 'integer'],
             [['resourceName'], 'safe'],
         ];
@@ -56,6 +57,7 @@ class MentionSearch extends Mentions
      */
     public function search($params,$alertId)
     {   
+       
         
         $model = $this->getData($params,$alertId);
         
@@ -121,6 +123,7 @@ class MentionSearch extends Mentions
           'subject' => 'm.subject',
           'message_markup' => 'm.message_markup',
           'social_id' => 'm.social_id',
+          'mention_data' => 'm.mention_data',
           'url' => 'm.url',
         ])
         ->from('mentions m')
@@ -130,6 +133,9 @@ class MentionSearch extends Mentions
         ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
         ->orderBy(['m.created_time' => 'ASC'])
         ->all();
+
+        // var_dump($rows);
+        // die();
 
         if ($this->load($params)) {
 
@@ -179,6 +185,14 @@ class MentionSearch extends Mentions
                 $name = strtolower(trim($this->message_markup));
                 $rows = array_filter($rows, function ($role) use ($name) {
                     return (empty($name) || strpos((strtolower(is_object($role) ? $role->message_markup : $role['message_markup'])), $name) !== false);
+                });
+            }
+
+            if($this->mention_data != ''){
+                $name = strtolower(trim($this->mention_data));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    $role = json_decode($role['mention_data'],true);
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->message_markup : $role['status'])), $name) !== false);
                 });
             }
             

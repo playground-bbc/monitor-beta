@@ -149,7 +149,7 @@ const boxComponent = Vue.component("box-detail", {
     },
     socialId: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   template: "#box-info-detail",
@@ -204,7 +204,7 @@ const gridMentions = Vue.component("grid-detail", {
     },
     socialId: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   template: "#grid-mention-detail",

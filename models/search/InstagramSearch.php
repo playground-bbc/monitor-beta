@@ -134,7 +134,7 @@ class InstagramSearch
                                     $this->saveKeywordsMentions($wordIds,$mention->id);
                                 }
                                 if(ArrayHelper::keyExists('replies', $posts[$p]['comments'][$c], false)){
-                                    if(count($data[$product][$p]['comments'][$c]['replies']['data'])){
+                                    if(count($data[$product][$p]['comments'][$c]['replies'])){
                                         $replies = $data[$product][$p]['comments'][$c]['replies']['data'];
                                         for($r = 0; $r < sizeof($replies); $r++ ){
                                             if(isset($replies[$r]['message_markup'])){
@@ -172,70 +172,44 @@ class InstagramSearch
         $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
 
 
-        foreach($mentions as $product => $feeds){
-            for($f = 0; $f < sizeof($feeds); $f++){
-                if(ArrayHelper::keyExists('comments', $feeds[$f], false) && !empty($feeds[$f]['comments'])){
-                    // var_dump($feeds[$f]['comments']);
-                    // var_dump($mentions[$product][$f]['comments']);
-                    for($c = 0; $c <  sizeof($feeds[$f]['comments']); $c++){
-                        $wordsId = [];
-                        for($w = 0; $w < sizeof($words); $w++){
-                            $sentence = $mentions[$product][$f]['comments'][$c]['message_markup'];
-                            $word = " {$words[$w]['name']} ";
-                            $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
-                            if($containsCount){
-                                $wordsId[$words[$w]['id']] = $containsCount;
-                                $mentions[$product][$f]['comments'][$c]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
-                            }// end if containsCount
-                        }// end loop words
-                        if(ArrayHelper::keyExists('replies', $mentions[$product][$f]['comments'][$c], false) ){
-                            if(count($mentions[$product][$f]['comments'][$c]['replies']['data'])){
-                                $replies = $mentions[$product][$f]['comments'][$c]['replies']['data'];
-                                for($r = 0; $r < sizeof($replies); $r++){
-                                    $wordsIdReplies = [];
-                                    for($w = 0; $w < sizeof($words); $w++){
-                                        if(isset($mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['message_markup'])){
-                                            $sentence_replies = $mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['message_markup'];
-                                            $containsCount = \app\helpers\StringHelper::containsCount($sentence_replies, $word);
-                                            if($containsCount){
-                                                $wordsIdReplies[$words[$w]['id']] = $containsCount;
-                                                $word_replies = $words[$w]['name'];
-                                                $mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence_replies,$word_replies,"<strong>{$word_replies}</strong>");
-                                            }
-
-                                        }
-                                    }// end loop words
-                                    if(!empty($wordsIdReplies)){
-                                        $mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['wordsId'] = $wordsIdReplies;
-                                    }
-                                    else{
-                                        unset($mentions[$product][$f]['comments'][$c]['replies']['data'][$r]);
-                                        // restore key
-                                        $mentions[$product][$f]['comments'][$c]['replies']['data'] = array_values($mentions[$product][$f]['comments'][$c]['replies']['data']);
-                                    }
-                                } // end loop replies
-                            } // end if count replies data
-                        } // end if replies
-                        if(!empty($wordsId)){
-                            $mentions[$product][$f]['comments'][$c]['wordsId'] = $wordsId;
-                        }
-                        // fix search
-                        // else{
-                        //     unset($mentions[$product][$f]['comments'][$c]);
-                        //     unset($feeds[$f]['comments'][$c]);
-                        //     // restore key
-                        //     $mentions[$product][$f]['comments'] = array_values($mentions[$product][$f]['comments']);
-                        //     $feeds[$f]['comments'] = array_values($feeds[$f]['comments']);
-                        //     var_dump($mentions[$product][$f]['comments']);
-                        //     var_dump($feeds[$f]['comments']);
-                        //     die();
-                        // }
+        foreach($mentions as $terms => $feeds){
+            for ($f=0; $f < sizeOf($feeds) ; $f++) { 
+                if(ArrayHelper::keyExists('comments', $feeds[$f], false) && count($feeds[$f]['comments'])){
+                    $comments = \yii\helpers\ArrayHelper::remove($mentions[$terms][$f], 'comments');
+                    for ($c=0; $c < sizeOf($comments) ; $c++) { 
+                        if(\yii\helpers\ArrayHelper::keyExists('message_markup', $comments[$c])){
+                            $sentence = \app\helpers\StringHelper::lowercase($comments[$c]['message_markup']);
+                            $wordsId = [];
+                            for ($w=0; $w < sizeOf($words) ; $w++) { 
+                                $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
+                                $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
+                                if($containsCount){
+                                    $wordsId[$words[$w]['id']] = $containsCount;
+                                    $comments[$c]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
+                                }
+                            } // end loop words
+                            if(ArrayHelper::keyExists('replies', $comments[$c], false)){
+                                if(count($comments[$c]['replies']['data'])){
+                                    
+                                    $replies = \yii\helpers\ArrayHelper::remove($comments[$c]['replies'], 'data');
+                                    
+                                    $comments = array_merge($comments,$replies);
+                                    
+                                    
+                                }// if count replies data 
+                            } // if keyExists replies
+                            if(count($wordsId)){
+                                $comments[$c]['wordsId'] = $wordsId;
+                                $mentions[$terms][$f]['comments'][] = $comments[$c];
+                            }
+                            unset($sentence);
+                            unset($wordsId);
+                        } // end if keyExists message_markup
                     }// end loop comments
-                }// end if keyExists && !empty
+                } // if keyExists comments
             }// end loop feeds
         }// for each
-        // print_r($mentions);
-        // die();
+        
         return $mentions;
     }
 

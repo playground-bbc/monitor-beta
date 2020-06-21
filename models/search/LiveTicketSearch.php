@@ -279,31 +279,35 @@ class LiveTicketSearch {
      */
     private function searchDataByDictionary($data){
         $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
-        
-        foreach($data as $product => $tickets){
-            for($t = 0; $t < sizeOf($tickets); $t ++){
-                if(ArrayHelper::keyExists('events', $tickets[$t], false)){
-                    for($e = 0 ; $e < sizeOf($tickets[$t]['events']); $e++){
-                        if(ArrayHelper::keyExists('message', $tickets[$t]['events'][$e], false)){
+
+        foreach($data as $term => $tickets){
+            for ($t=0; $t < sizeOf($tickets) ; $t++) { 
+                if(count($tickets[$t]['events'])){
+                    $events = \yii\helpers\ArrayHelper::remove($data[$term][$t], 'events');
+                    for ($e=0; $e < sizeof($events) ; $e++) { 
+                        if(ArrayHelper::keyExists('message_markup', $events[$e], false)){
+                            $sentence = \app\helpers\StringHelper::lowercase($events[$e]['message_markup']);
                             $wordsId = [];
-                            for($w = 0; $w < sizeof($words); $w++){
-                                $sentence = $data[$product][$t]['events'][$e]['message_markup'];
-                                $word = " {$words[$w]['name']} ";
+                            for ($w=0; $w < sizeOf($words) ; $w++) { 
+                                $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
                                 $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
                                 if($containsCount){
                                     $wordsId[$words[$w]['id']] = $containsCount;
-                                    $data[$product][$t]['events'][$e]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
-                                }// end if is containsCount
-                            }// en for words
+                                    $events[$e]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
+                                }
+                            }// end loop on words
                             if(!empty($wordsId)){
-                                $data[$product][$t]['events'][$e]['wordsId'] = $wordsId;
+                                $events[$e]['wordsId'] = $wordsId;
+                                $data[$term][$t]['events'][] = $events[$e];
                             }
-                        }// en if keyExists message
-                    }// end for events
-                }// end if key_exists
-            } // enn loop tickets
-        }// end foreach
-
+                            unset($wordsId);
+                        }
+                    } // loop events
+                    unset($events);
+                }// if there events
+            }// end loop tickets
+        }// end loop
+      
         return $data;
     }
 

@@ -61,7 +61,6 @@ class LiveChatSearch {
     {   
         // if doesnt dictionaries and doesnt boolean
         if(!$this->isDictionaries && !$this->isBoolean){
-            // echo "save data .. \n";
             // save all data
             $chats = $this->data;
             $search = $this->saveChats($chats);
@@ -78,7 +77,6 @@ class LiveChatSearch {
         // if  dictionaries and  !boolean
         if($this->isDictionaries && !$this->isBoolean){
             // init search
-           // echo "only dictionaries \n";
             $data = $this->data;
             $filter_data = $this->searchDataByDictionary($data);
             $search = $this->saveChats($filter_data);
@@ -143,30 +141,35 @@ class LiveChatSearch {
     private function searchDataByDictionary($data){
     	$words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
 
-
-    	foreach($data as $product => $chats){
+    	foreach($data as $term => $chats){
     		for($c = 0; $c < sizeOf($chats); $c ++){
     			if(ArrayHelper::keyExists('messages', $chats[$c], false)){
-    				for($m = 0; $m < sizeOf($chats[$c]['messages']); $m ++){
-    					$wordsId = [];
-    					for($w = 0; $w < sizeof($words); $w++){
-    						$sentence = $data[$product][$c]['messages'][$m]['message_markup'];
-                            $word = " {$words[$w]['name']} ";
-    						$containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
-    						if($containsCount){
-    							$wordsId[$words[$w]['id']] = $containsCount;
-    							$data[$product][$c]['messages'][$m]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
-
-    						}// end if containsCount
-    					}// end loop words
-    					if(!empty($wordsId)){
-                            $data[$product][$c]['messages'][$m]['wordsId'] = $wordsId;
-                        }// end if wordsId
-    				}// end loop messages
+    				if(count($chats[$c]['messages'])){
+                        $messages = \yii\helpers\ArrayHelper::remove($data[$term][$c],'messages');
+                        for($m = 0; $m < sizeOf($messages); $m ++){
+                            if(ArrayHelper::keyExists('message_markup', $messages[$m], false)){
+                                $sentence = \app\helpers\StringHelper::lowercase($messages[$m]['message_markup']);
+                                $wordsId = [];
+                                for($w=0; $w < sizeOf($words) ; $w++){
+                                    $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
+                                    $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
+                                    if($containsCount){
+                                        $wordsId[$words[$w]['id']] = $containsCount;
+                                        $messages[$m]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
+                                    }
+                                }// end loop words
+                                if(!empty($wordsId)){
+                                    $messages[$m]['wordsId'] = $wordsId;
+                                    $data[$term][$c]['messages'][] = $messages[$m];
+                                }
+                                unset($wordsId);
+                            }// end if keyExists
+                        }  
+                        unset($messages);   
+                    }// if count messages
     			} // end if keyExists
     		}// en looop chats 
         }// end foreach
-
         return $data;
     }
 

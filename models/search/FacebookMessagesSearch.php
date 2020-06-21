@@ -117,19 +117,18 @@ class FacebookMessagesSearch {
 
 
     private function saveMentions($model){
-
+        
         $error = [];
-
-
-
         if(!is_null($model)){
             foreach($model as $product => $ids_messages){
                 foreach ($ids_messages as $id_message => $data){
                     $alertsMencionsModel = $this->_findAlertsMencions($product,$id_message);
-                    //echo $alertsMencionsModel->id . "\n";
+                    
                     foreach ($data as $index => $messages){
-                        if(!is_null($alertsMencionsModel) && !empty($messages)){
+                        if(!is_null($alertsMencionsModel) && count($messages)){
+                           
                             for($m = 0; $m < sizeof($messages); $m++){
+                                
                                 if(!empty($messages[$m]['message'])){
                                     $user = $this->saveUserMencions($messages[$m]['from']);
                                     if($user->errors){
@@ -160,7 +159,7 @@ class FacebookMessagesSearch {
                 }
             }
         }
-
+        
        return (empty($error)) ? true : false;
     }
 
@@ -171,28 +170,31 @@ class FacebookMessagesSearch {
         foreach($model as $product => $ids_messages){
            // echo $product."\n";
             foreach ($ids_messages as $id_message => $data){
-                //echo $id_message."\n";
-                foreach ($data as $index => $messages){
-                   // echo $index . "\n";
-                    for($m = 0 ; $m < sizeof($messages); $m++){
+                $inboxs = \yii\helpers\ArrayHelper::remove($model[$product][$id_message], 0);
+                
+                for ($i=0; $i < sizeOf($inboxs) ; $i++) { 
+                    if(\yii\helpers\ArrayHelper::keyExists('message_markup', $inboxs[$i])){
                         $wordsId = [];
+                        $sentence = \app\helpers\StringHelper::lowercase($inboxs[$i]['message_markup']);
                         for($w = 0; $w < sizeof($words); $w++){
-                            $sentence = $model[$product][$id_message][$index][$m]['message_markup'];
-                            $word = " {$words[$w]['name']} ";
+                            $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
                             $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
                             if($containsCount){
                                 $wordsId[$words[$w]['id']] = $containsCount;
-                                $model[$product][$id_message][$index][$m]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
+                                $inboxs[$i]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
                             } // end if containsCount
                         }// end loop words
-                        if(!empty($wordsId)){
-                            $model[$product][$id_message][$index][$m]['wordsId'] = $wordsId;
-                        }// end if empty
-                    } // end loop messages
-                }// end foreach data 
+                        if(count($wordsId)){
+                            $inboxs[$i]['wordsId'] = $wordsId;
+                            $model[$product][$id_message][0][] = $inboxs[$i];
+                            
+                        }
+                        unset($sentence);
+                        unset($wordsId);
+                    }// end if keyexists
+                }// end loop inbox
             } // end foreach ids_messages           
         }// end foreach model
-
         return $model;
     }
 

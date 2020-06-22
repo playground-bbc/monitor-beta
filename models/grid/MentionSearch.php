@@ -63,6 +63,9 @@ class MentionSearch extends Mentions
         
         $dataProvider = new \yii\data\ArrayDataProvider([
             'allModels' => $model,
+            'sort' => [
+                'attributes' => ['created_time'],
+            ],
             'pagination' => [
                 'pageSize' => $this->pageSize,
             ],

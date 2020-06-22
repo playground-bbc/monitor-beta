@@ -169,7 +169,7 @@ use yii\widgets\ActiveForm;
               [
                   'label' => Yii::t('app','Fecha'),
                   'headerOptions' => ['style' => 'width:8%'],
-                  //'attribute' => 'userId',
+                  'attribute' => 'created_time',
                   'format' => 'raw',
                   'value' => function($model){
                       return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');

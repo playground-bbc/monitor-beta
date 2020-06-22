@@ -135,15 +135,7 @@ use yii\widgets\ActiveForm;
                         return $model['message_markup'];
                     }
                 ],
-                [
-                    'label' => Yii::t('app','mention_data'),
-                    'attribute' => 'mention_data',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        $data = json_decode($model['mention_data'],true); 
-                        return $data['status'];
-                    }
-                ],
+                
                 [
                     'label' => Yii::t('app','Url'),
                     //'attribute' => 'userId',

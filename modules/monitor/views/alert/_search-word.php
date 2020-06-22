@@ -22,9 +22,9 @@ $action = (isset($view)) ? $view : 'view';
         ]);
     ?>
     
-    <?= Html::hiddenInput('id','') ?>
+    <?= $form->field($model, 'id',['inputOptions' => ['name' => 'id']])  ?>
     
-    <?= Html::hiddenInput('resourceId','') ?>
+    <?= $form->field($model, 'resourceId')?>
 
     <?= $form->field($model, 'social_id') ?>
 

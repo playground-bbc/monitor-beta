@@ -175,6 +175,15 @@ const boxComponent = Vue.component("box-detail", {
           // see error by dialog
         });
     },
+    sorted(attribute) {
+      if (attribute.length) {
+        $('input[name="sort"]').attr("value", `-${attribute}`);
+        $("#mentionsearch-id").attr("value", this.alertid);
+        $("#mentionsearch-social_id").attr("value", this.socialId);
+        $("#mentionsearch-resourceid").attr("value", this.resourceid);
+        $("#search").click();
+      }
+    },
   },
   computed: {
     calcColumns() {
@@ -216,11 +225,11 @@ const gridMentions = Vue.component("grid-detail", {
   },
   methods: {
     searchForm() {
-      $('input[name="MentionSearch[message_markup]"]').attr("value", "");
-      $("#mentionsearch-message_markup").attr("value", "");
-      $('input[name="id"]').attr("value", this.alertid);
+      // $('input[name="MentionSearch[message_markup]"]').attr("value", "");
+      // $("#mentionsearch-message_markup").attr("value", "");
+      $("#mentionsearch-id").attr("value", this.alertid);
       $("#mentionsearch-social_id").attr("value", this.socialId);
-      $('input[name="resourceId"]').attr("value", this.resourceid);
+      $("#mentionsearch-resourceid").attr("value", this.resourceid);
       $("#mentionsearch-termsearch").attr("value", this.term);
       $("#search").click();
     },

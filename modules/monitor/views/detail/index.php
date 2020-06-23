@@ -40,6 +40,7 @@ use yii\widgets\DetailView;
 <?= $this->render('_templates-vue',[
     'searchModel' => $searchModel,
     'dataProvider' => $dataProvider,
-    'view' => 'index'
+    'view' => 'index',
+    'resource' => $resource
 ]);  
 ?>

@@ -25,7 +25,6 @@ class MentionSearch extends Mentions
     // detail
     public $resourceId;
     public $social_id;
-    public $mention_data;
 
     /**
      * {@inheritdoc}
@@ -33,7 +32,7 @@ class MentionSearch extends Mentions
     public function rules()
     {
         return [
-            [['resourceName','termSearch','name','screen_name','subject','message_markup','mention_data'], 'string'],
+            [['resourceName','termSearch','name','screen_name','subject','message_markup'], 'string'],
             [['resourceId','social_id'], 'integer'],
             [['resourceName'], 'safe'],
         ];
@@ -61,11 +60,18 @@ class MentionSearch extends Mentions
         
         $model = $this->getData($params,$alertId);
         
+        $sort = new \yii\data\Sort([
+            'attributes' => [
+                'created_time',
+                'retweet_count',
+                'favorite_count'
+                // or any other attribute
+            ],
+        ]);
+        
         $dataProvider = new \yii\data\ArrayDataProvider([
             'allModels' => $model,
-            'sort' => [
-                'attributes' => ['created_time'],
-            ],
+            'sort' => $sort,
             'pagination' => [
                 'pageSize' => $this->pageSize,
             ],
@@ -136,6 +142,20 @@ class MentionSearch extends Mentions
         ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
         ->orderBy(['m.created_time' => 'ASC'])
         ->all();
+
+        if(count($rows)){
+            for ($r=0; $r < sizeOf($rows) ; $r++) { 
+                if(isset($rows[$r]['mention_data'])){
+                    $mention_data = json_decode($rows[$r]['mention_data'],true);
+                    if(count($mention_data)){
+                        foreach($mention_data as $header => $value){
+                            $rows[$r][$header] = $value;
+                        }
+                    }
+                    //$rows[$r]['mention_data'] = json_decode($rows[$r]['mention_data'],true);
+                }
+            }
+        }
 
         // var_dump($rows);
         // die();

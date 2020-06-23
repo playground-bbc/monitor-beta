@@ -148,6 +148,12 @@ use yii\widgets\ActiveForm;
               'showConfirmAlert'=>false,
               'target'=>GridView::TARGET_BLANK
           ],
+          'exportConfig' => [
+              GridView::TEXT => ['label' => 'Guardar como Texto'],
+              GridView::EXCEL => ['label' => 'Guardar como Excel'],
+              GridView::PDF => ['label' => 'Guardar como Pdf'],
+              GridView::JSON => ['label' => 'Guardar como JSON'],
+          ],
           'columns' => [
             [
                   'label' => Yii::t('app','Recurso Social'),

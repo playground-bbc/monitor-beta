@@ -302,21 +302,24 @@ class DetailHelper {
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-success elevation-1',
                     'title' => 'Total Retweets',
-                    'icon' => 'glyphicon glyphicon-retweet'
+                    'icon' => 'glyphicon glyphicon-retweet',
+                    'attribute' => 'retweet_count'
                 ],
                 'favorite_count' => [
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-danger elevation-1',
                     'title' => 'Total Favorites',
-                    'icon' => 'glyphicon glyphicon-heart'
+                    'icon' => 'glyphicon glyphicon-heart',
+                    'attribute' => 'favorite_count'
                 ],
                 'tweets_count' => [
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-default elevation-1',
                     'title' => 'Total Tweets',
-                    'icon' => 'glyphicon glyphicon-stats'
+                    'icon' => 'glyphicon glyphicon-stats',
+                    'attribute' => ''
                 ],
             ],
             'Live Chat' => [
@@ -448,6 +451,44 @@ class DetailHelper {
         
         return $properties[$resourceName];
     }
+
+    /**
+     * return ticket on live chat on view detail
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @return string $term
+     */
+    public static function getTicketLiveChat($alertId,$resourceId,$term){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
+
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        $data = [];
+        
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // SELECT social_id,subject FROM `mentions` WHERE alert_mentionId=101 GROUP BY `social_id`
+                $rows = (new \yii\db\Query())
+                      ->select(['social_id','subject'])
+                      ->from('mentions')
+                      ->where(['alert_mentionId' => $alertMentions[$m]['id']])
+                      ->groupBy('social_id')
+                      ->all();
+                     
+                if(count($rows)){
+                    foreach($rows as $row){
+                        array_push($data,['id' => $row['social_id'], 'text' => $row['subject']]);
+                    }
+                    
+                }      
+            }
+        }
+
+        return $data;
+
+    }
+
     /**
      * return group columns for detail grid index detail
      * @param string $resourceName
@@ -507,40 +548,69 @@ class DetailHelper {
             ];
             array_push($columns,$columnTicket);
         }
+
+        return $columns;
+    }
+    /**
+     * return group columns for mentions grid index detail
+     */
+    public static function setGridMentionsColumnsOnDetailView($resourceName){
+
+        $columns = [];
+
+        if($resourceName == 'Twitter'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+                
+                self::composeColum("Nombre","name","raw",function($model){
+                    return $model['name'];
+                }),
+                
+                self::composeColum("Username","screen_name","raw",function($model){
+                    return $model['screen_name'];
+                }),
+                
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return $model['message_markup'];
+                }),
+                
+                self::composeColum("Total Retweet","retweet_count","raw",function($model){
+                    //$mention_data = \yii\helpers\Json::decode($model['mention_data'], $asArray = true);
+                    return $model['retweet_count'];
+                },['style'=>'padding:0px 0px 0px 30px;vertical-align: middle;']),
+
+                self::composeColum("Total Favoritos","favorite_count","raw",function($model){
+                    //$mention_data = \yii\helpers\Json::decode($model['mention_data'], $asArray = true);
+                    return $model['favorite_count'];
+                },['style'=>'padding:0px 0px 0px 30px;vertical-align: middle;']),
+
+                self::composeColum("Url","","raw",function($model){
+                    return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
+                }),
+            ];
+        }
+     
         return $columns;
     }
 
-
-    public static function getTicketLiveChat($alertId,$resourceId,$term){
-        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
-
-        $db = \Yii::$app->db;
-        $duration = 5;
-        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
-        $data = [];
+    public static function composeColum($label,$attribute,$format ="raw",$value,$contentOptions = null){
         
-        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
-            if(count($alertMentions[$m]['mentions'])){
-                // SELECT social_id,subject FROM `mentions` WHERE alert_mentionId=101 GROUP BY `social_id`
-                $rows = (new \yii\db\Query())
-                      ->select(['social_id','subject'])
-                      ->from('mentions')
-                      ->where(['alert_mentionId' => $alertMentions[$m]['id']])
-                      ->groupBy('social_id')
-                      ->all();
-                     
-                if(count($rows)){
-                    foreach($rows as $row){
-                        array_push($data,['id' => $row['social_id'], 'text' => $row['subject']]);
-                    }
-                    
-                }      
-            }
+        $column = [
+            'label' => Yii::t('app',$label),
+            'attribute' => $attribute,
+            'format' => $format,
+            'value' => $value,
+        ];
+        
+        if(!is_null($contentOptions)){
+            $column['contentOptions'] = $contentOptions;
         }
 
-        return $data;
-
+        return $column;
     }
+    
 }
 
 ?>

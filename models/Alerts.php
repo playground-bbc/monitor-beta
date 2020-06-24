@@ -279,10 +279,12 @@ class Alerts extends \yii\db\ActiveRecord
     }
 
     public function getTermsFind(){
-        $alertsMentions = AlertsMencions::find()->where(['alertId' => $this->id])->all();
+        $alertsMentions = AlertsMencions::find()->with('mentions')->where(['alertId' => $this->id])->all();
         $product_models = [];
         foreach($alertsMentions as $alertMention){
-            $product_models[$alertMention->term_searched] = $alertMention->term_searched;
+            if($alertMention->mentions){
+                $product_models[$alertMention->term_searched] = $alertMention->term_searched;
+            }
         }
         return $product_models;
     }

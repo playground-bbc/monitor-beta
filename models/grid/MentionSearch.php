@@ -25,6 +25,8 @@ class MentionSearch extends Mentions
     // detail
     public $resourceId;
     public $social_id;
+    public $status;
+    public $publication_id;
 
     /**
      * {@inheritdoc}
@@ -32,8 +34,8 @@ class MentionSearch extends Mentions
     public function rules()
     {
         return [
-            [['resourceName','termSearch','name','screen_name','subject','message_markup'], 'string'],
-            [['resourceId','social_id'], 'integer'],
+            [['resourceName','termSearch','name','screen_name','subject','message_markup','social_id','status','publication_id'], 'string'],
+            [['resourceId'], 'integer'],
             [['resourceName'], 'safe'],
         ];
     }
@@ -64,7 +66,7 @@ class MentionSearch extends Mentions
             'attributes' => [
                 'created_time',
                 'retweet_count',
-                'favorite_count'
+                'favorite_count',
                 // or any other attribute
             ],
         ]);
@@ -129,6 +131,7 @@ class MentionSearch extends Mentions
           'created_time' => 'm.created_time',
           'name' => 'u.name',
           'screen_name' => 'u.screen_name',
+          'user_data' => 'u.user_data',
           'subject' => 'm.subject',
           'message_markup' => 'm.message_markup',
           'social_id' => 'm.social_id',
@@ -142,6 +145,8 @@ class MentionSearch extends Mentions
         ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
         ->orderBy(['m.created_time' => 'ASC'])
         ->all();
+        
+        
 
         if(count($rows)){
             for ($r=0; $r < sizeOf($rows) ; $r++) { 
@@ -152,13 +157,20 @@ class MentionSearch extends Mentions
                             $rows[$r][$header] = $value;
                         }
                     }
-                    //$rows[$r]['mention_data'] = json_decode($rows[$r]['mention_data'],true);
                 }
+                if(isset($rows[$r]['user_data'])){
+                    $mention_data = json_decode($rows[$r]['user_data'],true);
+                    if(count($mention_data)){
+                        $rows[$r]['user_mention'] = $mention_data;
+                    }
+                }
+                
+                
             }
         }
 
-        // var_dump($rows);
-        // die();
+    //    \yii\helpers\VarDumper::dump( $params, $depth = 10, $highlight = true);
+    //    die();
 
         if ($this->load($params)) {
 
@@ -216,6 +228,13 @@ class MentionSearch extends Mentions
                 $rows = array_filter($rows, function ($role) use ($name) {
                     $role = json_decode($role['mention_data'],true);
                     return (empty($name) || strpos((strtolower(is_object($role) ? $role->message_markup : $role['status'])), $name) !== false);
+                });
+            }
+
+            if($this->status != ''){
+                $name = strtolower(trim($this->status));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->status : $role['status'])), $name) !== false);
                 });
             }
             

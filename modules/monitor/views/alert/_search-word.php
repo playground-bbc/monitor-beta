@@ -22,11 +22,13 @@ $action = (isset($view)) ? $view : 'view';
         ]);
     ?>
     
-    <?= Html::hiddenInput('sort'); ?>
+    <?= Html::hiddenInput('sort',null,['id' => 'mentionsearch-sort']); ?>
 
     <?= $form->field($model, 'id',['inputOptions' => ['name' => 'id']])  ?>
     
     <?= $form->field($model, 'resourceId',['inputOptions' => ['name' => 'resourceId']])?>
+
+    <?= $form->field($model, 'publication_id') ?>
 
     <?= $form->field($model, 'social_id') ?>
 
@@ -41,6 +43,8 @@ $action = (isset($view)) ? $view : 'view';
     <?= $form->field($model, 'subject') ?>
 
     <?= $form->field($model, 'message_markup') ?>
+
+    <?= $form->field($model, 'status') ?>
 
 
     <div class="form-group">

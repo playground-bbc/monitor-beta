@@ -74,6 +74,7 @@ class LiveChatsApi extends Model {
 					'query'     => $productName,
 					'date_from' => $date_from,
 					'date_to'   => $date_to,
+					'source' => 'chat-window',
 					'page'      => 1
 				];
 				
@@ -95,6 +96,7 @@ class LiveChatsApi extends Model {
 								'query'  => $productName,
 								'date_from' => $date_from,
 								'date_to'   => $date_to,
+								
 							];
 
 							$newDateSearch = \app\helpers\DateHelper::add($productMention->date_searched,'+1 day');
@@ -110,6 +112,7 @@ class LiveChatsApi extends Model {
 								'query'  => $productName,
 								'date_from' => $date_from,
 								'date_to'   => $date_to,
+								
 							];
 
 						}
@@ -123,6 +126,7 @@ class LiveChatsApi extends Model {
 							'query'  => $productName,
 							'date_from' => $date_from,
 							'date_to'   => Yii::$app->formatter->asDate($this->end_date,'yyyy-MM-dd'),
+							
 						];
 
 					}

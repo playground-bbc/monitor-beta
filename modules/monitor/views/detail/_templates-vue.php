@@ -13,8 +13,25 @@ use yii\widgets\ActiveForm;
   <div>
   <hr> 
   <div v-if="!loading && count" class="col-md-12">
-    <box-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term"></box-detail>
-    <grid-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term"></grid-detail>
+    
+    <box-detail 
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange"
+    ></box-detail>
+    
+    
+    
+    <grid-detail 
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange" 
+    ></grid-detail>
+  
   </div>
   <div v-else-if="loading">
       <div class="loader">
@@ -34,7 +51,7 @@ use yii\widgets\ActiveForm;
 <!-- box sources -->
 <script type="text/x-template" id="box-info-detail">
   <div  class="row">
-    <div v-for="box_property in box_properties" :key="box_property.id" v-on:click="sorted(box_property.attribute)" :class="calcColumns">
+    <div v-for="box_property in box_properties" :key="box_property.id" @click="filter(box_property.method,box_property.attribute)" :class="calcColumns">
       <div  class="info-box">
         <span :class="box_property.background_color"><i :class="box_property.icon"></i></span>
 

@@ -128,6 +128,7 @@ class MentionSearch extends Mentions
         ->select([
           'recurso' => 'r.name',
           'term_searched' => 'a.term_searched',
+          'publication_id' => 'a.publication_id',
           'created_time' => 'm.created_time',
           'name' => 'u.name',
           'screen_name' => 'u.screen_name',
@@ -165,12 +166,10 @@ class MentionSearch extends Mentions
                     }
                 }
                 
-                
             }
         }
 
-    //    \yii\helpers\VarDumper::dump( $params, $depth = 10, $highlight = true);
-    //    die();
+       
 
         if ($this->load($params)) {
 
@@ -235,6 +234,13 @@ class MentionSearch extends Mentions
                 $name = strtolower(trim($this->status));
                 $rows = array_filter($rows, function ($role) use ($name) {
                     return (empty($name) || strpos((strtolower(is_object($role) ? $role->status : $role['status'])), $name) !== false);
+                });
+            }
+
+            if($this->publication_id != ''){
+                $name = strtolower(trim($this->publication_id));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->publication_id : $role['publication_id'])), $name) !== false);
                 });
             }
             

@@ -224,6 +224,10 @@ class DetailHelper {
         if($term != ""){
             $where['term_searched'] = $term;
         }
+        if($feedId != ""){
+            $where['publication_id'] = $feedId; 
+        }
+
 
         $properties = self::getPropertyBoxByResourceName('Instagram Comments');
         $db = \Yii::$app->db;
@@ -586,7 +590,7 @@ class DetailHelper {
             array_push($columns,$columnTicket);
         }
 
-        if($resource->name == "Facebook Comments"){
+        if($resource->name == "Facebook Comments" || $resource->name == "Instagram Comments"){
             $columnTicket = [
                 'label' => Yii::t('app','Posts a Buscar'),
                 'format'    => 'raw',
@@ -621,23 +625,23 @@ class DetailHelper {
                 },['style' => 'width: 10%;min-width: 20px']),
                 
                 self::composeColum("Nombre","name","raw",function($model){
-                    return $model['name'];
+                    return \yii\helpers\Html::encode($model['name']);
                 }),
                 
                 self::composeColum("Username","screen_name","raw",function($model){
-                    return $model['screen_name'];
+                    return \yii\helpers\Html::encode($model['screen_name']);
                 }),
                 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return $model['message_markup'];
+                    return \yii\helpers\Html::encode($model['message_markup']);
                 }),
                 
                 self::composeColum("Total Retweet","retweet_count","raw",function($model){
-                    return $model['retweet_count'];
+                    return \yii\helpers\Html::encode($model['retweet_count']);
                 },['style'=>'padding:0px 0px 0px 30px;vertical-align: middle;']),
 
                 self::composeColum("Total Favoritos","favorite_count","raw",function($model){
-                    return $model['favorite_count'];
+                    return \yii\helpers\Html::encode($model['favorite_count']);
                 },['style'=>'padding:0px 0px 0px 30px;vertical-align: middle;']),
 
                 self::composeColum("Url","","raw",function($model){
@@ -658,7 +662,7 @@ class DetailHelper {
                         $type_user = "({$model['user_mention']['type']})";
                     }
                     $name = "{$model['name']} {$type_user}";
-                    return $name;
+                    return \yii\helpers\Html::encode($name);
                 },['style' => 'width: 10%;min-width: 20px']),
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
@@ -686,7 +690,7 @@ class DetailHelper {
 
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return $model['message_markup'];
+                    return \yii\helpers\Html::encode($model['message_markup']);
                 }),
 
                 self::composeColum("Url Comentario","","raw",function($model){
@@ -701,10 +705,49 @@ class DetailHelper {
                 
             ];
         }
+
+        if($resourceName == 'Instagram Comments'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Nombre","name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['name']);
+                }),
+                
+                self::composeColum("Username","screen_name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['screen_name']);
+                }),
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup']);
+                }),
+
+                self::composeColum("Url Comentario","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                }),
+
+                
+                
+            ];
+        }
+
      
         return $columns;
     }
-
+    /** 
+     * Compose column for gridview
+     * @param string $label
+     * @param string $attribute
+     * @param function $format
+     * @param array contentOptions
+     * 
+     */
     public static function composeColum($label,$attribute,$format ="raw",$value,$contentOptions = null){
         
         $column = [

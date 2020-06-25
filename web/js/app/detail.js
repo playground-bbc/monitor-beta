@@ -260,10 +260,11 @@ const gridMentions = Vue.component("grid-detail", {
       // $('input[name="MentionSearch[message_markup]"]').attr("value", "");
       // $("#mentionsearch-message_markup").attr("value", "");
       $("#mentionsearch-id").attr("value", this.alertid);
-      if (this.resourceid != 5) {
-        $("#mentionsearch-social_id").attr("value", this.socialId);
-      } else {
+      console.log(this.resourceid);
+      if (this.resourceid == 5 || this.resourceid == 6) {
         $("#mentionsearch-publication_id").attr("value", this.socialId);
+      } else {
+        $("#mentionsearch-social_id").attr("value", this.socialId);
       }
 
       $("#mentionsearch-resourceid").attr("value", this.resourceid);

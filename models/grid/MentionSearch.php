@@ -168,8 +168,9 @@ class MentionSearch extends Mentions
                 
             }
         }
-
-       
+        //\yii\helpers\VarDumper::dump( $rows, $depth = 10, $highlight = true);
+        // die();
+        
 
         if ($this->load($params)) {
 
@@ -245,6 +246,7 @@ class MentionSearch extends Mentions
             }
             
         }
+        
 
         return $rows;
     }

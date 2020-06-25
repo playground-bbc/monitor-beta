@@ -90,7 +90,7 @@ class DetailController extends Controller {
         }
 
         if($resourceName == "Live Chat Conversations"){
-            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChatConversation($model->id,$resourceId,$term);
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChatConversation($model->id,$resourceId,$term,$socialId);
         }
 
         if($resourceName == "Facebook Comments"){
@@ -101,7 +101,7 @@ class DetailController extends Controller {
         }
 
         if($resourceName == "Instagram Comments"){
-            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesInstagramComments($model->id,$resourceId,$term);
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesInstagramComments($model->id,$resourceId,$term,$socialId);
         }
 
         if($resourceName == "Paginas Webs"){
@@ -122,10 +122,13 @@ class DetailController extends Controller {
         $resourceName = \app\helpers\AlertMentionsHelper::getResourceNameById($resourceId);
 
         $data = [['id' => '', 'text' => '']];
-        if($resourceName == "Live Chat"){
+        if($resourceName == "Live Chat"  || $resourceName == "Live Chat Conversations"){
             $data =  \app\helpers\DetailHelper::getTicketLiveChat($model->id,$resourceId,$term);
         }
-        if($resourceName == "Facebook Comments"){
+        if($resourceName == "Live Chat Conversations"){
+            $data =  \app\helpers\DetailHelper::getChatsLiveChat($model->id,$resourceId,$term);
+        }
+        if($resourceName == "Facebook Comments" || $resourceName == "Instagram Comments"){
             $data =  \app\helpers\DetailHelper::getPostsFaceBookComments($model->id,$resourceId,$term);
         }
         

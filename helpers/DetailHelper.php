@@ -114,7 +114,7 @@ class DetailHelper {
      * @param string $term
      * @return $properties with properties record
      */
-    public static function setBoxPropertiesLiveChatConversation($alertId,$resourceId,$term){
+    public static function setBoxPropertiesLiveChatConversation($alertId,$resourceId,$term,$socialId = null){
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
         if($term != ""){
             $where['term_searched'] = $term;
@@ -130,13 +130,18 @@ class DetailHelper {
         },$duration); 
 
         $expression = new Expression("`mention_data`->'$.event_id' AS eventId");
+        
+        $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
+        if($socialId != ''){
+            $mentionWhere['social_id'] = $socialId;
+        }
         // count number tickets
         // SELECT `mention_data`->'$.event_id' AS eventId FROM `mentions` where alert_mentionId = 9 GROUP BY `eventId` DESC
         $chatsCount = (new \yii\db\Query())
             ->cache($duration)
             ->select($expression)
             ->from('mentions')
-            ->where(['alert_mentionId' => $alertMentionsIds])
+            ->where($mentionWhere)
             ->groupBy(['eventId'])
             ->count();
         
@@ -506,6 +511,48 @@ class DetailHelper {
         return $data;
 
     }
+
+    /**
+     * return Chats on live chat on view detail
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @return string $term
+     */
+    public static function getChatsLiveChat($alertId,$resourceId,$term){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
+
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        $data = [];
+        
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // SELECT mentions.social_id,users_mentions.name FROM `mentions` 
+                //JOIN users_mentions on mentions.origin_id = users_mentions.id 
+                //WHERE users_mentions.name <> 'Cliente' 
+                // AND alert_mentionId = 217 GROUP BY social_id ORDER BY `created_time` ASC
+                $rows = (new \yii\db\Query())
+                      ->select(['mentions.social_id','users_mentions.name'])
+                      ->from('mentions')
+                      ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
+                      ->where(['alert_mentionId' => $alertMentions[$m]['id']])
+                      ->groupBy('social_id')
+                      ->all();
+               
+                if(count($rows)){
+                    foreach($rows as $index => $row){
+                        $numeric_index = $index + 1;
+                        array_push($data,['id' => $row['social_id'], 'text' => "#{$numeric_index} Atendido por: {$row['name']}"]);
+                    }
+                    
+                }      
+            }
+        }
+
+        return $data;
+
+    }
     /**
      * return post on facebook comments on view detail
      * @param integer $alertId
@@ -571,7 +618,7 @@ class DetailHelper {
         ];
 
 
-        if($resource->name == "Live Chat"){
+        if($resource->name == "Live Chat" || $resource->name == "Live Chat Conversations"){
             $columnTicket = [
                 'label' => Yii::t('app','Tickets a Buscar'),
                 'format'    => 'raw',
@@ -679,6 +726,42 @@ class DetailHelper {
 
                 
                 
+            ];
+        }
+
+        if($resourceName == 'Live Chat Conversations'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Nombre","name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['name']);
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup'], $doubleEncode = true);
+                }),
+
+                self::composeColum("Ciudad","user_data","raw",function($model){
+                    $user_data = json_decode($model['user_data'],true);
+                    $city = (isset($user_data['geo']['city'])) ? $user_data['geo']['city'] : '-'; 
+                    return \yii\helpers\Html::encode($city, $doubleEncode = true);
+                }),
+
+                self::composeColum("Region","user_data","raw",function($model){
+                    $user_data = json_decode($model['user_data'],true);
+                    $town = (isset($user_data['geo']['region'])) ? $user_data['geo']['region'] : '-'; 
+                    return \yii\helpers\Html::encode($town, $doubleEncode = true);
+                }),
+
+                self::composeColum("Url Retail","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                }),
             ];
         }
 

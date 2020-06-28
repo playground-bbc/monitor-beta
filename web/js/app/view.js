@@ -734,10 +734,11 @@ const cloudWords = Vue.component("cloud-words", {
           click: function () {
             //$("#list-mentions").DataTable().search(r.text).draw();
             //$("#mentionsearch-id").attr("value", id);
-            $('input[name="MentionSearch[message_markup]"]').attr("value", "");
-            $("#mentionsearch-message_markup").attr("value", "");
-            $('input[name="id"]').attr("value", id);
-            $("#mentionsearch-message_markup").attr("value", r.text);
+            $("#mentionsearch-id").attr("value", id);
+            $('input[name="MentionSearch[message_markup]"]').attr(
+              "value",
+              r.text
+            );
             $("#search").click();
           },
         };

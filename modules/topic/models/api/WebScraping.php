@@ -68,8 +68,13 @@ class WebScraping{
 		$analisysText = [];
 		foreach ($groupContentData as $link => $contentData) {
 			for ($c=0; $c <sizeof($contentData) ; $c++) { 
-				$multipartForm =  \app\helpers\ScrapingHelper::composeMultipartForm($contentData[$c]);
-				$analisysText[$contentData[$c]] = \app\helpers\ScrapingHelper::sendTextAnilysis($multipartForm,$link);
+				if($contentData[$c] != ''){
+					$text = \app\helpers\ScrapingHelper::sendTextAnilysis($contentData[$c],$link);
+					if(is_array($text)){
+						$analisysText[$contentData[$c]] = $text;
+					}
+					
+				}
 			}
 		}
 		return $analisysText;

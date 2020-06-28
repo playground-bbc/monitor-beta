@@ -25,6 +25,8 @@ class MentionSearch extends Mentions
     // detail
     public $resourceId;
     public $social_id;
+    public $status;
+    public $publication_id;
 
     /**
      * {@inheritdoc}
@@ -32,8 +34,8 @@ class MentionSearch extends Mentions
     public function rules()
     {
         return [
-            [['resourceName','termSearch','name','screen_name','subject','message_markup'], 'string'],
-            [['resourceId','social_id'], 'integer'],
+            [['resourceName','termSearch','name','screen_name','subject','message_markup','social_id','status','publication_id'], 'string'],
+            [['resourceId'], 'integer'],
             [['resourceName'], 'safe'],
         ];
     }
@@ -56,11 +58,22 @@ class MentionSearch extends Mentions
      */
     public function search($params,$alertId)
     {   
+       
         
         $model = $this->getData($params,$alertId);
         
+        $sort = new \yii\data\Sort([
+            'attributes' => [
+                'created_time',
+                'retweet_count',
+                'favorite_count',
+                // or any other attribute
+            ],
+        ]);
+        
         $dataProvider = new \yii\data\ArrayDataProvider([
             'allModels' => $model,
+            'sort' => $sort,
             'pagination' => [
                 'pageSize' => $this->pageSize,
             ],
@@ -115,12 +128,15 @@ class MentionSearch extends Mentions
         ->select([
           'recurso' => 'r.name',
           'term_searched' => 'a.term_searched',
+          'publication_id' => 'a.publication_id',
           'created_time' => 'm.created_time',
           'name' => 'u.name',
           'screen_name' => 'u.screen_name',
+          'user_data' => 'u.user_data',
           'subject' => 'm.subject',
           'message_markup' => 'm.message_markup',
           'social_id' => 'm.social_id',
+          'mention_data' => 'm.mention_data',
           'url' => 'm.url',
         ])
         ->from('mentions m')
@@ -130,6 +146,31 @@ class MentionSearch extends Mentions
         ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
         ->orderBy(['m.created_time' => 'ASC'])
         ->all();
+        
+        
+
+        if(count($rows)){
+            for ($r=0; $r < sizeOf($rows) ; $r++) { 
+                if(isset($rows[$r]['mention_data'])){
+                    $mention_data = json_decode($rows[$r]['mention_data'],true);
+                    if(count($mention_data)){
+                        foreach($mention_data as $header => $value){
+                            $rows[$r][$header] = $value;
+                        }
+                    }
+                }
+                if(isset($rows[$r]['user_data'])){
+                    $mention_data = json_decode($rows[$r]['user_data'],true);
+                    if(count($mention_data)){
+                        $rows[$r]['user_mention'] = $mention_data;
+                    }
+                }
+                
+            }
+        }
+        //\yii\helpers\VarDumper::dump( $rows, $depth = 10, $highlight = true);
+        // die();
+        
 
         if ($this->load($params)) {
 
@@ -181,8 +222,31 @@ class MentionSearch extends Mentions
                     return (empty($name) || strpos((strtolower(is_object($role) ? $role->message_markup : $role['message_markup'])), $name) !== false);
                 });
             }
+
+            if($this->mention_data != ''){
+                $name = strtolower(trim($this->mention_data));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    $role = json_decode($role['mention_data'],true);
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->message_markup : $role['status'])), $name) !== false);
+                });
+            }
+
+            if($this->status != ''){
+                $name = strtolower(trim($this->status));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->status : $role['status'])), $name) !== false);
+                });
+            }
+
+            if($this->publication_id != ''){
+                $name = strtolower(trim($this->publication_id));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->publication_id : $role['publication_id'])), $name) !== false);
+                });
+            }
             
         }
+        
 
         return $rows;
     }

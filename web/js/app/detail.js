@@ -131,10 +131,6 @@ const detailComponent = Vue.component("detail", {
  */
 const boxComponent = Vue.component("box-detail", {
   props: {
-    isChange: {
-      type: Boolean,
-      required: true,
-    },
     alertid: {
       type: Number,
       required: true,
@@ -149,7 +145,13 @@ const boxComponent = Vue.component("box-detail", {
     },
     socialId: {
       type: String,
+      required: false,
+      default: "",
+    },
+    isChange: {
+      type: Boolean,
       required: true,
+      default: false,
     },
   },
   template: "#box-info-detail",
@@ -160,6 +162,13 @@ const boxComponent = Vue.component("box-detail", {
   },
   mounted() {
     this.fetchBoxInfo();
+  },
+  watch: {
+    isChange: function (val, oldVal) {
+      if (val) {
+        this.fetchBoxInfo();
+      }
+    },
   },
   methods: {
     fetchBoxInfo() {
@@ -174,6 +183,38 @@ const boxComponent = Vue.component("box-detail", {
           console.error(error);
           // see error by dialog
         });
+    },
+    sorted(attribute) {
+      if (attribute.length) {
+        $('input[name="sort"]').attr("value", `-${attribute}`);
+        $("#mentionsearch-id").attr("value", this.alertid);
+        $("#mentionsearch-social_id").attr("value", this.socialId);
+        $("#mentionsearch-resourceid").attr("value", this.resourceid);
+        $("#search").click();
+      }
+    },
+    searched(attribute) {
+      for (var [key, value] of Object.entries(attribute)) {
+        console.log(key + " " + value);
+        $(`#mentionsearch-${key}`).attr("value", value);
+      }
+      $("#mentionsearch-id").attr("value", this.alertid);
+      $("#mentionsearch-social_id").attr("value", this.socialId);
+      $("#mentionsearch-resourceid").attr("value", this.resourceid);
+      $("#search").click();
+    },
+    filter(method, attribute) {
+      switch (method) {
+        case "sort":
+          this.sorted(attribute);
+          break;
+        case "search":
+          this.searched(attribute);
+          break;
+        default:
+          break;
+      }
+      console.log(method, attribute);
     },
   },
   computed: {
@@ -204,7 +245,7 @@ const gridMentions = Vue.component("grid-detail", {
     },
     socialId: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   template: "#grid-mention-detail",
@@ -216,11 +257,17 @@ const gridMentions = Vue.component("grid-detail", {
   },
   methods: {
     searchForm() {
-      $('input[name="MentionSearch[message_markup]"]').attr("value", "");
-      $("#mentionsearch-message_markup").attr("value", "");
-      $('input[name="id"]').attr("value", this.alertid);
-      $("#mentionsearch-social_id").attr("value", this.socialId);
-      $('input[name="resourceId"]').attr("value", this.resourceid);
+      // $('input[name="MentionSearch[message_markup]"]').attr("value", "");
+      // $("#mentionsearch-message_markup").attr("value", "");
+      $("#mentionsearch-id").attr("value", this.alertid);
+      console.log(this.resourceid);
+      if (this.resourceid == 5 || this.resourceid == 6) {
+        $("#mentionsearch-publication_id").attr("value", this.socialId);
+      } else {
+        $("#mentionsearch-social_id").attr("value", this.socialId);
+      }
+
+      $("#mentionsearch-resourceid").attr("value", this.resourceid);
       $("#mentionsearch-termsearch").attr("value", this.term);
       $("#search").click();
     },

@@ -180,9 +180,6 @@ class LiveChatSearch {
      */
     private function saveUserMentions($user){
         $user_data = [];
-
-        
-        
         if(ArrayHelper::keyExists('name', $user)){
             $screen_name = $user['id'];
             $name = $user['name'];
@@ -235,6 +232,8 @@ class LiveChatSearch {
         
         $ticketId = explode('_', $chat['event_id']);
         $mention_data['event_id'] = $ticketId[0];
+        // keep track by social id
+        $social_id = hexdec( substr(sha1($mention_data['event_id']), 0, 15) );
 
 
         $message_markup = $chat['message_markup'];
@@ -265,7 +264,7 @@ class LiveChatSearch {
             $model->message_markup  = $message_markup;
             $model->url             = $url;
             $model->domain_url      = $domain_url;
-            $model->social_id       = null;
+            $model->social_id       = $social_id;
             
             $model->save();
         }

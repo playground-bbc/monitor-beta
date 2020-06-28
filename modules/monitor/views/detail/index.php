@@ -16,6 +16,14 @@ use yii\widgets\DetailView;
             <?= Html::hiddenInput('alertId', $model->id,['id' => 'alertId']); ?>
 
             <p>
+                <?= Html::a('Actualizar', ['/monitor/alert/update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+                <?= Html::a('Eliminar', ['/monitor/alert/delete', 'id' => $model->id], [
+                    'class' => 'btn btn-danger',
+                    'data' => [
+                        'confirm' => 'Are you sure you want to delete this item?',
+                        'method' => 'post',
+                    ],
+                ]) ?>
                 <?= Html::a('Regresar', ['alert/view', 'id' => $model->id], ['class' => 'btn btn-default']) ?>
             </p>
             </div>
@@ -40,6 +48,7 @@ use yii\widgets\DetailView;
 <?= $this->render('_templates-vue',[
     'searchModel' => $searchModel,
     'dataProvider' => $dataProvider,
-    'view' => 'index'
+    'view' => 'index',
+    'resource' => $resource
 ]);  
 ?>

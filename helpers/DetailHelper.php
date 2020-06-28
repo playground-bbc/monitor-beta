@@ -114,7 +114,7 @@ class DetailHelper {
      * @param string $term
      * @return $properties with properties record
      */
-    public static function setBoxPropertiesLiveChatConversation($alertId,$resourceId,$term){
+    public static function setBoxPropertiesLiveChatConversation($alertId,$resourceId,$term,$socialId = null){
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
         if($term != ""){
             $where['term_searched'] = $term;
@@ -130,13 +130,18 @@ class DetailHelper {
         },$duration); 
 
         $expression = new Expression("`mention_data`->'$.event_id' AS eventId");
+        
+        $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
+        if($socialId != ''){
+            $mentionWhere['social_id'] = $socialId;
+        }
         // count number tickets
         // SELECT `mention_data`->'$.event_id' AS eventId FROM `mentions` where alert_mentionId = 9 GROUP BY `eventId` DESC
         $chatsCount = (new \yii\db\Query())
             ->cache($duration)
             ->select($expression)
             ->from('mentions')
-            ->where(['alert_mentionId' => $alertMentionsIds])
+            ->where($mentionWhere)
             ->groupBy(['eventId'])
             ->count();
         
@@ -152,10 +157,13 @@ class DetailHelper {
      * @param integer $feedId
      * @return $properties with properties record
      */
-    public static function setBoxPropertiesFaceBookComments($alertId,$resourceId,$term,$feedId = null){
+    public static function setBoxPropertiesFaceBookComments($alertId,$resourceId,$term,$feedId){
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
         if($term != ""){
             $where['term_searched'] = $term;
+        }
+        if($feedId != ""){
+            $where['publication_id'] = $feedId; 
         }
 
         $properties = self::getPropertyBoxByResourceName('Facebook Comments');
@@ -221,6 +229,10 @@ class DetailHelper {
         if($term != ""){
             $where['term_searched'] = $term;
         }
+        if($feedId != ""){
+            $where['publication_id'] = $feedId; 
+        }
+
 
         $properties = self::getPropertyBoxByResourceName('Instagram Comments');
         $db = \Yii::$app->db;
@@ -302,21 +314,27 @@ class DetailHelper {
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-success elevation-1',
                     'title' => 'Total Retweets',
-                    'icon' => 'glyphicon glyphicon-retweet'
+                    'icon' => 'glyphicon glyphicon-retweet',
+                    'attribute' => 'retweet_count',
+                    'method' => 'sort'
                 ],
                 'favorite_count' => [
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-danger elevation-1',
                     'title' => 'Total Favorites',
-                    'icon' => 'glyphicon glyphicon-heart'
+                    'icon' => 'glyphicon glyphicon-heart',
+                    'attribute' => 'favorite_count',
+                    'method' => 'sort'
                 ],
                 'tweets_count' => [
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-default elevation-1',
                     'title' => 'Total Tweets',
-                    'icon' => 'glyphicon glyphicon-stats'
+                    'icon' => 'glyphicon glyphicon-stats',
+                    'attribute' => '',
+                    'method' => 'sort'
                 ],
             ],
             'Live Chat' => [
@@ -325,28 +343,36 @@ class DetailHelper {
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-danger elevation-1',
                     'title' => 'Total Tickets Abiertos',
-                    'icon' => 'glyphicon glyphicon-eye-open'
+                    'icon' => 'glyphicon glyphicon-eye-open',
+                    'attribute' => ['status' => 'open'],
+                    'method' => 'search'
                 ],
                 'tickets_pending' => [
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-warning elevation-1',
                     'title' => 'Total Tickets Pendientes',
-                    'icon' => 'glyphicon glyphicon-warning-sign'
+                    'icon' => 'glyphicon glyphicon-warning-sign',
+                    'attribute' => ['status' => 'pending'],
+                    'method' => 'search'
                 ],
                 'tickets_solved' => [
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-success elevation-1',
                     'title' => 'Total Tickets Solventados',
-                    'icon' => 'glyphicon glyphicon-eye-close'
+                    'icon' => 'glyphicon glyphicon-eye-close',
+                    'attribute' => ['status' => 'solved'],
+                    'method' => 'search'
                 ],
                 'tickets_count' => [
                     'id' => random_int(100, 999),
                     'total' => 0,
                     'background_color' => 'info-box-icon bg-default elevation-1',
                     'title' => 'Total Tickets',
-                    'icon' => 'glyphicon glyphicon-stats'
+                    'icon' => 'glyphicon glyphicon-stats',
+                    'attribute' => ['status' => ''],
+                    'method' => 'search'
                 ],
             ],
             'Live Chat Conversations' => [
@@ -448,6 +474,109 @@ class DetailHelper {
         
         return $properties[$resourceName];
     }
+
+    /**
+     * return ticket on live chat on view detail
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @return string $term
+     */
+    public static function getTicketLiveChat($alertId,$resourceId,$term){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
+
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        $data = [];
+        
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // SELECT social_id,subject FROM `mentions` WHERE alert_mentionId=101 GROUP BY `social_id`
+                $rows = (new \yii\db\Query())
+                      ->select(['social_id','subject'])
+                      ->from('mentions')
+                      ->where(['alert_mentionId' => $alertMentions[$m]['id']])
+                      ->groupBy('social_id')
+                      ->all();
+                     
+                if(count($rows)){
+                    foreach($rows as $row){
+                        array_push($data,['id' => $row['social_id'], 'text' => $row['subject']]);
+                    }
+                    
+                }      
+            }
+        }
+
+        return $data;
+
+    }
+
+    /**
+     * return Chats on live chat on view detail
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @return string $term
+     */
+    public static function getChatsLiveChat($alertId,$resourceId,$term){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
+
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        $data = [];
+        
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                // SELECT mentions.social_id,users_mentions.name FROM `mentions` 
+                //JOIN users_mentions on mentions.origin_id = users_mentions.id 
+                //WHERE users_mentions.name <> 'Cliente' 
+                // AND alert_mentionId = 217 GROUP BY social_id ORDER BY `created_time` ASC
+                $rows = (new \yii\db\Query())
+                      ->select(['mentions.social_id','users_mentions.name'])
+                      ->from('mentions')
+                      ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
+                      ->where(['alert_mentionId' => $alertMentions[$m]['id']])
+                      ->groupBy('social_id')
+                      ->all();
+               
+                if(count($rows)){
+                    foreach($rows as $index => $row){
+                        $numeric_index = $index + 1;
+                        array_push($data,['id' => $row['social_id'], 'text' => "#{$numeric_index} Atendido por: {$row['name']}"]);
+                    }
+                    
+                }      
+            }
+        }
+
+        return $data;
+
+    }
+    /**
+     * return post on facebook comments on view detail
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @return string $term
+     */
+    public static function getPostsFaceBookComments($alertId,$resourceId,$term){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
+
+        $db = \Yii::$app->db;
+        $duration = 5;
+        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
+        $data = [];
+
+        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
+            if(count($alertMentions[$m]['mentions'])){
+                $title = \app\helpers\StringHelper::substring($alertMentions[$m]['title'],0,60)."....";
+                array_push($data,['id' => $alertMentions[$m]['publication_id'], 'text' => $title]);     
+            }
+        }
+
+        return $data;
+    }
+
     /**
      * return group columns for detail grid index detail
      * @param string $resourceName
@@ -489,7 +618,7 @@ class DetailHelper {
         ];
 
 
-        if($resource->name == "Live Chat"){
+        if($resource->name == "Live Chat" || $resource->name == "Live Chat Conversations"){
             $columnTicket = [
                 'label' => Yii::t('app','Tickets a Buscar'),
                 'format'    => 'raw',
@@ -507,40 +636,217 @@ class DetailHelper {
             ];
             array_push($columns,$columnTicket);
         }
-        return $columns;
-    }
 
-
-    public static function getTicketLiveChat($alertId,$resourceId,$term){
-        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
-
-        $db = \Yii::$app->db;
-        $duration = 5;
-        $alertMentions = \app\models\AlertsMencions::find()->with(['mentions'])->where($where)->asArray()->all();
-        $data = [];
-        
-        for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
-            if(count($alertMentions[$m]['mentions'])){
-                // SELECT social_id,subject FROM `mentions` WHERE alert_mentionId=101 GROUP BY `social_id`
-                $rows = (new \yii\db\Query())
-                      ->select(['social_id','subject'])
-                      ->from('mentions')
-                      ->where(['alert_mentionId' => $alertMentions[$m]['id']])
-                      ->groupBy('social_id')
-                      ->all();
-                     
-                if(count($rows)){
-                    foreach($rows as $row){
-                        array_push($data,['id' => $row['social_id'], 'text' => $row['subject']]);
-                    }
-                    
-                }      
-            }
+        if($resource->name == "Facebook Comments" || $resource->name == "Instagram Comments"){
+            $columnTicket = [
+                'label' => Yii::t('app','Posts a Buscar'),
+                'format'    => 'raw',
+                'value' => \kartik\select2\Select2::widget([
+                    'id' => 'depend_select',
+                    'name' => 'post',
+                    'size' => \kartik\select2\Select2::SMALL,
+                    'hideSearch' => false,
+                    'data' => [],
+                    'options' => ['placeholder' => 'Posts a Filtrar...'],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ]),
+            ];
+            array_push($columns,$columnTicket);
         }
 
-        return $data;
-
+        return $columns;
     }
+    /**
+     * return group columns for mentions grid index detail
+     */
+    public static function setGridMentionsColumnsOnDetailView($resourceName){
+
+        $columns = [];
+
+        if($resourceName == 'Twitter'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+                
+                self::composeColum("Nombre","name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['name']);
+                }),
+                
+                self::composeColum("Username","screen_name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['screen_name']);
+                }),
+                
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup']);
+                }),
+                
+                self::composeColum("Total Retweet","retweet_count","raw",function($model){
+                    return \yii\helpers\Html::encode($model['retweet_count']);
+                },['style'=>'padding:0px 0px 0px 30px;vertical-align: middle;']),
+
+                self::composeColum("Total Favoritos","favorite_count","raw",function($model){
+                    return \yii\helpers\Html::encode($model['favorite_count']);
+                },['style'=>'padding:0px 0px 0px 30px;vertical-align: middle;']),
+
+                self::composeColum("Url","","raw",function($model){
+                    return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
+                }),
+            ];
+        }
+
+        if($resourceName == 'Live Chat'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Nombre","name","raw",function($model){
+                    $type_user = '';
+                    if(isset($model['user_mention']['type'])){
+                        $type_user = "({$model['user_mention']['type']})";
+                    }
+                    $name = "{$model['name']} {$type_user}";
+                    return \yii\helpers\Html::encode($name);
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup'], $doubleEncode = true);
+                }),
+
+                self::composeColum("Url Retail","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                }),
+
+                
+                
+            ];
+        }
+
+        if($resourceName == 'Live Chat Conversations'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Nombre","name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['name']);
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup'], $doubleEncode = true);
+                }),
+
+                self::composeColum("Ciudad","user_data","raw",function($model){
+                    $user_data = json_decode($model['user_data'],true);
+                    $city = (isset($user_data['geo']['city'])) ? $user_data['geo']['city'] : '-'; 
+                    return \yii\helpers\Html::encode($city, $doubleEncode = true);
+                }),
+
+                self::composeColum("Region","user_data","raw",function($model){
+                    $user_data = json_decode($model['user_data'],true);
+                    $town = (isset($user_data['geo']['region'])) ? $user_data['geo']['region'] : '-'; 
+                    return \yii\helpers\Html::encode($town, $doubleEncode = true);
+                }),
+
+                self::composeColum("Url Retail","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                }),
+            ];
+        }
+
+        if($resourceName == 'Facebook Comments'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup']);
+                }),
+
+                self::composeColum("Url Comentario","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                }),
+
+                
+                
+            ];
+        }
+
+        if($resourceName == 'Instagram Comments'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Nombre","name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['name']);
+                }),
+                
+                self::composeColum("Username","screen_name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['screen_name']);
+                }),
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup']);
+                }),
+
+                self::composeColum("Url Comentario","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                }),
+
+                
+                
+            ];
+        }
+
+     
+        return $columns;
+    }
+    /** 
+     * Compose column for gridview
+     * @param string $label
+     * @param string $attribute
+     * @param function $format
+     * @param array contentOptions
+     * 
+     */
+    public static function composeColum($label,$attribute,$format ="raw",$value,$contentOptions = null){
+        
+        $column = [
+            'label' => Yii::t('app',$label),
+            'attribute' => $attribute,
+            'format' => $format,
+            'value' => $value,
+        ];
+        
+        if(!is_null($contentOptions)){
+            $column['contentOptions'] = $contentOptions;
+        }
+
+        return $column;
+    }
+    
 }
 
 ?>

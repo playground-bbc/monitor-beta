@@ -148,6 +148,12 @@ use yii\widgets\ActiveForm;
               'showConfirmAlert'=>false,
               'target'=>GridView::TARGET_BLANK
           ],
+          'exportConfig' => [
+              GridView::TEXT => ['label' => 'Guardar como Texto'],
+              GridView::EXCEL => ['label' => 'Guardar como Excel'],
+              GridView::PDF => ['label' => 'Guardar como Pdf'],
+              GridView::JSON => ['label' => 'Guardar como JSON'],
+          ],
           'columns' => [
             [
                   'label' => Yii::t('app','Recurso Social'),
@@ -169,7 +175,7 @@ use yii\widgets\ActiveForm;
               [
                   'label' => Yii::t('app','Fecha'),
                   'headerOptions' => ['style' => 'width:8%'],
-                  //'attribute' => 'userId',
+                  'attribute' => 'created_time',
                   'format' => 'raw',
                   'value' => function($model){
                       return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
@@ -204,7 +210,7 @@ use yii\widgets\ActiveForm;
                   'attribute' => 'message_markup',
                   'format' => 'raw',
                   'value' => function($model){
-                      return $model['message_markup'];
+                      return \yii\helpers\Html::encode($model['message_markup'], $doubleEncode = true);
                   }
               ],
               [

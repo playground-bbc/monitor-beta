@@ -74,7 +74,7 @@ class DetailController extends Controller {
      * @return $count the total record
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionBoxInfo($alertId,$resourceId,$term = '',$socialId = ""){
+    public function actionBoxInfo($alertId,$resourceId,$term = '',$socialId = ''){
         
         $model = $this->findModel($alertId,$resourceId);
         $resourceName = \app\helpers\AlertMentionsHelper::getResourceNameById($resourceId);
@@ -90,18 +90,18 @@ class DetailController extends Controller {
         }
 
         if($resourceName == "Live Chat Conversations"){
-            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChatConversation($model->id,$resourceId,$term);
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesLiveChatConversation($model->id,$resourceId,$term,$socialId);
         }
 
         if($resourceName == "Facebook Comments"){
-            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookComments($model->id,$resourceId,$term);
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookComments($model->id,$resourceId,$term,$socialId);
         }
         if($resourceName == "Facebook Messages"){
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookMessages($model->id,$resourceId,$term);
         }
 
         if($resourceName == "Instagram Comments"){
-            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesInstagramComments($model->id,$resourceId,$term);
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesInstagramComments($model->id,$resourceId,$term,$socialId);
         }
 
         if($resourceName == "Paginas Webs"){
@@ -110,14 +110,26 @@ class DetailController extends Controller {
         return ['propertyBoxs' => $propertyBoxs];
     }
 
+    /**
+     * return post or ticket to second select2 on view detail
+     * @param integer $id
+     * @param integer $resourceId
+     * @param string $term
+     */
     public function actionSelectDepend($alertId,$resourceId,$term = ''){
         
         $model = $this->findModel($alertId,$resourceId);
         $resourceName = \app\helpers\AlertMentionsHelper::getResourceNameById($resourceId);
 
         $data = [['id' => '', 'text' => '']];
-        if($resourceName == "Live Chat"){
+        if($resourceName == "Live Chat"  || $resourceName == "Live Chat Conversations"){
             $data =  \app\helpers\DetailHelper::getTicketLiveChat($model->id,$resourceId,$term);
+        }
+        if($resourceName == "Live Chat Conversations"){
+            $data =  \app\helpers\DetailHelper::getChatsLiveChat($model->id,$resourceId,$term);
+        }
+        if($resourceName == "Facebook Comments" || $resourceName == "Instagram Comments"){
+            $data =  \app\helpers\DetailHelper::getPostsFaceBookComments($model->id,$resourceId,$term);
         }
         
         return ['data' => $data];

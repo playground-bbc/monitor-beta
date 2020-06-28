@@ -13,8 +13,25 @@ use yii\widgets\ActiveForm;
   <div>
   <hr> 
   <div v-if="!loading && count" class="col-md-12">
-    <box-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term" :socialId="socialId"></box-detail>
-    <grid-detail :isChange="isChange" :alertid="alertid" :resourceid="resourceid" :term="term" :socialId="socialId"></grid-detail>
+    
+    <box-detail 
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange"
+    ></box-detail>
+    
+    
+    
+    <grid-detail 
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange" 
+    ></grid-detail>
+  
   </div>
   <div v-else-if="loading">
       <div class="loader">
@@ -34,7 +51,7 @@ use yii\widgets\ActiveForm;
 <!-- box sources -->
 <script type="text/x-template" id="box-info-detail">
   <div  class="row">
-    <div v-for="box_property in box_properties" :key="box_property.id" :class="calcColumns">
+    <div v-for="box_property in box_properties" :key="box_property.id" @click="filter(box_property.method,box_property.attribute)" :class="calcColumns">
       <div  class="info-box">
         <span :class="box_property.background_color"><i :class="box_property.icon"></i></span>
 
@@ -67,59 +84,13 @@ use yii\widgets\ActiveForm;
                 'showConfirmAlert'=>false,
                 'target'=> GridView::TARGET_BLANK
             ],
-            'columns' => [
-              
-                
-                [
-                    'label' => Yii::t('app','Fecha'),
-                    'headerOptions' => ['style' => 'width:8%'],
-                    //'attribute' => 'userId',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','Nombre'),
-                    'attribute' => 'name',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['name'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','Username'),
-                    'attribute' => 'screen_name',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['screen_name'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','Titulo'),
-                    'attribute' => 'subject',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['subject'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','Mencion'),
-                    'attribute' => 'message_markup',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return $model['message_markup'];
-                    }
-                ],
-                [
-                    'label' => Yii::t('app','Url'),
-                    //'attribute' => 'userId',
-                    'format' => 'raw',
-                    'value' => function($model){
-                        return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
-                    }
-                ],
-            ],
+            'exportConfig' => [
+              GridView::TEXT => ['label' => 'Guardar como Texto'],
+              GridView::EXCEL => ['label' => 'Guardar como Excel'],
+              GridView::PDF => ['label' => 'Guardar como Pdf'],
+              GridView::JSON => ['label' => 'Guardar como JSON'],
+          ],
+            'columns' => \app\helpers\DetailHelper::setGridMentionsColumnsOnDetailView($resource->name),
             'class' => 'yii\grid\Column',
             'pjax'=>false,
             'pjaxSettings'=>[

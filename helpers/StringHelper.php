@@ -331,25 +331,29 @@ class StringHelper
         return $params[$param]; 
     }
 
-
-    public static function sortDataAnalysisTable($tds = [],$link)
+    public static function sortDataAnalysis($data = [],$link)
     {
-        if (!empty($tds)) {
+        if (!empty($data)) {
             $headersTarget = ['name','total'];
-            
             $statistics = [];
-            $size = (sizeof($tds) >= 5) ? 5 : sizeof($tds);
 
-            for ($i=1; $i < $size; $i++) { 
-                for ($h=0; $h < sizeof($headersTarget); $h++) { 
-                    $tmp[$headersTarget[$h]] = $tds[$i][$h];
-                    $tmp['url'] = $link;
-                }
+            foreach($data as $word => $count){
+                $tmp['name'] = $word;
+                $tmp['total'] = $count;
+                $tmp['url'] = $link;
                 $statistics[] = $tmp;
             }
             
             return $statistics;
         }
     }
+
+    public static function saveOrUpdateRepeatedWords($sentence,$alertMentionId,$sociaId)
+    {
+       $words = \app\helpers\ScrapingHelper::sendTextAnilysis($sentence,$link = null); 
+       var_dump($words);
+    }
+
+
 
 }

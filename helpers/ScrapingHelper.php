@@ -2,6 +2,8 @@
 namespace app\helpers;
 
 use yii;
+use TextAnalysis\Filters\StopWordsFilter;
+use StopWordFactory;
 
 /**
  * @author Eduardo Morales <eduardo@montana-studio.com>
@@ -267,146 +269,38 @@ class ScrapingHelper{
 		return $data;
 	}
 
-	public static function sendTextAnilysis($multipartForm,$link)
+	public static function sendTextAnilysis($content,$link = null)
 	{
-		$client = new \GuzzleHttp\Client();
-		$response = $client->request('POST', 'http://textalyser.net/index.php?lang=en#analysis',$multipartForm);
-
-		$code = $response->getStatusCode();
-		$reason = $response->getReasonPhrase();
-
-		if ($code == 200 && $reason == 'OK') {
-			$body = $response->getBody()->getContents();
-        	$crawler = new \Symfony\Component\DomCrawler\Crawler($body);
-        	// get table
-        	$table = $crawler->filter('table')->eq(11);
-        	// read the table
-	        $tds = [];
-	        foreach ($table as $node => $content) {
-	            // create crawler instance for result
-	            $crawler = new \Symfony\Component\DomCrawler\Crawler($content);
-	            //iterate again
-	            $index = 0;
-	            $rows= [];
-	            foreach ($crawler->filter('td') as $node) {
-	                $rows[] = $node->nodeValue;
-	                if (sizeof($rows) % 4 == 0) {
-	                    $tds[] = $rows;
-	                    $rows =[];
-	                }
-	            }
-	        }
-		}
-		$analysis = \app\helpers\StringHelper::sortDataAnalysisTable($tds,$link);
-		$analysis = self::removeStopWords($analysis);
-		return $analysis;
 		
-	}
-
-	public static function composeMultipartForm($contentGroup,$stoplist_perso = [])
-	{
-		$stoplist_perso = (!empty($stoplist_perso)) ? implode(" ", $stoplist_perso) : '';
-		return [
-            'multipart' => [
-                [
-                    'name'     => 'text_main',
-                    'contents' => $contentGroup
-                ],
-                [
-                    'name'     => 'site_to_analyze',
-                    'contents' => 'http://'
-                ],
-                [
-                    'name'     => 'file_to_analyze',
-                    'contents' => '(binary)'
-                ],
-                [
-                    'name'     => 'min_char',
-                    'contents' => 3
-                ],
-                [
-                    'name'     => 'special_word',
-                    'contents' => ''
-                ],
-                [
-                    'name'     => 'words_toanalyse',
-                    'contents' => 10
-                ],
-                [
-                    'name'     => 'count_numbers',
-                    'contents' => 1
-                ],
-                [
-                    'name'     => 'is_log',
-                    'contents' => 1
-                ],
-                [
-                    'name'     => 'stoplist_lang',
-                    'contents' => 1
-                ],
-                [
-                    'name'     => $stoplist_perso,
-                    'contents' => 'worth year',
-                ],
-            ]
-        ];
-	}
-
-	public static function removeStopWords($analysis = [])
-	{
-		if (!empty($analysis)) {
-			$data = [];
-			$stoplist = self::getStopList();
-			for ($a=0; $a < sizeof($analysis) ; $a++) { 
-				if (!\app\helpers\StringHelper::containsAny($analysis[$a]['name'],$stoplist,true)) {
-					$data[] = $analysis[$a];
-				}
+		// Create a tokenizer object to parse the book into a set of tokens
+		$tokenizer = new \TextAnalysis\Tokenizers\GeneralTokenizer();
+		// set tokens
+		$tokens = $tokenizer->tokenize($content);
+		// set anilisis
+		$freqDist = new \TextAnalysis\Analysis\FreqDist($tokens);
+		//Get all words
+		$allwords = $freqDist->getKeyValuesByFrequency();
+		//Get the top 10 most used words in Tom Sawyer 
+		$words = array_splice($allwords, 0, 50);
+		// get all stop words spanish
+		$stop_factory = StopWordFactory::get('stop-words_spanish_es.txt');
+		$stopWord_es = new StopWordsFilter($stop_factory);
+		// get alll words english
+		$stop_factory_en = StopWordFactory::get('stop-words_english.txt');
+		$stopWord_en = new StopWordsFilter($stop_factory_en);
+		// filter stop words
+		$data = [];
+		// limit from ten words
+		$limit = 10;
+		foreach ($words as $word => $value) {
+			$word = \app\helpers\StringHelper::lowercase($word);
+			if(!is_null($stopWord_en->transform($word)) && !is_null($stopWord_es->transform($word)) && count($data) < $limit){
+				$data[$word] = $value;
 			}
-			unset($analysis);
 		}
-		return $data;
-	}
-
-	public static function getStopList()
-	{
-		return [
-			//English
-			'you',
-			'I',
-			'we',
-			'your',
-			'they',
-			'it',
-			'captcha',
-			//spanish
-			'del',
-			'los',
-			'este',
-			'para',
-			'que',
-			'hay',
-			'luego',
-			'nada',
-			'ser',
-			'luego',
-			'sin',
-			'con',
-			'nos',
-			'el',
-			'la',
-			'las',
-			'los',
-			'yo',
-			'tu',
-			'ella',
-			'ellas',
-			'ellos',
-			'nosotros',
-			'como',
-			'por',
-			'para',
-			'una',
-		];
+		$analysis = \app\helpers\StringHelper::sortDataAnalysis($data,$link);
+		return (is_null($link)) ? $data : $analysis;
+		
 	}
 }
 

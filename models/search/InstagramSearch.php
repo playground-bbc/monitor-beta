@@ -220,11 +220,42 @@ class InstagramSearch
                 $mention->message_markup = $comment['message_markup'];
                 $mention->url = $permalink;
                 $mention->domain_url = (!is_null($mention->url)) ? \app\helpers\StringHelper::getDomain($mention->url): null;
+            
+                // most repeated words
+                $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
+                foreach($words as $word => $weight){
+                    $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
+                        [
+                            'alert_mentionId' => $alertsMencions->id,
+                            'name' => $word,
+                        ]
+                    )->exists();
+                    if (!$is_words_exists) {
+                        var_dump($alertsMencions);
+                        $model = new \app\models\AlertsMencionsWords();
+                        $model->alert_mentionId = $alertsMencions->id;
+                        $model->mention_socialId = $alertsMencions->publication_id;
+                        $model->name = $word;
+                        $model->weight = $weight; 
+                    } else {
+                        $model = \app\models\AlertsMencionsWords::find()->where(
+                            [
+                                'alert_mentionId' => $alertsMencions->id,
+                                'name' => $word  
+                            ])->one();
+                        
+                        $model->weight = $model->weight + $weight; 
+                    }
+                    if(!$model->save()){
+                        var_dump($model->errors);
+                    }
+                    
+                }
+
             }
             unset($mention_data);
             if(!$mention->save()){ throw new \Exception('Error mentions Save');}
-            // most repeated words
-            \app\helpers\StringHelper::saveOrUpdateRepeatedWords($mention->message,$alertsMencions->id,$mention->social_id);
+            
             // keywords mentions
 
             // if words find it
@@ -370,7 +401,7 @@ class InstagramSearch
     {
 
         $alertsMencions = (new \yii\db\Query())
-        ->select('id')
+        ->select(['id','publication_id'])
         ->from(\app\models\AlertsMencions::tableName())
         ->where(
             [

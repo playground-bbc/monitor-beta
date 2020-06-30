@@ -350,8 +350,35 @@ class StringHelper
 
     public static function saveOrUpdateRepeatedWords($sentence,$alertMentionId,$sociaId)
     {
-       $words = \app\helpers\ScrapingHelper::sendTextAnilysis($sentence,$link = null); 
-       var_dump($words);
+       $words = \app\helpers\ScrapingHelper::sendTextAnilysis($sentence,$link = null);
+       foreach($words as $word => $weight){
+            $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
+                [
+                    'alert_mentionId' => $alertMentionId,
+                    'name' => $word,
+                ]
+            )->exists();
+            if (!$is_words_exists) {
+                $model = new \app\models\AlertsMencionsWords();
+                $model->alert_mentionId = $alertMentionId;
+                $model->mention_socialId = $sociaId;
+                $model->name = $word;
+                $model->weight = $weight; 
+            } else {
+                $model = \app\models\AlertsMencionsWords::find()->where(
+                    [
+                        'alert_mentionId' => $alertMentionId,
+                        'name' => $word  
+                    ])->one();
+                 
+                $model->weight = $model->weight + $weight; 
+            }
+            if(!$model->save()){
+                var_dump($model->errors);
+            }
+            
+       }
+       
     }
 
 

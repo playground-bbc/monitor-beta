@@ -264,7 +264,6 @@ class BaseApi extends Model {
 		$params = [$alertId,$data];
 
 		$searchFacebookMessagesApi->load($params);
-		$searchFacebookMessagesApi->search();
 		if ($searchFacebookMessagesApi->search()) {
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Facebook Messages');
 		}

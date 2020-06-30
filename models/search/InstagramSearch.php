@@ -152,7 +152,7 @@ class InstagramSearch
             // save user
             $user_data = [];
             $username = $comment['username'];
-            $user_response = $this->_getUser($username);
+            //$user_response = $this->_getUser($username);
             
             
             
@@ -161,23 +161,23 @@ class InstagramSearch
                     // call user
                     $userMentions = \app\models\UsersMentions::findOne(['screen_name' => $username]);
                     // update data user is exists
-                    $user_data['followers_count'] = $user_response->graphql->user->edge_followed_by->count;
-                    $user_data['following_count'] = $user_response->graphql->user->edge_follow->count;
-                    $userMentions->user_data = $user_data;
+                    // $user_data['followers_count'] = $user_response->graphql->user->edge_followed_by->count;
+                    // $user_data['following_count'] = $user_response->graphql->user->edge_follow->count;
+                    // $userMentions->user_data = $user_data;
                 } else {
-                    $user_data['followers_count'] = $user_response->graphql->user->edge_followed_by->count;
-                    $user_data['following_count'] = $user_response->graphql->user->edge_follow->count;
+                    // $user_data['followers_count'] = $user_response->graphql->user->edge_followed_by->count;
+                    // $user_data['following_count'] = $user_response->graphql->user->edge_follow->count;
                     // new register user
                     $userMentions =  new \app\models\UsersMentions();
                     $userMentions->user_uuid = $comment['id'];
                     // set name
-                    $name = \app\helpers\StringHelper::remove_emoji($user_response->graphql->user->full_name);
-                    $userMentions->name = (\app\helpers\StringHelper::isEmpty($name)) ? $username : $name;
-                    $userMentions->screen_name = $user_response->graphql->user->username;
-                    // $userMentions->name = $comment['username'];
-                    // $userMentions->screen_name = $comment['username'];
+                    // $name = \app\helpers\StringHelper::remove_emoji($user_response->graphql->user->full_name);
+                    // $userMentions->name = (\app\helpers\StringHelper::isEmpty($name)) ? $username : $name;
+                    // $userMentions->screen_name = $user_response->graphql->user->username;
+                    $userMentions->name = $comment['username'];
+                    $userMentions->screen_name = $comment['username'];
                     $userMentions->user_data = $user_data;
-                    $userMentions->message = \app\helpers\StringHelper::ensureRightPoints(\app\helpers\StringHelper::substring($user_response->graphql->user->biography,0,385));
+                    //$userMentions->message = \app\helpers\StringHelper::ensureRightPoints(\app\helpers\StringHelper::substring($user_response->graphql->user->biography,0,385));
                     $userMentions->profile_image_url = "https://www.instagram.com/{$username}/";
     
                 }
@@ -231,7 +231,6 @@ class InstagramSearch
                         ]
                     )->exists();
                     if (!$is_words_exists) {
-                        var_dump($alertsMencions);
                         $model = new \app\models\AlertsMencionsWords();
                         $model->alert_mentionId = $alertsMencions->id;
                         $model->mention_socialId = $alertsMencions->publication_id;

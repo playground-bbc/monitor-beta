@@ -184,6 +184,9 @@ class AlertController extends Controller
       foreach ($alert->alertsMentions as $alertMention) {
         // move json file
         \app\helpers\DocumentHelper::moveFilesToRoot($alert->id,$alertMention->resources->name);
+        // delete most repeated words
+        \app\models\AlertsMencionsWords::deleteAll('alert_mentionId = :alert_mentionId', [':alert_mentionId' => $alertMention->id]);
+      
         if ($alertMention->mentionsCount) {
           foreach ($alertMention->mentions as $mentions => $mention) {
             $mention->delete();
@@ -224,6 +227,8 @@ class AlertController extends Controller
       //move json file and delete mentions
       foreach ($alert->alertsMentions as $alertMention) {// move json file
         \app\helpers\DocumentHelper::moveFilesToRoot($alert->id,$alertMention->resources->name);
+        // delete most repeated words
+        \app\models\AlertsMencionsWords::deleteAll('alert_mentionId = :alert_mentionId', [':alert_mentionId' => $alertMention->id]);
         if ($alertMention->mentionsCount) {
           foreach ($alertMention->mentions as $mentions => $mention) {
             $mention->delete();

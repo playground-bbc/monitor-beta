@@ -293,7 +293,8 @@ class ScrapingHelper{
 		// limit from ten words
 		$limit = 10;
 		foreach ($words as $word => $value) {
-			$word_remove_emoji = \app\helpers\StringHelper::remove_emoji($word);
+			$word_remove_accent = \app\helpers\StringHelper::replaceAccents($word);
+			$word_remove_emoji = \app\helpers\StringHelper::remove_emoji($word_remove_accent);
 			if($word_remove_emoji != ''){
 				$word = \app\helpers\StringHelper::lowercase($word_remove_emoji);
 				if(!is_null($stopWord_en->transform($word)) && !is_null($stopWord_es->transform($word)) && count($data) < $limit){

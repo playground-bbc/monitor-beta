@@ -188,7 +188,7 @@ class TwitterSearch
                 $mention = \app\models\Mentions::find()->where(
                     [
                         'origin_id' => $userMentions->id,
-                        'social_id' => $social_id
+                        //'social_id' => $social_id
                     ]
                     )->one();
                 $mention->message_markup  = $message_markup;

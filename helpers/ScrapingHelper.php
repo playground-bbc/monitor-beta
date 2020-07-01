@@ -271,38 +271,42 @@ class ScrapingHelper{
 
 	public static function sendTextAnilysis($content,$link = null)
 	{
-		
+		// filter stop words
+		$data = [];
+		// analisis if web page
+		$analysis = [];
 		// Create a tokenizer object to parse the book into a set of tokens
 		$tokenizer = new \TextAnalysis\Tokenizers\GeneralTokenizer();
 		// set tokens
 		$tokens = $tokenizer->tokenize($content);
-		// set anilisis
-		$freqDist = new \TextAnalysis\Analysis\FreqDist($tokens);
-		//Get all words
-		$allwords = $freqDist->getKeyValuesByFrequency();
-		//Get the top 10 most used words in Tom Sawyer 
-		$words = array_splice($allwords, 0, 50);
-		// get all stop words spanish
-		$stop_factory = StopWordFactory::get('stop-words_spanish_es.txt');
-		$stopWord_es = new StopWordsFilter($stop_factory);
-		// get alll words english
-		$stop_factory_en = StopWordFactory::get('stop-words_english.txt');
-		$stopWord_en = new StopWordsFilter($stop_factory_en);
-		// filter stop words
-		$data = [];
-		// limit from ten words
-		$limit = 10;
-		foreach ($words as $word => $value) {
-			$word_remove_accent = \app\helpers\StringHelper::replaceAccents($word);
-			$word_remove_emoji = \app\helpers\StringHelper::remove_emoji($word_remove_accent);
-			if($word_remove_emoji != ''){
-				$word = \app\helpers\StringHelper::lowercase($word_remove_emoji);
-				if(!is_null($stopWord_en->transform($word)) && !is_null($stopWord_es->transform($word)) && count($data) < $limit){
-					$data[$word] = $value;
+		if(count($tokens)){
+			// set anilisis
+			$freqDist = new \TextAnalysis\Analysis\FreqDist($tokens);
+			//Get all words
+			$allwords = $freqDist->getKeyValuesByFrequency();
+			//Get the top 10 most used words in Tom Sawyer 
+			$words = array_splice($allwords, 0, 50);
+			// get all stop words spanish
+			$stop_factory = StopWordFactory::get('stop-words_spanish_es.txt');
+			$stopWord_es = new StopWordsFilter($stop_factory);
+			// get alll words english
+			$stop_factory_en = StopWordFactory::get('stop-words_english.txt');
+			$stopWord_en = new StopWordsFilter($stop_factory_en);
+			
+			// limit from ten words
+			$limit = 10;
+			foreach ($words as $word => $value) {
+				$word_remove = \app\helpers\StringHelper::replacingPeriodsCommasAndExclamationPoints($word);
+				$word_remove_emoji = \app\helpers\StringHelper::remove_emoji($word_remove);
+				if($word_remove_emoji !== "️️️" && !is_numeric($word_remove_emoji)){
+					$word_lower = \app\helpers\StringHelper::lowercase($word_remove_emoji);
+					if(!is_null($stopWord_en->transform($word_lower)) && !is_null($stopWord_es->transform($word_lower)) && count($data) < $limit){
+						$data[$word_lower] = $value;
+					}
 				}
 			}
+			$analysis = \app\helpers\StringHelper::sortDataAnalysis($data,$link);
 		}
-		$analysis = \app\helpers\StringHelper::sortDataAnalysis($data,$link);
 		return (is_null($link)) ? $data : $analysis;
 		
 	}

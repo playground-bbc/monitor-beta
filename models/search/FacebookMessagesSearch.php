@@ -138,7 +138,9 @@ class FacebookMessagesSearch {
                                         //break;
                                     }
                                     else{
-                                        $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id);
+                                        if($user->name != 'Mundo LG' && strlen($mention->message) > 2){
+                                            $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id); 
+                                        }
                                     }
                                     if(ArrayHelper::keyExists('wordsId', $messages[$m], false)){
                                         $wordIds = $messages[$m]['wordsId'];
@@ -281,8 +283,8 @@ class FacebookMessagesSearch {
                     
                     $model->weight = $model->weight + $weight; 
                 }
-                if(!$model->save()){
-                    var_dump($model->errors);
+                if($model->validate()){
+                    $model->save();
                 }
             }
             

@@ -22,6 +22,12 @@ use yii\widgets\ActiveForm;
     :isChange="isChange"
     ></box-detail>
     
+    <common-words-detail
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange"/>
     
     
     <grid-detail 
@@ -64,6 +70,30 @@ use yii\widgets\ActiveForm;
         <!-- /.info-box-content -->
       </div>
       <!-- /.info-box -->
+    </div>
+  </div> 
+</script>
+
+<!-- box common words mentions -->
+<script type="text/x-template" id="box-common-words-detail">
+  <div  class="row">
+    <div class="col-md-12">
+      <div v-if="words.length" class="well">
+        <h4 class="card-title">Palabras más utilizadas</h4>
+        <p>
+          <small>In Caption</small>
+        </p>
+        <span v-for="word in words" 
+              :key="word.name" 
+              v-if="word.name !=''" 
+              style="margin-left: 5px;" 
+              data-toggle="tooltip" data-placement="top" :title="word.total"
+              class="badge">{{word.name}}
+        </span>
+      </div>
+      <div v-else class="well">
+        <h4 class="card-title">No hay Palabras utilizadas</h4>
+      </div>
     </div>
   </div> 
 </script>

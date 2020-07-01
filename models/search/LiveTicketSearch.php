@@ -284,8 +284,8 @@ class LiveTicketSearch {
                     
                     $model->weight = $model->weight + $weight; 
                 }
-                if(!$model->save()){
-                    var_dump($model->errors);
+                if($model->validate()){
+                    $model->save();
                 }
             }
             

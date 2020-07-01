@@ -224,29 +224,31 @@ class InstagramSearch
                 // most repeated words
                 $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
                 foreach($words as $word => $weight){
-                    $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
-                        [
-                            'alert_mentionId' => $alertsMencions->id,
-                            'name' => $word,
-                        ]
-                    )->exists();
-                    if (!$is_words_exists) {
-                        $model = new \app\models\AlertsMencionsWords();
-                        $model->alert_mentionId = $alertsMencions->id;
-                        $model->mention_socialId = $alertsMencions->publication_id;
-                        $model->name = $word;
-                        $model->weight = $weight; 
-                    } else {
-                        $model = \app\models\AlertsMencionsWords::find()->where(
+                    if(!is_numeric($word)){
+                        $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
                             [
                                 'alert_mentionId' => $alertsMencions->id,
-                                'name' => $word  
-                            ])->one();
-                        
-                        $model->weight = $model->weight + $weight; 
-                    }
-                    if(!$model->save()){
-                        var_dump($model->errors);
+                                'name' => $word,
+                            ]
+                        )->exists();
+                        if (!$is_words_exists) {
+                            $model = new \app\models\AlertsMencionsWords();
+                            $model->alert_mentionId = $alertsMencions->id;
+                            $model->mention_socialId = $alertsMencions->publication_id;
+                            $model->name = $word;
+                            $model->weight = $weight; 
+                        } else {
+                            $model = \app\models\AlertsMencionsWords::find()->where(
+                                [
+                                    'alert_mentionId' => $alertsMencions->id,
+                                    'name' => $word  
+                                ])->one();
+                            
+                            $model->weight = $model->weight + $weight; 
+                        }
+                        if($model->validate()){
+                            $model->save();
+                        }
                     }
                     
                 }

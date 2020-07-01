@@ -144,9 +144,25 @@ function getDataSelectDetail(alertid, resourceid, term) {
  * @param {Number} id
  * @param {Number} resourceId
  * @param {String} term
+ * @param {String} socialId
  */
 function getBoxInfoDetail(alertid, resourceid, term, socialId) {
   return apiClientDetail.get(
     `box-info?alertId=${alertid}&resourceId=${resourceid}&term=${term}&socialId=${socialId}`
+  );
+}
+
+/**
+ * View: Detail
+ * Vue Component: common-words-detail
+ *  call api to return comon words
+ * @param {Number} id
+ * @param {Number} resourceId
+ * @param {String} term
+ * @param {String} socialId
+ */
+function getBoxCommonWordsDetail(alertid, resourceid, term, socialId) {
+  return apiClientDetail.get(
+    `common-words?alertId=${alertid}&resourceId=${resourceid}&term=${term}&socialId=${socialId}`
   );
 }

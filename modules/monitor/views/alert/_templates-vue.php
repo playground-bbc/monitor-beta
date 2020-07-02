@@ -210,7 +210,7 @@ use yii\widgets\ActiveForm;
                   'attribute' => 'message_markup',
                   'format' => 'raw',
                   'value' => function($model){
-                      return \yii\helpers\Html::encode($model['message_markup'], $doubleEncode = true);
+                      return $model['message_markup'];
                   }
               ],
               [

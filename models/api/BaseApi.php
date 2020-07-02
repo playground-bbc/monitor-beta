@@ -206,7 +206,8 @@ class BaseApi extends Model {
 
 	public function readDataResource($alerts = []){
 		$alerts= ArrayHelper::map($alerts,'id','config.configSources');
-        $data = [];
+		$data = [];
+		
         foreach($alerts as $alertid => $sources){
             foreach ($sources as $source){
                 $jsonFile= new JsonFile($alertid,$source);
@@ -217,12 +218,12 @@ class BaseApi extends Model {
             }
                
         }
-        	
+        
         // no empty
         if(!empty($data)){
         	foreach ($data as $alertId => $resources){
         		foreach ($resources as $resource => $values){
-        			$resourceName = str_replace(" ", "",ucwords($resource));
+					$resourceName = str_replace(" ", "",ucwords($resource));
         			$this->{"readData{$resourceName}Api"}($alertId,$values);
         		}
         	}

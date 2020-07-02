@@ -125,7 +125,6 @@ const detailComponent = Vue.component("detail", {
     },
   },
 });
-
 /**
  * boxComponent: send call to api and display content
  */
@@ -224,7 +223,68 @@ const boxComponent = Vue.component("box-detail", {
     },
   },
 });
+/**
+ * boxCommonWordsComponent: send call to api and display content words most repeated
+ */
+const boxCommonWordsComponent = Vue.component("common-words-detail", {
+  props: {
+    alertid: {
+      type: Number,
+      required: true,
+    },
+    resourceid: {
+      type: Number,
+      required: true,
+    },
+    term: {
+      type: String,
+      required: true,
+    },
+    socialId: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    isChange: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  template: "#box-common-words-detail",
+  data: function () {
+    return {
+      words: [],
+    };
+  },
+  mounted() {
+    this.fetchCommonWords();
+  },
+  methods: {
+    fetchCommonWords() {
+      getBoxCommonWordsDetail(
+        this.alertid,
+        this.resourceid,
+        this.term,
+        this.socialId
+      )
+        .then((response) => {
+          if (response.status == 200 && response.statusText == "OK") {
+            this.words = response.data.words;
+            console.log(this.words);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          // see error by dialog
+        });
+    },
+  },
+});
 
+/**
+ * gridMentions: display grid content
+ */
 const gridMentions = Vue.component("grid-detail", {
   props: {
     isChange: {
@@ -261,7 +321,11 @@ const gridMentions = Vue.component("grid-detail", {
       // $("#mentionsearch-message_markup").attr("value", "");
       $("#mentionsearch-id").attr("value", this.alertid);
       console.log(this.resourceid);
-      if (this.resourceid == 5 || this.resourceid == 6) {
+      if (
+        this.resourceid == 5 ||
+        this.resourceid == 6 ||
+        this.resourceid == 7
+      ) {
         $("#mentionsearch-publication_id").attr("value", this.socialId);
       } else {
         $("#mentionsearch-social_id").attr("value", this.socialId);

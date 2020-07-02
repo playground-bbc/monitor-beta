@@ -11,7 +11,7 @@ use yii\httpclient\Client;
 class InstagramSearch 
 {
     public $alertId;
-    public $resourcesId;
+    public $resourceId;
     public $data = [];
     public $isDictionaries = false;
     public $isBoolean = false;
@@ -27,7 +27,7 @@ class InstagramSearch
            return false;     
         }
         $this->alertId        = ArrayHelper::getValue($params, 0);
-        $this->resourcesId    = $this->_setResourceId();
+        $this->resourceId    = \app\helpers\AlertMentionsHelper::getResourceIdByName('Instagram Comments');
         $this->isDictionaries = $this->_isDictionaries();
         
         
@@ -118,50 +118,182 @@ class InstagramSearch
         if(!is_null($data)){
             foreach($data as $product => $posts){
                 for($p=0; $p < sizeof($posts); $p++){
-                    $alertsMencionsModel = $this->_findAlertsMencions($product,$posts[$p]['id']);
+                    $alertsMencions = $this->findAlertsMencionsByProducts($product,$posts[$p]['id']);
                     $permalink = $posts[$p]['permalink'];
                     
-                    if(!is_null($alertsMencionsModel) && !empty($posts[$p]['comments'])){
-                       for($c = 0; $c <  sizeof($posts[$p]['comments']); $c++){
-                           //var_dump($posts[$p]['comments'][$c]);
-                            $user = $this->saveUserMencions($posts[$p]['comments'][$c]['username']);
-                            if(empty($user->errors)){
-                                $posts[$p]['comments'][$c]['permalink'] = $permalink;
-                                $mention = $this->saveMencions($posts[$p]['comments'][$c],$alertsMencionsModel->id,$user->id);
-                                if($this->isDictionaries && ArrayHelper::keyExists('wordsId', $posts[$p]['comments'][$c], false)){
-                                    $wordIds = $posts[$p]['comments'][$c]['wordsId'];
-                                    // save Keywords Mentions 
-                                    $this->saveKeywordsMentions($wordIds,$mention->id);
-                                }
-                                if(ArrayHelper::keyExists('replies', $posts[$p]['comments'][$c], false)){
-                                    if(count($data[$product][$p]['comments'][$c]['replies'])){
-                                        $replies = $data[$product][$p]['comments'][$c]['replies']['data'];
-                                        for($r = 0; $r < sizeof($replies); $r++ ){
-                                            if(isset($replies[$r]['message_markup'])){
-                                                $user_replies = $this->saveUserMencions($replies[$r]['username']);
-                                                $posts[$p]['comments'][$c]['permalink'] = $permalink;
-                                                $replies_mention = $this->saveMencions($replies[$r],$alertsMencionsModel['id'],$user_replies->id);
-                                                if($this->isDictionaries && ArrayHelper::keyExists('wordsId', $replies[$r], false)){
-                                                    $wordIds = $replies[$r]['wordsId'];
-                                                    // save Keywords Mentions 
-                                                    $this->saveKeywordsMentions($wordIds,$replies_mention->id);
-                                                }
-
-                                            }
-                                        }
-                                    }
-
-                                }
-                            }else{
-                                $error['user'][] = $user->errors;
-                            }
-                       }// end loop comments
+                    if(!is_null($alertsMencions) && isset($posts[$p]['comments'])){
+                       if(count($posts[$p]['comments'])){
+                            for($c = 0; $c < sizeof($posts[$p]['comments']); $c++){
+                                
+                                    // var_dump($posts[$p]['comments'][$c]);
+                                    //$posts[$p]['comments'][$c]['permalink'] = $permalink;
+                                    $this->savePropertyMentions($posts[$p]['comments'][$c],$alertsMencions,$permalink);
+                                
+                                    if(ArrayHelper::keyExists('replies', $posts[$p]['comments'][$c], false)){
+                                        if(count($data[$product][$p]['comments'][$c]['replies']['data'])){
+                                            $replies = $data[$product][$p]['comments'][$c]['replies']['data'];
+                                            for($r = 0; $r < sizeof($replies); $r++ ){
+                                                $this->savePropertyMentions($replies[$r],$alertsMencions,$permalink);
+                                            }    
+                                        }   
+                                    }    
+                            }// end loop comments
+                       }
                     }// end if is_null alertsMencionsModel
                 }
             }// end foreach data
         } // end if null
         return (empty($error)) ? true : false;
     }
+
+    private function savePropertyMentions($comment,$alertsMencions,$permalink = null){
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            // save user
+            $user_data = [];
+            $username = $comment['username'];
+            //$user_response = $this->_getUser($username);
+            
+            
+            
+            if(!is_null($username)){
+                if (\app\models\UsersMentions::find()->where(['screen_name' => $username])->exists()) {
+                    // call user
+                    $userMentions = \app\models\UsersMentions::findOne(['screen_name' => $username]);
+                    // update data user is exists
+                    // $user_data['followers_count'] = $user_response->graphql->user->edge_followed_by->count;
+                    // $user_data['following_count'] = $user_response->graphql->user->edge_follow->count;
+                    // $userMentions->user_data = $user_data;
+                } else {
+                    // $user_data['followers_count'] = $user_response->graphql->user->edge_followed_by->count;
+                    // $user_data['following_count'] = $user_response->graphql->user->edge_follow->count;
+                    // new register user
+                    $userMentions =  new \app\models\UsersMentions();
+                    $userMentions->user_uuid = $comment['id'];
+                    // set name
+                    // $name = \app\helpers\StringHelper::remove_emoji($user_response->graphql->user->full_name);
+                    // $userMentions->name = (\app\helpers\StringHelper::isEmpty($name)) ? $username : $name;
+                    // $userMentions->screen_name = $user_response->graphql->user->username;
+                    $userMentions->name = $comment['username'];
+                    $userMentions->screen_name = $comment['username'];
+                    $userMentions->user_data = $user_data;
+                    //$userMentions->message = \app\helpers\StringHelper::ensureRightPoints(\app\helpers\StringHelper::substring($user_response->graphql->user->biography,0,385));
+                    $userMentions->profile_image_url = "https://www.instagram.com/{$username}/";
+    
+                }
+                if(!$userMentions->save()){ throw new \Exception('Error user mentions Save');}
+
+            }else{
+                
+                $userMentions = \app\models\UsersMentions::findOne(['screen_name' => $username]);
+            }
+            
+            
+            unset($user_data);
+            // save mentions
+            $mention_data['like_count'] = $comment['like_count'];
+
+            // set params for search
+            $alertsMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($this->alertId,$this->resourceId);
+            if(\app\models\Mentions::find()->where(
+                [
+                    'alert_mentionId' => $alertsMentionsIds,
+                    'origin_id' => $userMentions->id,
+                    'social_id' => $comment['id']
+                ])->exists()){
+                
+                $mention = \app\models\Mentions::find()->where(
+                    [
+                        'origin_id' => $userMentions->id,
+                        'social_id' => $comment['id']
+                    ]
+                )->one();    
+
+            }else{
+                $mention = new \app\models\Mentions();
+                $mention->alert_mentionId = $alertsMencions->id;
+                $mention->origin_id = $userMentions->id;
+                $mention->social_id = $comment['id'];
+                $mention->created_time = \app\helpers\DateHelper::asTimestamp($comment['timestamp']);
+                $mention->mention_data = $mention_data;
+                $mention->message = $comment['text'];
+                $mention->message_markup = $comment['message_markup'];
+                $mention->url = $permalink;
+                $mention->domain_url = (!is_null($mention->url)) ? \app\helpers\StringHelper::getDomain($mention->url): null;
+            
+                // most repeated words
+                $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
+                foreach($words as $word => $weight){
+                    if(!is_numeric($word)){
+                        $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
+                            [
+                                'alert_mentionId' => $alertsMencions->id,
+                                'name' => $word,
+                            ]
+                        )->exists();
+                        if (!$is_words_exists) {
+                            $model = new \app\models\AlertsMencionsWords();
+                            $model->alert_mentionId = $alertsMencions->id;
+                            $model->mention_socialId = $alertsMencions->publication_id;
+                            $model->name = $word;
+                            $model->weight = $weight; 
+                        } else {
+                            $model = \app\models\AlertsMencionsWords::find()->where(
+                                [
+                                    'alert_mentionId' => $alertsMencions->id,
+                                    'name' => $word  
+                                ])->one();
+                            
+                            $model->weight = $model->weight + $weight; 
+                        }
+                        if($model->validate()){
+                            $model->save();
+                        }
+                    }
+                    
+                }
+
+            }
+            unset($mention_data);
+            if(!$mention->save()){ throw new \Exception('Error mentions Save');}
+            
+            // keywords mentions
+
+            // if words find it
+            if(ArrayHelper::keyExists('wordsId', $comment, false)){
+                $wordIds = $comment['wordsId'];
+                // save Keywords Mentions 
+                if(\app\models\KeywordsMentions::find()->where(['mentionId'=> $mention->id])->exists()){
+                    \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
+                }
+        
+                foreach($wordIds as $idwords => $count){
+                    for($c = 0; $c < $count; $c++){
+                        $model = new \app\models\KeywordsMentions();
+                        $model->keywordId = $idwords;
+                        $model->mentionId = $mention->id;
+                        $model->save();
+                    }
+                }
+                unset($wordIds);
+                
+            }
+            else{
+                // in case update in alert
+                if(\app\models\KeywordsMentions::find()->where(['mentionId' => $mention->id])->exists()){
+                    \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
+                }
+                    
+            }
+            
+            $transaction->commit();
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
 
      /**
      * [searchDataByDictionary search keywords in the feed]
@@ -172,46 +304,60 @@ class InstagramSearch
         $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
 
 
-        foreach($mentions as $terms => $feeds){
-            for ($f=0; $f < sizeOf($feeds) ; $f++) { 
-                if(ArrayHelper::keyExists('comments', $feeds[$f], false) && count($feeds[$f]['comments'])){
-                    $comments = \yii\helpers\ArrayHelper::remove($mentions[$terms][$f], 'comments');
-                    for ($c=0; $c < sizeOf($comments) ; $c++) { 
-                        if(\yii\helpers\ArrayHelper::keyExists('message_markup', $comments[$c])){
-                            $sentence = \app\helpers\StringHelper::lowercase($comments[$c]['message_markup']);
-                            $wordsId = [];
-                            for ($w=0; $w < sizeOf($words) ; $w++) { 
-                                $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
-                                $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
-                                if($containsCount){
-                                    $wordsId[$words[$w]['id']] = $containsCount;
-                                    $comments[$c]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
-                                }
-                            } // end loop words
-                            if(ArrayHelper::keyExists('replies', $comments[$c], false)){
-                                if(count($comments[$c]['replies']['data'])){
-                                    
-                                    $replies = \yii\helpers\ArrayHelper::remove($comments[$c]['replies'], 'data');
-                                    
-                                    $comments = array_merge($comments,$replies);
-                                    
-                                    
-                                }// if count replies data 
-                            } // if keyExists replies
-                            if(count($wordsId)){
-                                $comments[$c]['wordsId'] = $wordsId;
-                                $mentions[$terms][$f]['comments'][] = $comments[$c];
-                            }
-                            unset($sentence);
-                            unset($wordsId);
-                        } // end if keyExists message_markup
+        foreach($mentions as $product => $feeds){
+            for($f = 0; $f < sizeof($feeds); $f++){
+                if(ArrayHelper::keyExists('comments', $feeds[$f], false) && !empty($feeds[$f]['comments'])){
+                    for($c = 0; $c <  sizeof($feeds[$f]['comments']); $c++){
+                        $wordsId = [];
+                        for($w = 0; $w < sizeof($words); $w++){
+                            $sentence = \app\helpers\StringHelper::lowercase($mentions[$product][$f]['comments'][$c]['message_markup']);
+                            $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
+                            $containsCount = \app\helpers\StringHelper::containsCountIncaseSensitive($sentence, $word);
+                            if($containsCount){
+                                $wordsId[$words[$w]['id']] = $containsCount;
+                                $mentions[$product][$f]['comments'][$c]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
+                            }// end if containsCount
+                        }// end loop words
+                        if(ArrayHelper::keyExists('replies', $mentions[$product][$f]['comments'][$c], false) ){
+                            if(count($mentions[$product][$f]['comments'][$c]['replies']['data'])){
+                                $replies = $mentions[$product][$f]['comments'][$c]['replies']['data'];
+                                for($r = 0; $r < sizeof($replies); $r++){
+                                    $wordsIdReplies = [];
+                                    for($w = 0; $w < sizeof($words); $w++){
+                                        if(isset($mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['message_markup'])){
+                                            $sentence_replies = \app\helpers\StringHelper::lowercase($mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['message_markup']);
+                                            $containsCount = \app\helpers\StringHelper::containsCountIncaseSensitive($sentence_replies, $word);
+                                            if($containsCount){
+                                                $wordsIdReplies[$words[$w]['id']] = $containsCount;
+                                                $word_replies = $words[$w]['name'];
+                                                $mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence_replies,$word_replies,"<strong>{$word_replies}</strong>");
+                                                $mentions[$product][$f]['comments'][$c]['replies']['data'][$r]['wordsId'] = $wordsIdReplies;
+                                                array_push($mentions[$product][$f]['comments'],$mentions[$product][$f]['comments'][$c]['replies']['data'][$r]);
+                                            }
+                        
+                                        }
+                                    }// end loop words
+                                    if(empty($wordsIdReplies)){
+                                        unset($mentions[$product][$f]['comments'][$c]['replies']['data'][$r]);
+                                    }
+                                } // end loop replies
+                                $mentions[$product][$f]['comments'][$c]['replies']['data'] = array_values($mentions[$product][$f]['comments'][$c]['replies']['data']);
+                            } // end if count replies data
+                        } // end if replies
+                        if(!empty($wordsId)){
+                            $mentions[$product][$f]['comments'][$c]['wordsId'] = $wordsId;
+                        }else{
+                            unset($mentions[$product][$f]['comments'][$c]);
+                        }
                     }// end loop comments
-                } // if keyExists comments
+                    $mentions[$product][$f]['comments'] = array_values($mentions[$product][$f]['comments']);
+                }// end if keyExists && !empty
             }// end loop feeds
         }// for each
-        
+       // var_dump($mentions);
         return $mentions;
     }
+
 
     /**
      * [_isDictionaries is the alert hace dictionaries]
@@ -244,6 +390,31 @@ class InstagramSearch
         ->select('id')->one();
 
         return $alertsMencions;
+
+    }
+
+    /**
+     * Finds the AlertsMencions model based on product key value.
+     * @param string $product
+     * @return AlertsMencions the loaded model
+     */
+    private function findAlertsMencionsByProducts($product,$publication_id)
+    {
+
+        $alertsMencions = (new \yii\db\Query())
+        ->select(['id','publication_id'])
+        ->from(\app\models\AlertsMencions::tableName())
+        ->where(
+            [
+                'alertId'        => $this->alertId,
+                'resourcesId'    =>  $this->resourceId,
+                // 'condition'      =>  'ACTIVE',
+                'type'           =>  'comments Instagram',
+                'term_searched'  =>  $product,
+                'publication_id' =>  $publication_id,
+            ])
+        ->one();
+        return ($alertsMencions) ? (object) $alertsMencions : null;
 
     }
 
@@ -361,28 +532,7 @@ class InstagramSearch
 
     }
 
-    /**
-     * [_setResourceId return the id from resource]
-     */
-    private function _setResourceId(){
-        
-        $socialId = (new \yii\db\Query())
-            ->select('id')
-            ->from('type_resources')
-            ->where(['name' => 'Social media'])
-            ->one();
-        
-        
-        $resourcesId = (new \yii\db\Query())
-            ->select('id')
-            ->from('resources')
-            ->where(['name' => 'Instagram Comments','resourcesId' => $socialId['id']])
-            ->all();
-        
 
-        return ArrayHelper::getColumn($resourcesId,'id')[0];
-
-    } 
 
 
     /**
@@ -405,7 +555,7 @@ class InstagramSearch
             ->setUrl("https://www.instagram.com/{$username}/?__a=1")
             ->send();
         if ($response->isOk) {
-            return \yii\helpers\Json::encode($response->data);
+            return $response->data;
         }
         return null;
     }

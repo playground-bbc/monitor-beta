@@ -82,7 +82,7 @@ class FacebookMessagesSearch {
     {   
         // if doesnt dictionaries and doesnt boolean
         if(!$this->isDictionaries && !$this->isBoolean){
-             //echo "no dictionaries .. \n";
+            // echo "no dictionaries .. \n";
             // save all data
             $mentions = $this->data;
             $search = $this->saveMentions($mentions);
@@ -99,7 +99,7 @@ class FacebookMessagesSearch {
         // if  dictionaries and  !boolean
         if($this->isDictionaries && !$this->isBoolean){
             // init search
-           // echo "only dictionaries \n";
+            //echo "only dictionaries \n";
             $model = $this->data;
             $data = $this->searchDataByDictionary($model);
             $search = $this->saveMentions($data);
@@ -117,28 +117,30 @@ class FacebookMessagesSearch {
 
 
     private function saveMentions($model){
-        
         $error = [];
         if(!is_null($model)){
             foreach($model as $product => $ids_messages){
                 foreach ($ids_messages as $id_message => $data){
                     $alertsMencionsModel = $this->_findAlertsMencions($product,$id_message);
-                    
                     foreach ($data as $index => $messages){
                         if(!is_null($alertsMencionsModel) && count($messages)){
-                           
                             for($m = 0; $m < sizeof($messages); $m++){
-                                
                                 if(!empty($messages[$m]['message'])){
                                     $user = $this->saveUserMencions($messages[$m]['from']);
                                     if($user->errors){
                                         $error['user'][] = $user->errors;
                                         //break;
                                     }
-                                    $mention = $this->saveMessage($messages[$m],$alertsMencionsModel->id,$user->id);
+                                    $mention = $this->saveMessage($messages[$m],$alertsMencionsModel,$user->id);
+                                    
                                     if($mention->errors){
                                         $error['mention'][] = ['error' => $mention->errors,'alerts:mention_id' => $alertsMencionsModel->id,'userId' => $user->id ,'messages' => $messages[$m]['message']];
                                         //break;
+                                    }
+                                    else{
+                                        if($user->name != 'Mundo LG' && strlen($mention->message) > 2){
+                                            $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id); 
+                                        }
                                     }
                                     if(ArrayHelper::keyExists('wordsId', $messages[$m], false)){
                                         $wordIds = $messages[$m]['wordsId'];
@@ -221,23 +223,26 @@ class FacebookMessagesSearch {
     }
 
 
-    private function saveMessage($messages,$alertId,$originId){
+    private function saveMessage($messages,$alertsMencionsModel,$originId){
 
         $created_time = \app\helpers\DateHelper::asTimestamp($messages['created_time']);
 
         $url = (!empty($messages['url']))  ? "https://www.facebook.com".$messages['url'] : '-';
         $message = $messages['message'];
         $message_markup = $messages['message_markup'];
+        // keep track by social id
+        $social_id = hexdec( substr(sha1($alertsMencionsModel->publication_id), 0, 15) );
 
         
         $mention = \app\helpers\MentionsHelper::saveMencions(
             [
-                'alert_mentionId' => $alertId,
+                'alert_mentionId' => $alertsMencionsModel->id,
                 'origin_id'       => $originId,
                 'created_time'    => $created_time,
             ],
             [
-                'origin_id'       => $originId, // url is unique
+                'origin_id'      => $originId, // url is unique
+                'social_id'      => $social_id,   
                 'created_time'   => $created_time,
                 'message'        => $message,
                 'message_markup' => $message_markup,
@@ -250,6 +255,41 @@ class FacebookMessagesSearch {
         
     }
 
+    public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
+        // most repeated words
+        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
+       
+        foreach($words as $word => $weight){
+            if(!is_numeric($word)){
+                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
+                    [
+                        'alert_mentionId' => $alertsMencionId,
+                        'name' => $word,
+                    ]
+                )->exists();
+                if (!$is_words_exists) {
+                    $model = new \app\models\AlertsMencionsWords();
+                    $model->alert_mentionId = $alertsMencionId;
+                    $model->mention_socialId = $mention->social_id;
+                    $model->name = $word;
+                    $model->weight = $weight; 
+                } else {
+                    
+                    $model = \app\models\AlertsMencionsWords::find()->where(
+                        [
+                            'alert_mentionId' => $alertsMencionId,
+                            'name' => $word  
+                        ])->one();
+                    
+                    $model->weight = $model->weight + $weight; 
+                }
+                if($model->validate()){
+                    $model->save();
+                }
+            }
+            
+        }
+    }
     /**
      * [saveKeywordsMentions save or update  KeywordsMentions]
      * @param  [array] $wordIds   [array wordId => total count in the sentece ]
@@ -288,7 +328,7 @@ class FacebookMessagesSearch {
             'term_searched'  =>  $product,
             'publication_id' =>  $publication_id,
         ])
-        ->select('id')->one();
+        ->select(['id','publication_id'])->one();
 
         return $alertsMencions;
 

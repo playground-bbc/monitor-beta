@@ -97,7 +97,7 @@ class DetailController extends Controller {
             $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookComments($model->id,$resourceId,$term,$socialId);
         }
         if($resourceName == "Facebook Messages"){
-            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookMessages($model->id,$resourceId,$term);
+            $propertyBoxs = \app\helpers\DetailHelper::setBoxPropertiesFaceBookMessages($model->id,$resourceId,$term,$socialId);
         }
 
         if($resourceName == "Instagram Comments"){
@@ -109,7 +109,48 @@ class DetailController extends Controller {
         }
         return ['propertyBoxs' => $propertyBoxs];
     }
+    /**
+     * return common words and his weight on view common-words-detail
+     * @param integer $id
+     * @param integer $resourceId
+     * @param string $term
+     * @return $data total words common
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionCommonWords($alertId,$resourceId,$term = '',$socialId = ''){
+        $model = $this->findModel($alertId,$resourceId);
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        
+        if($term != ""){ $where['term_searched'] = $term;}
+        
+        $where_alertMentions = [];
+        if($socialId != ""){ $where_alertMentions['mention_socialId'] = $socialId;}
 
+        $alertsMentionsIds = \app\models\AlertsMencions::find()->select('id')->where($where)->asArray()->all();
+
+        // SELECT name,SUM(weight) as total FROM `alerts_mencions_words` WHERE  alert_mentionId IN (166,171,175,177,181,170,172,182) AND weight > 2 GROUP BY name  
+        // ORDER BY `total`  DESC
+        $ids = \yii\helpers\ArrayHelper::getColumn($alertsMentionsIds, 'id');
+        $where_alertMentions['alert_mentionId'] = $ids;
+        
+        $rows = (new \yii\db\Query())
+        ->select(['name','total' => 'SUM(weight)'])
+        ->from('alerts_mencions_words')
+        ->where($where_alertMentions)
+        ->groupBy('name')
+        ->orderBy(['total' => SORT_DESC])
+        ->limit(20)
+        ->all();
+        
+        $data = [];
+        for ($r=0; $r < sizeOf($rows) ; $r++) { 
+            if($rows[$r]['total'] >= 2){
+                $data[]= $rows[$r];
+            }
+        }
+
+        return ['words' => $data,'alertsMentionsIds' => $ids,'not-filter'=> $rows];
+    }
     /**
      * return post or ticket to second select2 on view detail
      * @param integer $id
@@ -122,7 +163,7 @@ class DetailController extends Controller {
         $resourceName = \app\helpers\AlertMentionsHelper::getResourceNameById($resourceId);
 
         $data = [['id' => '', 'text' => '']];
-        if($resourceName == "Live Chat"  || $resourceName == "Live Chat Conversations"){
+        if($resourceName == "Live Chat"){
             $data =  \app\helpers\DetailHelper::getTicketLiveChat($model->id,$resourceId,$term);
         }
         if($resourceName == "Live Chat Conversations"){
@@ -130,6 +171,10 @@ class DetailController extends Controller {
         }
         if($resourceName == "Facebook Comments" || $resourceName == "Instagram Comments"){
             $data =  \app\helpers\DetailHelper::getPostsFaceBookComments($model->id,$resourceId,$term);
+        }
+
+        if($resourceName == "Facebook Messages"){
+            $data =  \app\helpers\DetailHelper::getInboxFaceBookComments($model->id,$resourceId,$term);
         }
         
         return ['data' => $data];

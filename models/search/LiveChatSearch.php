@@ -266,10 +266,51 @@ class LiveChatSearch {
             $model->domain_url      = $domain_url;
             $model->social_id       = $social_id;
             
-            $model->save();
+            if($model->save()){
+                if(strlen($model->message) > 2 && $user->user_data['type'] == 'client'){
+                    $this->saveOrUpdatedCommonWords($model,$model->alert_mentionId);
+                }
+            }
+            
         }
         return $model;
 
+    }
+
+    public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
+        // most repeated words
+        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
+       
+        foreach($words as $word => $weight){
+            if(!is_numeric($word)){
+                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
+                    [
+                        'mention_socialId' => $mention->social_id,
+                        'name' => $word,
+                    ]
+                )->exists();
+                if (!$is_words_exists) {
+                    $model = new \app\models\AlertsMencionsWords();
+                    $model->alert_mentionId = $alertsMencionId;
+                    $model->mention_socialId = $mention->social_id;
+                    $model->name = $word;
+                    $model->weight = $weight; 
+                } else {
+                    
+                    $model = \app\models\AlertsMencionsWords::find()->where(
+                        [
+                            'alert_mentionId' => $alertsMencionId,
+                            'name' => $word  
+                        ])->one();
+                    
+                    $model->weight = $model->weight + $weight; 
+                }
+                if($model->validate()){
+                    $model->save();
+                }
+            }
+            
+        }
     }
 
      /**

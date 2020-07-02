@@ -13,6 +13,7 @@ class TwitterSearch
     public $data = [];
     public $isDictionaries = false;
     public $isBoolean = false;
+    public $resourceId;
 
     /**
      * [load load in to local variables]
@@ -25,6 +26,7 @@ class TwitterSearch
         }
         $this->alertId = ArrayHelper::getValue($params, 0);
         $this->isDictionaries = $this->_isDictionaries();
+        $this->resourceId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Twitter');
         // is boolean
         
         // loop data
@@ -125,38 +127,7 @@ class TwitterSearch
                     // loop over tweets
                     for($t = 0; $t < sizeof($tweets); $t++){
                         if(!\app\helpers\StringHelper::isEmpty($tweets[$t]['message'])){
-                            // save user mentions                    
-                            $origin = $this->saveUserMencions($tweets[$t]['user']);
-
-                            if(!$origin->errors){
-                                // save mentions 
-                                $mention = $this->saveMencions($tweets[$t],$alertsMencions->id,$origin->id);
-
-                                if(empty($mention->errors)){
-                                    // if words find it
-                                    if(ArrayHelper::keyExists('wordsId', $tweets[$t], false)){
-                                        $wordIds = $tweets[$t]['wordsId'];
-                                        // save Keywords Mentions 
-                                        $this->saveKeywordsMentions($wordIds,$mention->id);
-                                        
-                                    }
-                                    else{
-                                        // in case update in alert
-                                        if(\app\models\KeywordsMentions::find()->where(['mentionId' => $mention->id])->exists()){
-                                            \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
-                                        }
-                                            
-                                    }
-
-                                }else{ 
-                                    $error['mentions'] = $mention->errors;
-                                    $origin->delete();
-                                }
-
-                            }else{ 
-                                $error['oringin'] = $origin->errors;
-                                
-                            }
+                            $this->savePropertyMentions($tweets[$t],$alertsMencions);
                         }
                     }
                 }
@@ -164,6 +135,153 @@ class TwitterSearch
         }
         //var_dump($error);
         return (empty($error)) ? true : false;
+    }
+
+    private function savePropertyMentions($tweet,$alertsMencions){
+
+        $transaction = \Yii::$app->db->beginTransaction();
+       
+        try {
+            // save user
+            $user_data = [];
+
+            if (\app\models\UsersMentions::find()->where(['user_uuid' => $tweet['user']['user_id']])->exists()) {
+                $userMentions = \app\models\UsersMentions::find()->where(['user_uuid' => $tweet['user']['user_id']])->one();
+                $user_data['followers_count'] = $tweet['user']['followers_count'];
+                $user_data['friends_count'] = $tweet['user']['friends_count'];
+                $userMentions->user_data = $user_data;
+            } else {
+                $userMentions =  new \app\models\UsersMentions();
+                $user_data['followers_count'] = $tweet['user']['followers_count'];
+                $user_data['friends_count'] = $tweet['user']['friends_count'];
+                $author = (!\app\helpers\StringHelper::isEmpty($tweet['user']['author_name'])) ? $tweet['user']['author_name']: $tweet['user']['author_username'] ;
+                // set
+                $userMentions->user_uuid = $tweet['user']['user_id'];
+                $userMentions->name = $author;
+                $userMentions->screen_name = $tweet['user']['author_username'];
+                $userMentions->user_data = $user_data;
+
+            }
+            unset($user_data);
+            if(!$userMentions->save()){ throw new \Exception('Error user mentions Save');}
+
+            // save mentios
+            $url          = (!empty($tweet['url'])) ? $tweet['url']['url'] : '-';
+            $social_id    = $tweet['id'];
+            $created_time = \app\helpers\DateHelper::asTimestamp($tweet['created_at']);
+            $message      = $tweet['message'];
+            $location     = \app\helpers\StringHelper::remove_emoji($tweet['user']['location']);
+            $message_markup = $tweet['message_markup'];
+
+            $mention_data['retweet_count'] = $tweet['retweet_count'];
+            $mention_data['favorite_count'] = $tweet['favorite_count'];
+
+            // set params for search
+            $alertsMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($this->alertId,$this->resourceId);
+
+            if(\app\models\Mentions::find()->where(
+                [
+                    'alert_mentionId' => $alertsMentionsIds,
+                    'origin_id' => $userMentions->id,
+                ])->exists()){
+                
+                $mention = \app\models\Mentions::find()->where(
+                    [
+                        'origin_id' => $userMentions->id,
+                        //'social_id' => $social_id
+                    ]
+                    )->one();
+                //$mention->message_markup  = $message_markup;
+            }else{
+                $mention  = new \app\models\Mentions();
+                $mention->url = $url;
+                $mention->domain_url = $url;
+                $mention->origin_id  = $userMentions->id;
+                $mention->message   = $message;
+                $mention->social_id = $social_id;
+                $mention->mention_data = $mention_data;
+                $mention->created_time = $created_time;
+                $mention->message_markup  = $message_markup;
+                $mention->alert_mentionId = $alertsMencions->id;
+
+                if(strlen($mention->message) > 2){
+                    $this->saveOrUpdatedCommonWords($mention,$mention->alert_mentionId);
+                }
+
+            }
+            unset($mention_data);
+            if(!$mention->save()){ throw new \Exception('Error mentions Save');}
+            
+
+            // if words find it
+            if(ArrayHelper::keyExists('wordsId', $tweet, false)){
+                $wordIds = $tweet['wordsId'];
+                // save Keywords Mentions 
+                if(\app\models\KeywordsMentions::find()->where(['mentionId'=> $mention->id])->exists()){
+                    \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
+                }
+        
+                foreach($wordIds as $idwords => $count){
+                    for($c = 0; $c < $count; $c++){
+                        $model = new \app\models\KeywordsMentions();
+                        $model->keywordId = $idwords;
+                        $model->mentionId = $mention->id;
+                        $model->save();
+                    }
+                }
+                unset($wordIds);
+                
+            }
+            else{
+                // in case update in alert
+                if(\app\models\KeywordsMentions::find()->where(['mentionId' => $mention->id])->exists()){
+                    \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
+                }
+                    
+            }
+            
+            $transaction->commit();
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } 
+    }
+
+    public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
+        // most repeated words
+        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
+       
+        foreach($words as $word => $weight){
+            if(!is_numeric($word)){
+                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
+                    [
+                        'mention_socialId' => $mention->social_id,
+                        'name' => $word,
+                    ]
+                )->exists();
+                if (!$is_words_exists) {
+                    $model = new \app\models\AlertsMencionsWords();
+                    $model->alert_mentionId = $alertsMencionId;
+                    $model->mention_socialId = $mention->social_id;
+                    $model->name = $word;
+                    $model->weight = $weight; 
+                } else {
+                    
+                    $model = \app\models\AlertsMencionsWords::find()->where(
+                        [
+                            'alert_mentionId' => $alertsMencionId,
+                            'name' => $word  
+                        ])->one();
+                    
+                    $model->weight = $model->weight + $weight; 
+                }
+                if($model->validate()){
+                    $model->save();
+                }
+            }
+            
+        }
     }
 
     /**

@@ -122,7 +122,11 @@ class FacebookSearch
                                 foreach($comments as $index => $comment){
                                     if(!\app\helpers\StringHelper::isEmpty($comment['message'])){
                                         $mention = $this->saveComments($comment,$alertsMencionsModel->id,$origin->id);
-                                    
+                                        // save repeated words
+                                        if(strlen($mention->message) > 2){
+                                            $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id);
+                                        }
+                                        
                                         if(empty($mention->errors)){
                                             if(ArrayHelper::keyExists('wordsId', $comment, false)){
                                                 $wordIds = $comment['wordsId'];
@@ -167,8 +171,6 @@ class FacebookSearch
 
     private function searchDataByDictionary($feeds){
         $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
-        
-
         foreach($feeds as $product => $posts){
             for($p = 0; $p < sizeof($posts); $p++){
                 if(ArrayHelper::keyExists('comments', $posts[$p], false) && !empty($posts[$p]['comments'])){
@@ -214,7 +216,7 @@ class FacebookSearch
             'term_searched'  =>  $product,
             'publication_id' =>  $publication_id,
         ])
-        ->select('id')->one();
+        ->select(['id','publication_id'])->one();
 
         return $alertsMencions;
 
@@ -251,7 +253,7 @@ class FacebookSearch
         return $origin;
     }
 
-    public function saveComments($comment,$alertId,$originId){
+    public function saveComments($comment,$alertsMencionId,$originId){
 
         $created_time = \app\helpers\DateHelper::asTimestamp($comment['created_time']);
 
@@ -265,7 +267,7 @@ class FacebookSearch
         
         $mention = \app\helpers\MentionsHelper::saveMencions(
             [
-                'alert_mentionId' => $alertId,
+                'alert_mentionId' => $alertsMencionId,
                 'origin_id'       => $originId, // url is unique
                 'social_id'       => $id,
             ],
@@ -280,12 +282,44 @@ class FacebookSearch
         );
 
         if($mention->errors){
-             var_dump($mention->errors);
-             die();
+            var_dump($mention->errors);
         }
-
         return $mention;
         
+    }
+
+    public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
+        // most repeated words
+        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
+        foreach($words as $word => $weight){
+            if(!is_numeric($word)){
+                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
+                    [
+                        'alert_mentionId' => $alertsMencionId,
+                        'name' => $word,
+                    ]
+                )->exists();
+                if (!$is_words_exists) {
+                    $model = new \app\models\AlertsMencionsWords();
+                    $model->alert_mentionId = $alertsMencionId;
+                    $model->mention_socialId = $mention->social_id;
+                    $model->name = $word;
+                    $model->weight = $weight; 
+                } else {
+                    
+                    $model = \app\models\AlertsMencionsWords::find()->where(
+                        [
+                            'alert_mentionId' => $alertsMencionId,
+                            'name' => $word  
+                        ])->one();
+                    
+                    $model->weight = $model->weight + $weight; 
+                }
+                if($model->validate()){
+                    $model->save();
+                }
+            }
+        }
     }
 
     /**

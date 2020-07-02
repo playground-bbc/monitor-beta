@@ -198,10 +198,13 @@ class DetailHelper {
      * @param integer $feedId
      * @return $properties with properties record
      */
-    public static function setBoxPropertiesFaceBookMessages($alertId,$resourceId,$term,$feedId = null){
+    public static function setBoxPropertiesFaceBookMessages($alertId,$resourceId,$term,$feedId){
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
         if($term != ""){
             $where['term_searched'] = $term;
+        }
+        if($feedId != ""){
+            $where['publication_id'] = $feedId;
         }
 
         $properties = self::getPropertyBoxByResourceName('Facebook Messages');
@@ -578,6 +581,42 @@ class DetailHelper {
     }
 
     /**
+     * return post on facebook comments on view detail
+     * @param integer $alertId
+     * @param integer $resourceId
+     * @return string $term
+     */
+    public static function getInboxFaceBookComments($alertId,$resourceId,$term){
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
+
+        $alertsMentionsIds = \app\models\AlertsMencions::find()->select('id')->where($where)->asArray()->all();
+        $ids = \yii\helpers\ArrayHelper::getColumn($alertsMentionsIds, 'id');
+        $data = [];
+        // SELECT alerts_mencions.publication_id,users_mentions.name FROM `mentions` 
+        //JOIN alerts_mencions on alerts_mencions.id = mentions.alert_mentionId 
+        //JOIN users_mentions on mentions.origin_id = users_mentions.id 
+        //WHERE users_mentions.name <> 'Mundo LG' 
+        //AND mentions.alert_mentionId = 333 GROUP BY publication_id ORDER BY `created_time` ASC
+        $rows = (new \yii\db\Query())
+            ->select(['alerts_mencions.publication_id','users_mentions.name'])
+            ->from('mentions')
+            ->join('JOIN','alerts_mencions', 'alerts_mencions.id = mentions.alert_mentionId')
+            ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
+            ->where(['alert_mentionId' => $ids])
+            ->where(['<>','users_mentions.name','Mundo LG'])
+            ->groupBy('publication_id')
+            ->all();
+            
+        if(count($rows)){
+            foreach($rows as $index => $row){
+                array_push($data,['id' => $row['publication_id'], 'text' => "# Usuario: {$row['name']}"]);
+            }
+            
+        } 
+       return $data;
+    }
+
+    /**
      * return group columns for detail grid index detail
      * @param string $resourceName
      * @return array $columns
@@ -619,6 +658,7 @@ class DetailHelper {
 
 
         if($resource->name == "Live Chat" || $resource->name == "Live Chat Conversations"){
+            $place_holder = ($resource->name == "Live Chat") ? 'Tickets a Filtrar...' : 'Conversaciones a Filtrar...';    
             $columnTicket = [
                 'label' => Yii::t('app','Tickets a Buscar'),
                 'format'    => 'raw',
@@ -628,7 +668,7 @@ class DetailHelper {
                     'size' => \kartik\select2\Select2::SMALL,
                     'hideSearch' => false,
                     'data' => [],
-                    'options' => ['placeholder' => 'Tickets a Filtrar...'],
+                    'options' => ['placeholder' => $place_holder],
                     'pluginOptions' => [
                         'allowClear' => true
                     ],
@@ -637,8 +677,8 @@ class DetailHelper {
             array_push($columns,$columnTicket);
         }
 
-        if($resource->name == "Facebook Comments" || $resource->name == "Instagram Comments"){
-            $columnTicket = [
+        if($resource->name == "Facebook Comments" || $resource->name == "Instagram Comments" ){
+            $columnComment = [
                 'label' => Yii::t('app','Posts a Buscar'),
                 'format'    => 'raw',
                 'value' => \kartik\select2\Select2::widget([
@@ -653,7 +693,26 @@ class DetailHelper {
                     ],
                 ]),
             ];
-            array_push($columns,$columnTicket);
+            array_push($columns,$columnComment);
+        }
+
+        if($resource->name == "Facebook Messages"){
+            $columnComment = [
+                'label' => Yii::t('app','Posts a Buscar'),
+                'format'    => 'raw',
+                'value' => \kartik\select2\Select2::widget([
+                    'id' => 'depend_select',
+                    'name' => 'post',
+                    'size' => \kartik\select2\Select2::SMALL,
+                    'hideSearch' => false,
+                    'data' => [],
+                    'options' => ['placeholder' => 'Inboxs a Filtrar...'],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ]),
+            ];
+            array_push($columns,$columnComment);
         }
 
         return $columns;
@@ -783,10 +842,40 @@ class DetailHelper {
                     }
                     return $url;
                 }),
-
-                
                 
             ];
+        }
+
+        if($resourceName == 'Facebook Messages'){
+            $columns = [
+                self::composeColum("Fecha","created_time","raw",function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },['style' => 'width: 10%;min-width: 20px']),
+
+                self::composeColum("Nombre","Name","raw",function($model){
+                    return \yii\helpers\Html::encode($model['name']);
+                }),
+
+                self::composeColum("Email FaceBook","Email","raw",function($model){
+                    $user_data = \yii\helpers\Json::decode($model['user_data'], $asArray = true);
+                    $email = (isset($user_data['email'])) ? $user_data['email'] : "-";
+                    return \yii\helpers\Html::encode($email);
+                }),
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return \yii\helpers\Html::encode($model['message_markup']);
+                }),
+
+                self::composeColum("Url Inbox","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                }),
+                
+            ];
+
         }
 
         if($resourceName == 'Instagram Comments'){

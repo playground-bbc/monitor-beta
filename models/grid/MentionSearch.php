@@ -168,7 +168,7 @@ class MentionSearch extends Mentions
                 
             }
         }
-        //\yii\helpers\VarDumper::dump( $rows, $depth = 10, $highlight = true);
+         //\yii\helpers\VarDumper::dump( $rows, $depth = 10, $highlight = true);
         // die();
         
 
@@ -177,7 +177,14 @@ class MentionSearch extends Mentions
             if($this->social_id != ''){
                 $name = strtolower(trim($this->social_id));
                 $rows = array_filter($rows, function ($role) use ($name) {
-                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->recurso : $role['social_id'])), $name) !== false);
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->social_id : $role['social_id'])), $name) !== false);
+                });
+            }
+
+            if($this->publication_id != ''){
+                $name = strtolower(trim($this->publication_id));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->publication_id : $role['publication_id'])), $name) !== false);
                 });
             }
 
@@ -238,16 +245,11 @@ class MentionSearch extends Mentions
                 });
             }
 
-            if($this->publication_id != ''){
-                $name = strtolower(trim($this->publication_id));
-                $rows = array_filter($rows, function ($role) use ($name) {
-                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->publication_id : $role['publication_id'])), $name) !== false);
-                });
-            }
+            
             
         }
         
-
+       
         return $rows;
     }
     

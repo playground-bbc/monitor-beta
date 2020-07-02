@@ -321,7 +321,11 @@ const gridMentions = Vue.component("grid-detail", {
       // $("#mentionsearch-message_markup").attr("value", "");
       $("#mentionsearch-id").attr("value", this.alertid);
       console.log(this.resourceid);
-      if (this.resourceid == 5 || this.resourceid == 6) {
+      if (
+        this.resourceid == 5 ||
+        this.resourceid == 6 ||
+        this.resourceid == 7
+      ) {
         $("#mentionsearch-publication_id").attr("value", this.socialId);
       } else {
         $("#mentionsearch-social_id").attr("value", this.socialId);

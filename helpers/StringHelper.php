@@ -302,6 +302,9 @@ class StringHelper
         $s= str_replace('”','', $s); 
         $s= str_replace(')','', $s);
         $s= str_replace('(','', $s);  
+        $s= str_replace('<','', $s);  
+        $s= str_replace('>','', $s);  
+        $s= str_replace('/','', $s);
         return $s;
     }
 

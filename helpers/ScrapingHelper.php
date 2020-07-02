@@ -294,12 +294,13 @@ class ScrapingHelper{
 			$stopWord_en = new StopWordsFilter($stop_factory_en);
 			
 			// limit from ten words
-			$limit = 10;
+			$limit = 5;
 			foreach ($words as $word => $value) {
 				$word_remove = \app\helpers\StringHelper::replacingPeriodsCommasAndExclamationPoints($word);
 				$word_remove_emoji = \app\helpers\StringHelper::remove_emoji($word_remove);
-				if($word_remove_emoji !== "️️️" && !is_numeric($word_remove_emoji)){
-					$word_lower = \app\helpers\StringHelper::lowercase($word_remove_emoji);
+				$word_remove_tags = \app\helpers\StringHelper::stripTags($word_remove_emoji);
+				if(!\app\helpers\StringHelper::isEmpty($word_remove_tags) && !is_numeric($word_remove_tags)){
+					$word_lower = \app\helpers\StringHelper::lowercase($word_remove_tags);
 					if(!is_null($stopWord_en->transform($word_lower)) && !is_null($stopWord_es->transform($word_lower)) && count($data) < $limit){
 						$data[$word_lower] = $value;
 					}

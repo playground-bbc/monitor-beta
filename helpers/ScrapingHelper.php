@@ -294,7 +294,7 @@ class ScrapingHelper{
 			$stopWord_en = new StopWordsFilter($stop_factory_en);
 			
 			// limit from ten words
-			$limit = 5;
+			$limit = 10;
 			foreach ($words as $word => $value) {
 				$word_remove = \app\helpers\StringHelper::replacingPeriodsCommasAndExclamationPoints($word);
 				$word_remove_emoji = \app\helpers\StringHelper::remove_emoji($word_remove);

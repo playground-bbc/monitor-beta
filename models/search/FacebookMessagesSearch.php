@@ -22,43 +22,20 @@ class FacebookMessagesSearch {
      * @param  [array] $params [product [tweets]]
      * @return [boolean]
      */
-    public function load($params){
+    public function load($data){
         
-        if(empty($params)){
+        if(empty($data)){
            return false;     
         }
 
-        $this->alertId = ArrayHelper::getValue($params, 0);
         // is isDictionaries
         $this->isDictionaries = $this->_isDictionaries();
         // set resourcesId
         $this->resourcesId    = $this->_setResourceId();
 
-        // loop data
-        for($p = 1; $p < sizeof($params); $p++){
-            // loop with json file
-            for($j = 0; $j < sizeof($params[$p]); $j++){
-                $model = $params[$p][$j][0];
-                foreach ($model as $product => $comments_ids){
-                    
-                    if(!ArrayHelper::keyExists($product, $this->data, false)){
-                        $this->data[$product] = [];
-                    }// end if keyExists
-
-                    // for each comments_ids 
-                    foreach($comments_ids as $comment_id => $comments){
-
-                        if(!ArrayHelper::keyExists($comment_id, $this->data[$product], false)){
-                            $this->data[$product][$comment_id][] = $comments;
-                        }
-
-                    } // end foreach comments_ids
-                }// end foreach model
-                
-            } // end loop json
-        }
-
-        return true;
+        $this->data = current($data);
+        unset($data);
+        return (count($this->data)) ? true : false;
     }
     
 
@@ -117,51 +94,50 @@ class FacebookMessagesSearch {
 
 
     private function saveMentions($model){
+        
         $error = [];
         if(!is_null($model)){
             foreach($model as $product => $ids_messages){
-                foreach ($ids_messages as $id_message => $data){
+                foreach($ids_messages as $id_message => $messages){
                     $alertsMencionsModel = $this->_findAlertsMencions($product,$id_message);
-                    foreach ($data as $index => $messages){
-                        if(!is_null($alertsMencionsModel) && count($messages)){
-                            for($m = 0; $m < sizeof($messages); $m++){
-                                if(!empty($messages[$m]['message'])){
-                                    $user = $this->saveUserMencions($messages[$m]['from']);
-                                    if($user->errors){
-                                        $error['user'][] = $user->errors;
-                                        //break;
-                                    }
-                                    $mention = $this->saveMessage($messages[$m],$alertsMencionsModel,$user->id);
-                                    
-                                    if($mention->errors){
-                                        $error['mention'][] = ['error' => $mention->errors,'alerts:mention_id' => $alertsMencionsModel->id,'userId' => $user->id ,'messages' => $messages[$m]['message']];
-                                        //break;
-                                    }
-                                    else{
-                                        if($user->name != 'Mundo LG' && strlen($mention->message) > 2){
-                                            $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id); 
-                                        }
-                                    }
-                                    if(ArrayHelper::keyExists('wordsId', $messages[$m], false)){
-                                        $wordIds = $messages[$m]['wordsId'];
-                                        // save Keywords Mentions 
-                                        $this->saveKeywordsMentions($wordIds,$mention->id);
-                                    }else{
-                                       // in case update in alert
-                                        if(\app\models\KeywordsMentions::find()->where(['mentionId' => $mention->id])->exists()){
-                                            \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
-                                        }
+                    if(!is_null($alertsMencionsModel) && count($messages)){
+                        for($m = 0; $m < sizeof($messages); $m++){
+                            
+                            if(!empty($messages[$m]['message'])){
+                                $user = $this->saveUserMencions($messages[$m]['from']);
+                                if($user->errors){
+                                    $error['user'][] = $user->errors;
+                                    //break;
+                                }
+                                $mention = $this->saveMessage($messages[$m],$alertsMencionsModel,$user->id);
+                               
+                                if($mention->errors){
+                                    $error['mention'][] = ['error' => $mention->errors,'alerts:mention_id' => $alertsMencionsModel->id,'userId' => $user->id ,'messages' => $messages[$m]['message']];
+                                    //break;
+                                }
+                                else{
+                                    if($user->name != 'Mundo LG' && strlen($mention->message) > 2){
+                                        $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id); 
                                     }
                                 }
-
+                                if(ArrayHelper::keyExists('wordsId', $messages[$m], false)){
+                                    $wordIds = $messages[$m]['wordsId'];
+                                    // save Keywords Mentions 
+                                    $this->saveKeywordsMentions($wordIds,$mention->id);
+                                }else{
+                                   // in case update in alert
+                                    if(\app\models\KeywordsMentions::find()->where(['mentionId' => $mention->id])->exists()){
+                                        \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
+                                    }
+                                }
                             }
 
                         }
+
                     }
                 }
             }
         }
-        
        return (empty($error)) ? true : false;
     }
 
@@ -172,15 +148,14 @@ class FacebookMessagesSearch {
         foreach($model as $product => $ids_messages){
            // echo $product."\n";
             foreach ($ids_messages as $id_message => $data){
-                $inboxs = \yii\helpers\ArrayHelper::remove($model[$product][$id_message], 0);
-                
+                $inboxs = \yii\helpers\ArrayHelper::remove($model[$product],$id_message);
                 for ($i=0; $i < sizeOf($inboxs) ; $i++) { 
                     if(\yii\helpers\ArrayHelper::keyExists('message_markup', $inboxs[$i])){
                         $wordsId = [];
-                        $sentence = \app\helpers\StringHelper::lowercase($inboxs[$i]['message_markup']);
                         for($w = 0; $w < sizeof($words); $w++){
+                            $sentence = \app\helpers\StringHelper::lowercase($inboxs[$i]['message_markup']);
                             $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
-                            $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
+                            $containsCount = \app\helpers\StringHelper::containsCount($sentence,$word);
                             if($containsCount){
                                 $wordsId[$words[$w]['id']] = $containsCount;
                                 $inboxs[$i]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");
@@ -188,7 +163,7 @@ class FacebookMessagesSearch {
                         }// end loop words
                         if(count($wordsId)){
                             $inboxs[$i]['wordsId'] = $wordsId;
-                            $model[$product][$id_message][0][] = $inboxs[$i];
+                            $model[$product][$id_message][] = $inboxs[$i];
                             
                         }
                         unset($sentence);
@@ -197,6 +172,7 @@ class FacebookMessagesSearch {
                 }// end loop inbox
             } // end foreach ids_messages           
         }// end foreach model
+      
         return $model;
     }
 

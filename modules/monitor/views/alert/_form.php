@@ -185,7 +185,7 @@ if (!$alert->isNewRecord) {
                         ],
                         'pluginOptions' => [
                             'tags' => true,
-                            'tokenSeparators' => [',', ' '],
+                            'tokenSeparators' => [','],
                             'minimumInputLength' => 2
                         ],
                     ])->label('Tag free words'); 

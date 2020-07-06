@@ -20,35 +20,17 @@ class FacebookSearch
      * @param  [array] $params [product [feeds]]
      * @return [boolean]
      */
-    public function load($params){
-        if(empty($params)){
+    public function load($data){
+        if(empty($data)){
            return false;     
         }
-        $this->alertId = ArrayHelper::getValue($params, 0);
+        $this->resourceId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Facebook Comments');
         $this->isDictionaries = $this->_isDictionaries();
-        // is boolean
         
-        // loop data
-        for($p = 1; $p < sizeof($params); $p++){
-            // loop with json file
-            for($j = 0; $j < sizeof($params[$p]); $j++){
-                $products = $params[$p][$j][0];
-                // for each product
-                foreach($products as $product => $datos){
-                   // for each feeds 
-                   for($d = 0; $d < sizeof($datos); $d++){
-                        if(!ArrayHelper::keyExists($product, $this->data, false)){
-                            $this->data[$product] = [];
-                        }
-                        if(!in_array($datos[$d], $this->data[$product])){
-                            $this->data[$product] [] = $datos[$d];
-                        }
-                   }// en foreach feeds
-                }// end for  each product
-            } // end loop json
-        }
-
-        return true;
+        
+        $this->data = current($data);
+        unset($data);
+        return (count($this->data)) ? true : false;
     }
     
     /**
@@ -115,38 +97,45 @@ class FacebookSearch
                 for($p=0; $p < sizeof($posts); $p++){
                     $alertsMencionsModel = $this->findAlertsMencions($product,$posts[$p]['id']);
                     if(!is_null($alertsMencionsModel)){
-                        $origin = $this->savePostMencions($posts[$p]);
-                        if(!$origin->errors){
-                            if(!empty($posts[$p]['comments'])){
-                                $comments = $posts[$p]['comments'];
-                                foreach($comments as $index => $comment){
-                                    if(!\app\helpers\StringHelper::isEmpty($comment['message'])){
-                                        $mention = $this->saveComments($comment,$alertsMencionsModel->id,$origin->id);
-                                        // save repeated words
-                                        if(strlen($mention->message) > 2){
-                                            $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id);
-                                        }
-                                        
-                                        if(empty($mention->errors)){
-                                            if(ArrayHelper::keyExists('wordsId', $comment, false)){
-                                                $wordIds = $comment['wordsId'];
-                                                // save Keywords Mentions 
-                                                $this->saveKeywordsMentions($wordIds,$mention->id);
-                                            }else{
-                                               // in case update in alert
-                                                if(\app\models\KeywordsMentions::find()->where(['mentionId' => $mention->id])->exists()){
-                                                    \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
-                                                }
+                        $transaction = \Yii::$app->db->beginTransaction();
+                        try {
+                            $origin = $this->savePostMencions($posts[$p]);
+                            if(!$origin->errors){
+                                if(!empty($posts[$p]['comments'])){
+                                    $comments = $posts[$p]['comments'];
+                                    foreach($comments as $index => $comment){
+                                        if(!\app\helpers\StringHelper::isEmpty($comment['message'])){
+                                            $mention = $this->saveComments($comment,$alertsMencionsModel->id,$origin->id);
+                                            // save repeated words
+                                            if(strlen($mention->message) > 2){
+                                                $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id);
                                             }
-                                        }else{ 
-                                            $error['mentions'] = $mention->errors;
-                                            $origin->delete();
-                                        }
-                                    }else{ continue; }
+                                            
+                                            if(empty($mention->errors)){
+                                                if(ArrayHelper::keyExists('wordsId', $comment, false)){
+                                                    $wordIds = $comment['wordsId'];
+                                                    // save Keywords Mentions 
+                                                    $this->saveKeywordsMentions($wordIds,$mention->id);
+                                                }else{
+                                                // in case update in alert
+                                                    if(\app\models\KeywordsMentions::find()->where(['mentionId' => $mention->id])->exists()){
+                                                        \app\models\KeywordsMentions::deleteAll('mentionId = '.$mention->id);
+                                                    }
+                                                }
+                                            }else{ 
+                                                $error['mentions'] = $mention->errors;
+                                                $origin->delete();
+                                            }
+                                        }else{ continue; }
+                                    }
                                 }
+                            }else{ 
+                                $error['origin'] = $origin->errors;
                             }
-                        }else{ 
-                            $error['origin'] = $origin->errors;
+                            $transaction->commit();
+                        } catch (\Exception $e) {
+                            $transaction->rollBack();
+                            throw $e;
                         }
                     }
                 }
@@ -177,8 +166,8 @@ class FacebookSearch
                     for($c=0; $c < sizeof($posts[$p]['comments']); $c++){
                         $wordsId = [];
                         for($w = 0; $w < sizeof($words); $w++){
-                            $sentence = $feeds[$product][$p]['comments'][$c]['message_markup'];
-                            $word = " {$words[$w]['name']} ";
+                            $sentence = \app\helpers\StringHelper::lowercase($feeds[$product][$p]['comments'][$c]['message_markup']);
+                            $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
                             $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
 
 
@@ -210,7 +199,7 @@ class FacebookSearch
 
         $alertsMencions =  \app\models\AlertsMencions::find()->where([
             'alertId'        => $this->alertId,
-            'resourcesId'    =>  5,
+            'resourcesId'    =>  $this->resourceId,
             //'condition'      =>  'ACTIVE',
             'type'           =>  'comments',
             'term_searched'  =>  $product,

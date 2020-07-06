@@ -86,12 +86,15 @@ class AlertMentionsHelper
 
     public static function getCountAlertMentionsByResourceId($alertId,$resourceId){
         $db = \Yii::$app->db;
-        $count = $db->cache(function ($db) use($alertId,$resourceId){
-            return (new \yii\db\Query())
-                ->from('alerts_mencions')
-                ->where(['alertId' => $alertId,'resourcesId' => $resourceId])
-                ->count();
+        $models = $db->cache(function ($db) use($alertId,$resourceId){
+            return \app\models\AlertsMencions::find()->with('mentions')->where(['alertId' => $alertId,'resourcesId' => $resourceId])->all();
         },60);
+        $count = 0;
+        foreach($models as $model){
+            if(count($model->mentions)){
+                $count++;
+            }
+        }
         return $count;
     }
 
@@ -253,7 +256,7 @@ class AlertMentionsHelper
                 $total = 0;
                 foreach ($models as $model) {
                     if($model->mentionsCount){
-                        $total += $model->mentionsCount;
+                        $total ++;
                     }
                 }
                 // total
@@ -322,13 +325,14 @@ class AlertMentionsHelper
 
             case 'Live Chat Conversations':
                 $total = 0;
-                $expression = new \yii\db\Expression("`mention_data`->'$.event_id' AS event_id");
+                //$expression = new \yii\db\Expression("`mention_data`->'$.event_id' AS event_id");
                 foreach ($models as $model) {
                     $rows = (new \yii\db\Query())
-                      ->select($expression)
+                      //->select($expression)
+                      ->select('social_id')
                       ->from('mentions')
                       ->where(['alert_mentionId' => $model->id])
-                      ->groupBy('event_id')
+                      ->groupBy('social_id')
                       ->count();
                     $total += intval($rows);  
                 }

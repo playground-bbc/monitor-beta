@@ -22,33 +22,14 @@ class LiveTicketSearch {
      * @param  [array] $params [product [feed]]
      * @return [boolean]
      */
-    public function load($params){
-        if(empty($params)){
+    public function load($data){
+        if(empty($data)){
            return false;     
         }
-        $this->alertId        = ArrayHelper::getValue($params, 0);
         $this->resourcesId    = $this->_setResourceId();
         $this->isDictionaries = $this->_isDictionaries();
-
-      
-        for($p = 1 ; $p < sizeof($params); $p++){
-            foreach($params[$p] as $data => $group){
-                foreach($group as $pages => $products){
-                    foreach($products as $product => $tickets){
-                        //echo $product."\n";
-                        if(!ArrayHelper::keyExists($product,$this->data)){
-                            $this->data[$product] = [];
-                        }// end if keyExists
-                        for($t = 0 ; $t < sizeOf($tickets); $t++){
-                            if(!in_array($tickets[$t], $this->data[$product])){
-                                $this->data[$product][] = $tickets[$t];
-                            }// end if in_array
-                        }// end loop tickets
-                    }
-                }// end foreach products
-            }// end foreach group
-        }// end loop
-        
+        $this->data = current($data);
+        unset($data);
         return (count($this->data)) ? true : false;
     }
 
@@ -108,43 +89,52 @@ class LiveTicketSearch {
             $alertsMencionsModel = $this->findAlertsMencions($product);
             if(!is_null($alertsMencionsModel)){
                 for($t = 0 ; $t < sizeof($tickets); $t ++){
-                   
-                    $idTicket = $tickets[$t]['id'];
-                    $requesterIp = $tickets[$t]['requester']['ip'];
-                    $geolocation = \app\helpers\MentionsHelper::getGeolocation($requesterIp);
-                    $requesterSource = $tickets[$t]['source'];
+                    
+                    $transaction = \Yii::$app->db->beginTransaction();
 
-                    if(ArrayHelper::keyExists('events', $tickets[$t], false)){
-                        for($w = 0 ; $w < sizeOf($tickets[$t]['events']); $w++){
-                            if(ArrayHelper::keyExists('message', $tickets[$t]['events'][$w], false)){
-                                if($tickets[$t]['events'][$w]['author']['type'] == 'client'){
-                                    $tickets[$t]['events'][$w]['author']['ip'] = $requesterIp;
-                                    $tickets[$t]['events'][$w]['author']['geolocation'] = $geolocation;
-                                } // if client insert his ip
-                                $user = $this->saveUserMencions($tickets[$t]['events'][$w]['author']);
-                                
-                                if(empty($user->errors)){
-                                    // adding informacion to tickets array
-                                    $tickets[$t]['events'][$w]['id']          = $idTicket;
-                                    $tickets[$t]['events'][$w]['source']      = $requesterSource;
-                                    $tickets[$t]['events'][$w]['rate']        = $tickets[$t]['rate'];
-                                    $tickets[$t]['events'][$w]['status']      = $tickets[$t]['status'];
-                                    $tickets[$t]['events'][$w]['subject']     = $tickets[$t]['subject'];
-                                   // $tickets[$t]['events'][$w]['geolocation'] = $geolocation;
+                    try {
+                        $idTicket = $tickets[$t]['id'];
+                        $requesterIp = $tickets[$t]['requester']['ip'];
+                        $geolocation = \app\helpers\MentionsHelper::getGeolocation($requesterIp);
+                        $requesterSource = $tickets[$t]['source'];
 
-                                    $mention = $this->saveMentions($tickets[$t]['events'][$w],$alertsMencionsModel->id,$user);
+                        if(ArrayHelper::keyExists('events', $tickets[$t], false)){
+                            for($w = 0 ; $w < sizeOf($tickets[$t]['events']); $w++){
+                                if(ArrayHelper::keyExists('message', $tickets[$t]['events'][$w], false)){
+                                    if($tickets[$t]['events'][$w]['author']['type'] == 'client'){
+                                        $tickets[$t]['events'][$w]['author']['ip'] = $requesterIp;
+                                        $tickets[$t]['events'][$w]['author']['geolocation'] = $geolocation;
+                                    } // if client insert his ip
+                                    $user = $this->saveUserMencions($tickets[$t]['events'][$w]['author']);
+                                    
+                                    if(empty($user->errors)){
+                                        // adding informacion to tickets array
+                                        $tickets[$t]['events'][$w]['id']          = $idTicket;
+                                        $tickets[$t]['events'][$w]['source']      = $requesterSource;
+                                        $tickets[$t]['events'][$w]['rate']        = $tickets[$t]['rate'];
+                                        $tickets[$t]['events'][$w]['status']      = $tickets[$t]['status'];
+                                        $tickets[$t]['events'][$w]['subject']     = $tickets[$t]['subject'];
+                                    // $tickets[$t]['events'][$w]['geolocation'] = $geolocation;
 
-                                    if(empty($mention->errors)){
-                                        if(ArrayHelper::keyExists('wordsId', $tickets[$t]['events'][$w], false)){
-                                            $keywordsMention = $this->saveKeywordsMentions($tickets[$t]['events'][$w]['wordsId'],$mention->id);
-                                        }
+                                        $mention = $this->saveMentions($tickets[$t]['events'][$w],$alertsMencionsModel->id,$user);
 
-                                    }else{$errors['mentions'][] = 'mentions Faild!!';}// end if mention erros
+                                        if(empty($mention->errors)){
+                                            if(ArrayHelper::keyExists('wordsId', $tickets[$t]['events'][$w], false)){
+                                                $keywordsMention = $this->saveKeywordsMentions($tickets[$t]['events'][$w]['wordsId'],$mention->id);
+                                            }
 
-                                }else{ $errors['user_mentions'][] = 'user Faild!!';}// end if errors
-                            }// end fi message
-                        }// end for events
-                    } // if array keyExists
+                                        }else{$errors['mentions'][] = 'mentions Faild!!';}// end if mention erros
+
+                                    }else{ $errors['user_mentions'][] = 'user Faild!!';}// end if errors
+                                }// end fi message
+                            }// end for events
+                        } // if array keyExists
+                        $transaction->commit();
+                    } catch (\Exception $e) {
+                        $transaction->rollBack();
+                        throw $e;
+                    }
+
                 }// end for tickets
             }
         } // end for  each data
@@ -215,13 +205,14 @@ class LiveTicketSearch {
         $url            = ($user->user_data['type'] == 'client') ? $mention['source']['url'] : null;
       //  $location       = ($user->user_data['type'] == 'client') ? $mention['geolocation']['regionName'] : null;
         $domain_url     = ($user->user_data['type'] == 'client') ? \app\helpers\StringHelper::getDomain($mention['source']['url']) : null;
-
-
+        // set params for search
+        $alertsMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($this->alertId,$this->resourcesId);
+        
         $where = [
             'created_time'    => $date,
             'message'         => $message,
             'origin_id'       => $user->id,
-            'alert_mentionId' => $alertsMencionsId,
+            'alert_mentionId' => $alertsMentionsIds,
         ];
 
         $isMentions = \app\models\Mentions::find()->where($where)->exists();
@@ -255,7 +246,12 @@ class LiveTicketSearch {
 
     }
     
-    
+    /**
+     * [saveOrUpdatedCommonWords save or update common words]
+     * @param  [type] $mention          [mention]
+     * @param  [type] $alertsMencionsId [description]
+     * @return [type]                   [description]
+     */
     public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
         // most repeated words
         $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
@@ -332,7 +328,7 @@ class LiveTicketSearch {
                             $wordsId = [];
                             for ($w=0; $w < sizeOf($words) ; $w++) { 
                                 $word = \app\helpers\StringHelper::lowercase($words[$w]['name']);
-                                $containsCount = \app\helpers\StringHelper::containsCount($sentence, $word);
+                                $containsCount = \app\helpers\StringHelper::containsCount($sentence,$word);
                                 if($containsCount){
                                     $wordsId[$words[$w]['id']] = $containsCount;
                                     $events[$e]['message_markup']  = \app\helpers\StringHelper::replaceIncaseSensitive($sentence,$word,"<strong>{$word}</strong>");

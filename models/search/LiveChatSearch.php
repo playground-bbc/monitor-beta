@@ -21,33 +21,15 @@ class LiveChatSearch {
      * @param  [array] $params [product [feed]]
      * @return [boolean]
      */
-    public function load($params){
-        if(empty($params)){
+    public function load($data){
+        if(empty($data)){
            return false;     
         }
-        $this->alertId        = ArrayHelper::getValue($params, 0);
         $this->resourcesId    = $this->_setResourceId();
         $this->isDictionaries = $this->_isDictionaries();
 
-
-      
-        for($p = 1 ; $p < sizeof($params); $p++){
-            foreach($params[$p] as $data => $group){
-                foreach($group as $pages => $products){
-                    foreach($products as $product => $chats){
-                        //echo $product."\n";
-                        if(!ArrayHelper::keyExists($product,$this->data)){
-                            $this->data[$product] = [];
-                        }// end if keyExists
-                        for($t = 0 ; $t < sizeOf($chats); $t++){
-                            if(!in_array($chats[$t], $this->data[$product])){
-                                $this->data[$product][] = $chats[$t];
-                            }// end if in_array
-                        }// end loop tickets
-                    }
-                }// end foreach products
-            }// end foreach group
-        }// end loop
+        $this->data = current($data);
+        unset($data);
         return (count($this->data)) ? true : false;
     }
 
@@ -105,27 +87,34 @@ class LiveChatSearch {
     		$alertsMencionsModel = $this->findAlertsMencions($product);
             if(!is_null($alertsMencionsModel)){
                 for($c = 0 ; $c < sizeof($chats); $c ++){
+                    $transaction = \Yii::$app->db->beginTransaction();
+                    try {
+                        $chatId = $chats[$c]['id']; 
+                        $chat_start_url = $chats[$c]['chat_start_url']; 
+                        $visitor = $this->saveUserMentions($chats[$c]['visitor']);
+                        $agent =  $this->saveUserMentions($chats[$c]['agents']);
 
-                    $chatId = $chats[$c]['id']; 
-                    $chat_start_url = $chats[$c]['chat_start_url']; 
-                    $visitor = $this->saveUserMentions($chats[$c]['visitor']);
-                    $agent =  $this->saveUserMentions($chats[$c]['agents']);
+                        if(ArrayHelper::keyExists('messages', $chats[$c])){
+                            for($m = 0; $m < sizeOf($chats[$c]['messages']); $m++){
+                                if(!\app\helpers\StringHelper::isEmpty($chats[$c]['messages'][$m]['text'])){
+                                    $author = ($chats[$c]['messages'][$m]['user_type'] == 'visitor') ? $visitor : $agent;
+                                    $chats[$c]['messages'][$m]['chat_start_url'] = $chat_start_url;
+                                    $mention = $this->saveMentions($chats[$c]['messages'][$m],$alertsMencionsModel->id,$author);
+                                    if(empty($mention->errors)){
+                                        if(ArrayHelper::keyExists('wordsId', $chats[$c]['messages'][$m])){
+                                            $wordsId = $chats[$c]['messages'][$m]['wordsId'];
+                                            $this->saveKeywordsMentions($wordsId,$mention->id);
+                                        }
+                                    }else{$error['mention'] = $mention->errors; }// end if errors
+                                } // end if isEmpty
+                            }// end loop messages
+                        }// end fi keyExists messages
 
-                    if(ArrayHelper::keyExists('messages', $chats[$c])){
-                        for($m = 0; $m < sizeOf($chats[$c]['messages']); $m++){
-                            if(!\app\helpers\StringHelper::isEmpty($chats[$c]['messages'][$m]['text'])){
-                                $author = ($chats[$c]['messages'][$m]['user_type'] == 'visitor') ? $visitor : $agent;
-                                $chats[$c]['messages'][$m]['chat_start_url'] = $chat_start_url;
-                                $mention = $this->saveMentions($chats[$c]['messages'][$m],$alertsMencionsModel->id,$author);
-                                if(empty($mention->errors)){
-                                    if(ArrayHelper::keyExists('wordsId', $chats[$c]['messages'][$m])){
-                                        $wordsId = $chats[$c]['messages'][$m]['wordsId'];
-                                        $this->saveKeywordsMentions($wordsId,$mention->id);
-                                    }
-                                }else{$error['mention'] = $mention->errors; }// end if errors
-                            } // end if isEmpty
-                        }// end loop messages
-                    }// end fi keyExists messages
+                        $transaction->commit();
+                    } catch (\Exception $e) {
+                        $transaction->rollBack();
+                        throw $e;
+                    }
                 }// end for chats
             }
     	}// end foreach data
@@ -239,12 +228,14 @@ class LiveChatSearch {
         $message_markup = $chat['message_markup'];
         $url            = ($user->user_data['type'] == 'client') ? $chat['chat_start_url'] : null;
         $domain_url     = ($user->user_data['type'] == 'client') ? \app\helpers\StringHelper::getDomain($chat['chat_start_url']) : null;
-
+        // set params for search
+        $alertsMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($this->alertId,$this->resourcesId);
+        
         $where = [
             'created_time'    => $timestamp,
             'message'         => $message,
             'origin_id'       => $user->id,
-            'alert_mentionId' => $alertsMencionsId,
+            'alert_mentionId' => $alertsMentionsIds,
         ];
 
         $isMentions = \app\models\Mentions::find()->where($where)->exists();

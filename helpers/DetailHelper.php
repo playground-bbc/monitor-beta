@@ -540,6 +540,7 @@ class DetailHelper {
                       ->from('mentions')
                       ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
                       ->where(['alert_mentionId' => $alertMentions[$m]['id']])
+                      ->andWhere(['<>', 'users_mentions.name', 'Mundo LG'])
                       ->groupBy('social_id')
                       ->all();
                
@@ -589,30 +590,40 @@ class DetailHelper {
     public static function getInboxFaceBookComments($alertId,$resourceId,$term){
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId,'term_searched' => $term];
 
-        $alertsMentionsIds = \app\models\AlertsMencions::find()->select('id')->where($where)->asArray()->all();
-        $ids = \yii\helpers\ArrayHelper::getColumn($alertsMentionsIds, 'id');
+        //$alertsMentionsIds = \app\models\AlertsMencions::find()->select('id')->where($where)->asArray()->all();
+        $alertsMentions = \app\models\AlertsMencions::find()->with('mentions.origin')->where($where)->asArray()->all();
+        //$ids = \yii\helpers\ArrayHelper::getColumn($alertsMentionsIds, 'id');
         $data = [];
+        
         // SELECT alerts_mencions.publication_id,users_mentions.name FROM `mentions` 
         //JOIN alerts_mencions on alerts_mencions.id = mentions.alert_mentionId 
         //JOIN users_mentions on mentions.origin_id = users_mentions.id 
         //WHERE users_mentions.name <> 'Mundo LG' 
         //AND mentions.alert_mentionId = 333 GROUP BY publication_id ORDER BY `created_time` ASC
-        $rows = (new \yii\db\Query())
-            ->select(['alerts_mencions.publication_id','users_mentions.name'])
-            ->from('mentions')
-            ->join('JOIN','alerts_mencions', 'alerts_mencions.id = mentions.alert_mentionId')
-            ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
-            ->where(['alert_mentionId' => $ids])
-            ->where(['<>','users_mentions.name','Mundo LG'])
-            ->groupBy('publication_id')
-            ->all();
-            
-        if(count($rows)){
-            foreach($rows as $index => $row){
-                array_push($data,['id' => $row['publication_id'], 'text' => "# Usuario: {$row['name']}"]);
+
+        for($a = 0; $a < sizeOf($alertsMentions); $a ++){
+            if(count($alertsMentions[$a]['mentions'])){
+                
+                $rows = (new \yii\db\Query())
+                      ->select(['users_mentions.name'])
+                      ->from('mentions')
+                      ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
+                      ->where(['alert_mentionId' => $alertsMentions[$a]['id']])
+                      ->andWhere(['<>', 'users_mentions.name', 'Mundo LG'])
+                      ->groupBy('social_id')
+                      ->all();
+                    
+                if(count($rows)){
+                    foreach($rows as $index => $row){
+                        if($row['name'] != 'Mundo LG'){
+                            array_push($data,['id' => $alertsMentions[$a]['publication_id'], 'text' => "# Usuario: {$row['name']}"]);
+                        }
+                    }
+                    
+                }
             }
-            
-        } 
+        }
+          
        return $data;
     }
 
@@ -698,7 +709,7 @@ class DetailHelper {
 
         if($resource->name == "Facebook Messages"){
             $columnComment = [
-                'label' => Yii::t('app','Posts a Buscar'),
+                'label' => Yii::t('app','Conversaciones a Buscar'),
                 'format'    => 'raw',
                 'value' => \kartik\select2\Select2::widget([
                     'id' => 'depend_select',
@@ -739,7 +750,7 @@ class DetailHelper {
                 }),
                 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return \yii\helpers\Html::encode($model['message_markup']);
+                    return $model['message_markup'];
                 }),
                 
                 self::composeColum("Total Retweet","retweet_count","raw",function($model){
@@ -772,7 +783,7 @@ class DetailHelper {
                 },['style' => 'width: 10%;min-width: 20px']),
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return \yii\helpers\Html::encode($model['message_markup'], $doubleEncode = true);
+                    return $model['message_markup'];
                 }),
 
                 self::composeColum("Url Retail","","raw",function($model){
@@ -799,7 +810,7 @@ class DetailHelper {
                 },['style' => 'width: 10%;min-width: 20px']),
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return \yii\helpers\Html::encode($model['message_markup'], $doubleEncode = true);
+                    return $model['message_markup'];
                 }),
 
                 self::composeColum("Ciudad","user_data","raw",function($model){
@@ -832,7 +843,7 @@ class DetailHelper {
 
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return \yii\helpers\Html::encode($model['message_markup']);
+                    return $model['message_markup'];
                 }),
 
                 self::composeColum("Url Comentario","","raw",function($model){
@@ -863,7 +874,7 @@ class DetailHelper {
                 }),
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return \yii\helpers\Html::encode($model['message_markup']);
+                    return $model['message_markup'];
                 }),
 
                 self::composeColum("Url Inbox","","raw",function($model){
@@ -893,7 +904,7 @@ class DetailHelper {
                 }),
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
-                    return \yii\helpers\Html::encode($model['message_markup']);
+                    return $model['message_markup'];
                 }),
 
                 self::composeColum("Url Comentario","","raw",function($model){

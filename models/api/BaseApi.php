@@ -237,8 +237,9 @@ class BaseApi extends Model {
 
 	public function readDataTwitterApi($alertId,$data){
 		$searchTwitterApi = new \app\models\search\TwitterSearch();
-		$params = [$alertId,$data];
-		if(!$searchTwitterApi->load($params)){
+		$searchTwitterApi->alertId = $alertId;
+		
+		if(!$searchTwitterApi->load($data)){
 			// send email params in twitterApi no load with alertId and count($params)
 		}
 		if($searchTwitterApi->search()){
@@ -250,9 +251,9 @@ class BaseApi extends Model {
 
 	public function readDataFacebookCommentsApi($alertId,$data){
 		$searchFacebookApi = new \app\models\search\FacebookSearch();
-		$params = [$alertId,$data];
+		$searchFacebookApi->alertId = $alertId;
 
-		$searchFacebookApi->load($params);
+		$searchFacebookApi->load($data);
 
 		if($searchFacebookApi->search()){
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Facebook Comments');
@@ -262,9 +263,9 @@ class BaseApi extends Model {
 
 	public function readDataFacebookMessagesApi($alertId,$data){
 		$searchFacebookMessagesApi = new \app\models\search\FacebookMessagesSearch();
-		$params = [$alertId,$data];
+		$searchFacebookMessagesApi->alertId = $alertId;
 
-		$searchFacebookMessagesApi->load($params);
+		$searchFacebookMessagesApi->load($data);
 		if ($searchFacebookMessagesApi->search()) {
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Facebook Messages');
 		}
@@ -274,13 +275,13 @@ class BaseApi extends Model {
 
 	public function readDataInstagramCommentsApi($alertId,$data){
 		$searchInstagramApi = new \app\models\search\InstagramSearch();
-		$params = [$alertId,$data];
+		$searchInstagramApi->alertId = $alertId;
 
-		$searchInstagramApi->load($params);
+		$searchInstagramApi->load($data);
 
 
 		if($searchInstagramApi->search()){
-			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Instagram Comments');
+			//\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Instagram Comments');
 
 		}
 		
@@ -300,10 +301,11 @@ class BaseApi extends Model {
 	}
 
 	public function readDataLiveChatApi($alertId,$data){ 
+		
 		$searchLiveApi = new \app\models\search\LiveTicketSearch(); 
-		$params = [$alertId,$data]; 
- 
-		$searchLiveApi->load($params); 
+		$searchLiveApi->alertId = $alertId;
+		$searchLiveApi->load($data); 
+		
 		if($searchLiveApi->search()){ 
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Live Chat'); 
 		} 
@@ -311,10 +313,11 @@ class BaseApi extends Model {
 	} 
 
 	public function readDataliveChatConversationsApi($alertId,$data){ 
+
 		$searchLiveChatApi = new \app\models\search\LiveChatSearch(); 
-		$params = [$alertId,$data]; 
+		$searchLiveChatApi->alertId = $alertId;
  
-		$searchLiveChatApi->load($params); 
+		$searchLiveChatApi->load($data); 
 		if($searchLiveChatApi->search()){ 
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Live Chat Conversations'); 
 		} 

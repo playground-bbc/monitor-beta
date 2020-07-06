@@ -20,35 +20,16 @@ class TwitterSearch
      * @param  [array] $params [product [tweets]]
      * @return [boolean]
      */
-    public function load($params){
-        if(empty($params)){
+    public function load($data){
+        if(empty($data)){
            return false;     
         }
-        $this->alertId = ArrayHelper::getValue($params, 0);
         $this->isDictionaries = $this->_isDictionaries();
         $this->resourceId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Twitter');
-        // is boolean
         
-        // loop data
-        for($p = 1; $p < sizeof($params); $p++){
-            // loop with json file
-            for($j = 0; $j < sizeof($params[$p]); $j++){
-                $products = $params[$p][$j][0];
-                // for each product
-                foreach($products as $product => $datos){
-                   // for each tweets 
-                   for($d = 0; $d < sizeof($datos); $d++){
-                        if(!ArrayHelper::keyExists($product, $this->data, false)){
-                            $this->data[$product] = [];
-                        }
-                        if(!in_array($datos[$d], $this->data[$product])){
-                            $this->data[$product] [] = $datos[$d];
-                        }
-                   }// en foreach tweets
-                }// end for  each product
-            } // end loop json
-        }
-        return true;
+        $this->data = current($data);
+        unset($data);
+        return (count($this->data)) ? true : false;
     }
     /**
      * {@inheritdoc}
@@ -299,7 +280,7 @@ class TwitterSearch
                 //$msg = \app\helpers\StringHelper::remove_emoji($tweets[$t]['message']);
                 $wordsId = [];
                 for($w = 0; $w < sizeof($words); $w++){
-                    $word = " {$words[$w]['name']} ";
+                    $word = $words[$w]['name'];
                     $containsCount = \app\helpers\StringHelper::containsCount($tweets[$t]['message_markup'], $word);
                     if($containsCount){
                         $tweets[$t]['message_markup'] = \app\helpers\StringHelper::replace($tweets[$t]['message_markup'],$word,"<strong>{$word}</strong>");

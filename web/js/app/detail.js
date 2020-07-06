@@ -104,6 +104,7 @@ const detailComponent = Vue.component("detail", {
     },
     setCallSelectDepen() {
       if (document.body.contains(document.getElementById("depend_select"))) {
+        $("#depend_select").empty().trigger("change");
         getDataSelectDetail(this.alertid, this.resourceid, this.term)
           .then((response) => {
             if (response.status == 200 && response.statusText == "OK") {

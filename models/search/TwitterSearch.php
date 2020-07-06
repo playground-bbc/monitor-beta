@@ -251,7 +251,7 @@ class TwitterSearch
                     
                     $model = \app\models\AlertsMencionsWords::find()->where(
                         [
-                            'alert_mentionId' => $alertsMencionId,
+                            'mention_socialId' => $alertsMencionId,
                             'name' => $word  
                         ])->one();
                     

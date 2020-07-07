@@ -37,7 +37,7 @@ class TwitterApi extends Model {
 	private $country;
 	
 	private $limit = 0;
-	private $minimum = 100;
+	private $minimum = 50;
 
 	private $filename;
 	private $resourceName = 'Twitter';
@@ -53,7 +53,7 @@ class TwitterApi extends Model {
 	 * @return [array]        [params for call twitter api]
 	 */
 	public function prepare($alert = []){
-		if(!empty($alert)){
+		if(!empty($alert) && ($this->limit > $this->minimum)){
 			$this->alertId        = $alert['id'];
 			$this->start_date     = $alert['config']['start_date'];
 			$this->end_date       = $alert['config']['end_date'];
@@ -67,6 +67,7 @@ class TwitterApi extends Model {
 			$this->searchFinish();
 			// set products
 			$products_params = $this->setProductsParams($products);
+			
 
 			return $products_params;
 		}
@@ -205,94 +206,92 @@ class TwitterApi extends Model {
 		];
 		
 	    
-		$cache_limit = (int) \app\helpers\TwitterHelper::getOrSetLimitFromCache();
-		//echo $cache_limit. "\n";
-
 		do {
-        	
-        	// get data twitter api
+			// get data twitter api
 			$data[$index] = $this->search_tweets($params);
 			//echo $properties['term_searched'];
 
-        	if($data[$index]['rate']['remaining'] < $this->minimum){
+			if($data[$index]['rate']['remaining'] < $this->minimum){
 				// Console::stdout(" limits is: {$this->limit} \n", Console::BOLD);
 				// Console::stdout(" remaining is: {$data[$index]['rate']['remaining']} \n", Console::BOLD);
 				break;
-        	}
-        	// if there 200 status
-        	if($data[$index]['httpstatus'] == 200){
-        		//Console::stdout(" is 200 \n", Console::FG_GREEN);
-        		// if statuses not empty
-        		if(!empty($data[$index]['statuses'])){
-        			$statusCount = count($data[$index]['statuses']);
-        			// check limits
-        			if(!$this->limit){
-        				// set limit
-        				$remaining = $data[$index]['rate']['remaining'];
-	        			$this->limit = $this->_setLimits($remaining);
-	        			//Console::stdout(" set limit: {$this->limit} \n", Console::BOLD);
-        			}
-        			// if there sinceId
-        			if(is_null($sinceId)){
-		              $sinceId = $data[$index]['statuses'][0]['id'] + 1;
-		              //Console::stdout("save one time {$sinceId}.. \n", Console::BOLD);
-		            }
-		            // if there next result
-		            if(ArrayHelper::keyExists('next_results', $data[$index]['search_metadata'], true)){
-		            	// clean next result
-	        			parse_str($data[$index]['search_metadata']['next_results'], $output);
-	        			$params['max_id'] = $output['?max_id']  - 1;
+			}
+			// if there 200 status
+			if($data[$index]['httpstatus'] == 200){
+				//Console::stdout(" is 200 \n", Console::FG_GREEN);
+				// if statuses not empty
+				if(!empty($data[$index]['statuses'])){
+					$statusCount = count($data[$index]['statuses']);
+					// check limits
+					if(!$this->limit){
+						// set limit
+						$remaining = $data[$index]['rate']['remaining'];
+						$this->limit = $this->_setLimits($remaining);
+						//Console::stdout(" set limit: {$this->limit} \n", Console::BOLD);
+					}
+					// if there sinceId
+					if(is_null($sinceId)){
+					  $sinceId = $data[$index]['statuses'][0]['id'] + 1;
+					  //Console::stdout("save one time {$sinceId}.. \n", Console::BOLD);
+					}
+					// if there next result
+					if(ArrayHelper::keyExists('next_results', $data[$index]['search_metadata'], true)){
+						// clean next result
+						parse_str($data[$index]['search_metadata']['next_results'], $output);
+						$params['max_id'] = $output['?max_id']  - 1;
 						$lastId = $output['?max_id'];
 						//Console::stdout(" is next_results with lastId: {$lastId} \n", Console::BOLD);
 
 						// we are over the limit
-			            if($this->limit <= $this->minimum){
-			            	$properties['max_id'] = $lastId;
-			        		$date_searched = $since_date;
-			        		$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
-			        		//Console::stdout(" limit en minimum: {$this->limit} save properties \n", Console::BOLD);
-			              	$this->_saveAlertsMencions($properties);
-			            }
-		            }
-		            
-        			
-        			// echo "====================". "\n";
-	        		// Console::stdout(" get in array {$this->limit} con params: {$params['q']} \n", Console::BOLD);
-	        		// echo "====================". "\n";
-        		// empty status	
-        		}else{
-        			$properties['max_id'] = '';
-        			// is date search is today
-        			$since_date = Yii::$app->formatter->asTimestamp($since_date);
-        			$since_date = intval($since_date);
-        			if(DateHelper::isToday($since_date)){
-        				$properties['since_id'] = $sinceId;
-        				$date_searched = $since_date;
-        				$this->filename = $since_date;
-        			}else{
-        				$date_searched = DateHelper::add($since_date,'1 day');
-        				$date_searched = Yii::$app->formatter->asTimestamp($date_searched);
-        			}
-        			$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
-        			$this->_saveAlertsMencions($properties);
+						if($this->limit <= $this->minimum){
+							$properties['max_id'] = $lastId;
+							$date_searched = $since_date;
+							$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
+							//Console::stdout(" limit en minimum: {$this->limit} save properties \n", Console::BOLD);
+							  $this->_saveAlertsMencions($properties);
+						}
+					}
+					
+					
+					// echo "====================". "\n";
+					// Console::stdout(" get in array {$this->limit} con params: {$params['q']} \n", Console::BOLD);
+					// echo "====================". "\n";
+				// empty status	
+				}else{
+					$properties['max_id'] = '';
+					// is date search is today
+					$since_date = Yii::$app->formatter->asTimestamp($since_date);
+					$since_date = intval($since_date);
+					if(DateHelper::isToday($since_date)){
+						$properties['since_id'] = $sinceId;
+						$date_searched = $since_date;
+						$this->filename = $since_date;
+					}else{
+						$date_searched = DateHelper::add($since_date,'1 day');
+						$date_searched = Yii::$app->formatter->asTimestamp($date_searched);
+					}
+					$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
+					$this->_saveAlertsMencions($properties);
 					break;
 
-        		}
+				}
 
-        		//only for testing
-		        if($this->limit <= $this->minimum){break;}
-        	// is not 200 httpstatus	
-        	}else{
-        		Console::stdout("fail status Twitter {$data[$index]['httpstatus']}.. \n", Console::BOLD);
-        		// lets go
-        		break;
-        	}
+				//only for testing
+				if($this->limit <= $this->minimum){break;}
+			// is not 200 httpstatus	
+			}else{
+				Console::stdout("fail status Twitter {$data[$index]['httpstatus']}.. \n", Console::BOLD);
+				// lets go
+				break;
+			}
 
-        	$index++;
+			$index++;
 			// sub to limit
-        	$this->limit --;
+			$this->limit --;
 
-        }while($this->limit);
+		}while($this->limit);
+
+		
 
         return $data;
 
@@ -587,6 +586,21 @@ class TwitterApi extends Model {
 		],'resourceId = 1')->execute();
 	}
 
+	private function _getTwitterLimit(){
+		
+		$this->codebird->setReturnFormat(CODEBIRD_RETURNFORMAT_ARRAY);
+		$this->codebird->setTimeout(4000);
+		$this->codebird->setConnectionTimeout(9000);
+
+		$data = $this->codebird->application_rateLimitStatus(['resources' => 'search'],true);
+		$remaining = 0;
+		if(count($data)){
+			if(\yii\helpers\ArrayHelper::keyExists('resources', $data)){
+				$remaining = ArrayHelper::getValue($data,'resources.search./search/tweets.remaining');
+			}
+		}
+		return $remaining;
+	}
 
 	function __construct($products_count = 0){
 		// set resource 
@@ -595,6 +609,8 @@ class TwitterApi extends Model {
 		$this->_getTwitterLogin();
 		// set limit
 		$this->products_count = $products_count;
+		$remaining = $this->_getTwitterLimit();
+		$this->limit = $this->_setLimits($remaining);
 		// call the parent __construct
 		parent::__construct(); 
 	}

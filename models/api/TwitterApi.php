@@ -202,97 +202,97 @@ class TwitterApi extends Model {
       	$properties = [
 	      'term_searched' => $product,
 	      'type' => 'tweet',
-	    ];
+		];
+		
 	    
 		$cache_limit = (int) \app\helpers\TwitterHelper::getOrSetLimitFromCache();
-		
+		//echo $cache_limit. "\n";
 
-		if($cache_limit >= $this->minimum){
-			do {
+		do {
         	
-				// get data twitter api
-				$data[$index] = $this->search_tweets($params);
-				if(isset($data[$index]['rate']['remaining'])){
-					\app\helpers\TwitterHelper::getOrSetLimitFromCache($data[$index]['rate']['remaining']);
-				}
-				// if there 200 status
-				if($data[$index]['httpstatus'] == 200){
-				///	Console::stdout(" is 200 \n", Console::FG_GREEN);
-					// if statuses not empty
-					if(!empty($data[$index]['statuses'])){
-						$statusCount = count($data[$index]['statuses']);
-						/*Console::stdout(" total result {$statusCount} \n", Console::BOLD);
-						Console::stdout(" there is statuses limit in {$this->limit} \n", Console::BOLD);
-						Console::stdout(" index in: {$index} \n", Console::BOLD);*/
-						// check limits
-						if(!$this->limit){
-							// set limit
-							$remaining = $data[$index]['rate']['remaining'];
-							$this->limit = $this->_setLimits($remaining);
-							//Console::stdout(" limits is: {$this->limit} \n", Console::BOLD);
-						}
-						// if there sinceId
-						if(is_null($sinceId)){
-						  $sinceId = $data[$index]['statuses'][0]['id'] + 1;
-						  //Console::stdout("save one time {$sinceId}.. \n", Console::BOLD);
-						}
-						// if there next result
-						if(ArrayHelper::keyExists('next_results', $data[$index]['search_metadata'], true)){
-							// clean next result
-							parse_str($data[$index]['search_metadata']['next_results'], $output);
-							$params['max_id'] = $output['?max_id']  - 1;
-							$lastId = $output['?max_id'];
-							//Console::stdout(" is next_results with lastId: {$lastId} \n", Console::BOLD);
-	
-							// we are over the limit
-							if($this->limit <= $this->minimum){
-								$properties['max_id'] = $lastId;
-								$date_searched = $since_date;
-								$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
-								//Console::stdout(" limit en minimum: {$this->limit} save properties \n", Console::BOLD);
-								  $this->_saveAlertsMencions($properties);
-							}
-						}
-						
-						
-						/*echo "====================". "\n";
-						Console::stdout(" get in array {$this->limit} con params: {$params['q']} \n", Console::BOLD);
-						echo "====================". "\n";*/
-					// empty status	
-					}else{
-						$properties['max_id'] = '';
-						// is date search is today
-						$since_date = Yii::$app->formatter->asTimestamp($since_date);
-						$since_date = intval($since_date);
-						if(DateHelper::isToday($since_date)){
-							$properties['since_id'] = $sinceId;
-							$date_searched = $since_date;
-							$this->filename = $since_date;
-						}else{
-							$date_searched = DateHelper::add($since_date,'1 day');
-						}
-						$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
-						$this->_saveAlertsMencions($properties);
-						break;
-	
-					}
-	
-					//only for testing
-					if($this->limit <= $this->minimum){break;}
-				// is not 200 httpstatus	
-				}else{
-					//Console::stdout("fail status {$data[$index]['httpstatus']}.. \n", Console::BOLD);
-					// lets go
-					break;
-				}
-	
-				$index++;
-				// sub to limit
-				$this->limit --;
-	
-			}while($this->limit);
+        	// get data twitter api
+			$data[$index] = $this->search_tweets($params);
+			//echo $properties['term_searched'];
 
-		}
+        	if($data[$index]['rate']['remaining'] < $this->minimum){
+				// Console::stdout(" limits is: {$this->limit} \n", Console::BOLD);
+				// Console::stdout(" remaining is: {$data[$index]['rate']['remaining']} \n", Console::BOLD);
+				break;
+        	}
+        	// if there 200 status
+        	if($data[$index]['httpstatus'] == 200){
+        		//Console::stdout(" is 200 \n", Console::FG_GREEN);
+        		// if statuses not empty
+        		if(!empty($data[$index]['statuses'])){
+        			$statusCount = count($data[$index]['statuses']);
+        			// check limits
+        			if(!$this->limit){
+        				// set limit
+        				$remaining = $data[$index]['rate']['remaining'];
+	        			$this->limit = $this->_setLimits($remaining);
+	        			//Console::stdout(" set limit: {$this->limit} \n", Console::BOLD);
+        			}
+        			// if there sinceId
+        			if(is_null($sinceId)){
+		              $sinceId = $data[$index]['statuses'][0]['id'] + 1;
+		              //Console::stdout("save one time {$sinceId}.. \n", Console::BOLD);
+		            }
+		            // if there next result
+		            if(ArrayHelper::keyExists('next_results', $data[$index]['search_metadata'], true)){
+		            	// clean next result
+	        			parse_str($data[$index]['search_metadata']['next_results'], $output);
+	        			$params['max_id'] = $output['?max_id']  - 1;
+						$lastId = $output['?max_id'];
+						//Console::stdout(" is next_results with lastId: {$lastId} \n", Console::BOLD);
+
+						// we are over the limit
+			            if($this->limit <= $this->minimum){
+			            	$properties['max_id'] = $lastId;
+			        		$date_searched = $since_date;
+			        		$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
+			        		//Console::stdout(" limit en minimum: {$this->limit} save properties \n", Console::BOLD);
+			              	$this->_saveAlertsMencions($properties);
+			            }
+		            }
+		            
+        			
+        			// echo "====================". "\n";
+	        		// Console::stdout(" get in array {$this->limit} con params: {$params['q']} \n", Console::BOLD);
+	        		// echo "====================". "\n";
+        		// empty status	
+        		}else{
+        			$properties['max_id'] = '';
+        			// is date search is today
+        			$since_date = Yii::$app->formatter->asTimestamp($since_date);
+        			$since_date = intval($since_date);
+        			if(DateHelper::isToday($since_date)){
+        				$properties['since_id'] = $sinceId;
+        				$date_searched = $since_date;
+        				$this->filename = $since_date;
+        			}else{
+        				$date_searched = DateHelper::add($since_date,'1 day');
+        				$date_searched = Yii::$app->formatter->asTimestamp($date_searched);
+        			}
+        			$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
+        			$this->_saveAlertsMencions($properties);
+					break;
+
+        		}
+
+        		//only for testing
+		        if($this->limit <= $this->minimum){break;}
+        	// is not 200 httpstatus	
+        	}else{
+        		Console::stdout("fail status Twitter {$data[$index]['httpstatus']}.. \n", Console::BOLD);
+        		// lets go
+        		break;
+        	}
+
+        	$index++;
+			// sub to limit
+        	$this->limit --;
+
+        }while($this->limit);
 
         return $data;
 

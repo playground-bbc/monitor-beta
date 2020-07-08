@@ -82,8 +82,11 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                // rules module products
                 'products' => 'products/default/index',
-                'products/create' => 'products/default/create',
+                'products/series' => 'products/products-series/index',
+                'products/series/create' => 'products/products-series/create',
+                // end rules module products
             ],
         ],
         

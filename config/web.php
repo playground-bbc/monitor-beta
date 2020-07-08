@@ -26,6 +26,9 @@ $config = [
         'user' => [
             'class' => 'app\modules\user\Module',
         ],
+        'products' => [
+            'class' => 'app\modules\products\Module',
+        ],
         // kartik
         'gridview' => [
             'class' => '\kartik\grid\Module',
@@ -79,6 +82,8 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'products' => 'products/default/index',
+                'products/create' => 'products/default/create',
             ],
         ],
         

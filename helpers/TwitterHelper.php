@@ -73,7 +73,10 @@ class TwitterHelper
 		],'resourceId ='.$resourceId)->execute();
 	}
 
-
+	/**
+	 * [getLocationsForTopicId topic location by topic module]
+	 * @param [int] $topicId [description]
+	 */
 	public static function getLocationsForTopicId($topicId)
 	{
 		$topic = \app\modules\topic\models\MTopics::findOne($topicId);
@@ -86,25 +89,6 @@ class TwitterHelper
 			}
 		}
 		return $locations;
-	}
-
-
-	public static function getOrSetLimitFromCache($limit= null){
-		$key = "twitter__app_auth";
-		$cache = \Yii::$app->cache;
-		$data = $cache->get($key);
-		$time_expired = 900; // seconds 900 in a 15 minutes 
-		
-		if($data === false){
-			$cache->set($key, 450, $time_expired);
-		}
-
-		if(!is_null($limit)){
-			$data = $cache->set($key, $limit, $time_expired);
-		}
-		
-		return $data;
-
 	}
 }
 

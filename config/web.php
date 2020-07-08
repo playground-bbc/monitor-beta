@@ -84,8 +84,8 @@ $config = [
             'rules' => [
                 // rules module products
                 'products' => 'products/default/index',
-                'products/series' => 'products/products-series/index',
-                'products/series/create' => 'products/products-series/create',
+                // 'products/series' => 'products/products-series/index',
+                // 'products/series/create' => 'products/products-series/create',
                 // end rules module products
             ],
         ],

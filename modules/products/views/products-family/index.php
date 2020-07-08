@@ -15,7 +15,7 @@ use yii\widgets\Pjax;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Create Products Family'), ['products-family/create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Crear Sub Categoria'), ['products-family/create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -36,7 +36,28 @@ use yii\widgets\Pjax;
             //'createdBy',
             //'updatedBy',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{update}',
+                'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
+                'buttons' => [
+                    'delete' => function($url, $model){
+                        return Html::a('<span class="glyphicon glyphicon-trash"></span>', ['products-family/delete', 'id' => $model->id], [
+                            'class' => '',
+                            'data' => [
+                                'confirm' => 'Are you absolutely sure ? You will lose all the information about this user with this action.',
+                                'method' => 'post',
+                            ],
+                        ]);
+                    },
+                    'update' => function($url,$model){
+                        return Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['products-family/update', 'id' => $model->id]);
+                    },
+                    'view' => function($url,$model){
+                        return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['products-family/view', 'id' => $model->id]);
+                    }
+                ]
+            ],
         ],
     ]); ?>
 

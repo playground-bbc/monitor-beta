@@ -35,7 +35,7 @@ class ProductsFamily extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['seriesId'], 'required'],
+            [['seriesId','name'], 'required'],
             [['seriesId', 'status', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['seriesId'], 'exist', 'skipOnError' => true, 'targetClass' => ProductsSeries::className(), 'targetAttribute' => ['seriesId' => 'id']],

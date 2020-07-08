@@ -36,6 +36,7 @@ use yii\widgets\Pjax;
 
             [
                 'class' => 'yii\grid\ActionColumn',
+                'template' => '{update}',
                 'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
                 'buttons' => [
                     'delete' => function($url, $model){

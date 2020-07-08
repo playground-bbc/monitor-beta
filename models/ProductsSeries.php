@@ -36,6 +36,7 @@ class ProductsSeries extends \yii\db\ActiveRecord
         return [
             [['status', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name', 'abbreviation_name'], 'string', 'max' => 255],
+            [['name', 'abbreviation_name'], 'required'],
         ];
     }
 

@@ -51,7 +51,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="products-default-index">
-    <h1><?= $this->context->action->uniqueId ?></h1>
     <?php
         // Left
         echo TabsX::widget([

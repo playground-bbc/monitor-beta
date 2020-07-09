@@ -67,7 +67,13 @@ class ProductCategoriesController extends Controller
         $model = new ProductCategories();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            if(Yii::$app->request->post('redirect')){
+                $model = new ProductCategories();
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }
+            return $this->redirect(['/products/default']);
         }
 
         return $this->render('create', [
@@ -87,7 +93,13 @@ class ProductCategoriesController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            if(Yii::$app->request->post('redirect')){
+                $model = new ProductCategories();
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }
+            return $this->redirect(['/products/default']);  
         }
 
         return $this->render('update', [
@@ -106,7 +118,7 @@ class ProductCategoriesController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        return $this->redirect(['/products/default']);
     }
 
     /**

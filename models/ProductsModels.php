@@ -34,7 +34,7 @@ class ProductsModels extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['productId'], 'required'],
+            [['productId','name'], 'required'],
             [['productId', 'status', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['productId'], 'exist', 'skipOnError' => true, 'targetClass' => Products::className(), 'targetAttribute' => ['productId' => 'id']],

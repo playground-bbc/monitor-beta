@@ -14,6 +14,7 @@ use yii\filters\VerbFilter;
  */
 class ProductsModelsController extends Controller
 {
+    private $itemId = 4;
     /**
      * {@inheritdoc}
      */
@@ -66,14 +67,19 @@ class ProductsModelsController extends Controller
     {
         $model = new ProductsModels();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', "Success created successfully: {$model->name}");
+            } else {
+                Yii::$app->session->setFlash('error', "Error not saved.");
+            }
             if(Yii::$app->request->post('redirect')){
                 $model = new ProductsModels();
                 return $this->render('create', [
                     'model' => $model,
                 ]);
             }
-            return $this->redirect(['/products/default']);
+            return $this->redirect(['/products/default','itemId' => $this->itemId]);
         }
 
         return $this->render('create', [
@@ -92,14 +98,19 @@ class ProductsModelsController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', "Success update successfully: {$model->name}");
+            } else {
+                Yii::$app->session->setFlash('error', "Error not saved.");
+            }
             if(Yii::$app->request->post('redirect')){
                 $model = new ProductsModels();
                 return $this->render('create', [
                     'model' => $model,
                 ]);
             }
-            return $this->redirect(['/products/default']);
+            return $this->redirect(['/products/default','itemId' => $this->itemId]);
         }
 
         return $this->render('update', [
@@ -118,7 +129,7 @@ class ProductsModelsController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['/products/default']);
+        return $this->redirect(['/products/default','itemId' => $this->itemId]);
     }
 
     /**

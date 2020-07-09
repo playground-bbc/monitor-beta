@@ -50,7 +50,13 @@ $itemId = (\Yii::$app->request->get('itemId',0) > count($items)) ? 0 : \Yii::$ap
 $items[$itemId]['active'] =true;
 $this->title = Yii::t('app', 'Products');
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
+<?php if (Yii::$app->session->hasFlash('success')): ?>
+<?php endif; ?>
+
+<?php if (Yii::$app->session->hasFlash('error')): ?>
+<?php endif; ?>
 
 <div class="products-default-index">
     <?php

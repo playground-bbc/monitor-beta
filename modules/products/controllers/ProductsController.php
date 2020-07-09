@@ -67,7 +67,12 @@ class ProductsController extends Controller
     {
         $model = new Products();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', "Success created successfully: {$model->name}");
+            } else {
+                Yii::$app->session->setFlash('error', "Error not saved.");
+            }
             if(Yii::$app->request->post('redirect')){
                 $model = new Products();
                 return $this->render('create', [
@@ -93,7 +98,12 @@ class ProductsController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', "Success update successfully: {$model->name}");
+            } else {
+                Yii::$app->session->setFlash('error', "Error not saved.");
+            }
             if(Yii::$app->request->post('redirect')){
                 $model = new Products();
                 return $this->render('create', [

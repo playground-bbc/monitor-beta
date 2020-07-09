@@ -36,7 +36,7 @@ class Products extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['categoryId'], 'required'],
+            [['categoryId','name'], 'required'],
             [['categoryId', 'status', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['categoryId'], 'exist', 'skipOnError' => true, 'targetClass' => ProductCategories::className(), 'targetAttribute' => ['categoryId' => 'id']],

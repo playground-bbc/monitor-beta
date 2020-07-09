@@ -14,6 +14,7 @@ use yii\filters\VerbFilter;
  */
 class ProductsFamilyController extends Controller
 {
+    private $itemId = 1;
     /**
      * {@inheritdoc}
      */
@@ -73,7 +74,7 @@ class ProductsFamilyController extends Controller
                     'model' => $model,
                 ]);
             }
-            return $this->redirect(['/products/default']);
+            return $this->redirect(['/products/default','itemId' => $this->itemId]);
         }
 
         return $this->render('create', [
@@ -99,7 +100,7 @@ class ProductsFamilyController extends Controller
                     'model' => $model,
                 ]);
             }
-            return $this->redirect(['/products/default']);
+            return $this->redirect(['/products/default','itemId' => $this->itemId]);
         }
 
         return $this->render('update', [
@@ -118,7 +119,7 @@ class ProductsFamilyController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['/products/default']);
+        return $this->redirect(['/products/default','itemId' => $this->itemId]);
     }
 
     /**

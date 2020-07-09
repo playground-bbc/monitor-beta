@@ -14,6 +14,7 @@ use yii\filters\VerbFilter;
  */
 class ProductsController extends Controller
 {
+    private $itemId = 3;
     /**
      * {@inheritdoc}
      */
@@ -67,7 +68,13 @@ class ProductsController extends Controller
         $model = new Products();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            if(Yii::$app->request->post('redirect')){
+                $model = new Products();
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }
+            return $this->redirect(['/products/default','itemId' => $this->itemId]);
         }
 
         return $this->render('create', [
@@ -87,7 +94,13 @@ class ProductsController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            if(Yii::$app->request->post('redirect')){
+                $model = new Products();
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }
+            return $this->redirect(['/products/default','itemId' => $this->itemId]);
         }
 
         return $this->render('update', [
@@ -105,8 +118,7 @@ class ProductsController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        return $this->redirect(['/products/default','itemId' => $this->itemId]);
     }
 
     /**

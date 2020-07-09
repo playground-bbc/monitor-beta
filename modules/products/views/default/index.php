@@ -8,7 +8,7 @@ $items = [
             'searchModel' => $productSeriesSearchModel,
             'dataProvider' => $productSeriesDataProvider,
         ]),
-        'active'=>true
+       // 'active'=>true
     ],
     [
         'label'=>'<i class="fas fa-user"></i> Sub Categorias',
@@ -46,6 +46,8 @@ $items = [
     ],
    
 ];
+$itemId = (\Yii::$app->request->get('itemId',0) > count($items)) ? 0 : \Yii::$app->request->get('itemId',0);
+$items[$itemId]['active'] =true;
 $this->title = Yii::t('app', 'Products');
 $this->params['breadcrumbs'][] = $this->title;
 ?>

@@ -36,7 +36,28 @@ use yii\widgets\Pjax;
             //'createdBy',
             //'updatedBy',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                //'template' => '{update}',
+                'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
+                'buttons' => [
+                    'delete' => function($url, $model){
+                        return Html::a('<span class="glyphicon glyphicon-trash"></span>', ['products-models/delete', 'id' => $model->id], [
+                            'class' => '',
+                            'data' => [
+                                'confirm' => 'Are you absolutely sure ? You will lose all the information about this user with this action.',
+                                'method' => 'post',
+                            ],
+                        ]);
+                    },
+                    'update' => function($url,$model){
+                        return Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['products-models/update', 'id' => $model->id]);
+                    },
+                    'view' => function($url,$model){
+                        return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['products-models/view', 'id' => $model->id]);
+                    }
+                ]
+            ],
         ],
     ]); ?>
 

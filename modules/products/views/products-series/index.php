@@ -25,11 +25,11 @@ use yii\widgets\Pjax;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
+            //'id',
             'name',
             'abbreviation_name',
-            'status',
-            'createdAt',
+            // 'status',
+            // 'createdAt',
             //'updatedAt',
             //'createdBy',
             //'updatedBy',

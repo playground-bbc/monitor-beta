@@ -27,11 +27,30 @@ use yii\widgets\Pjax;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
-            'categoryId',
+            //'id',
+            [
+                'label' => Yii::t('app','Producto'),
+                'format'    => 'raw',
+                'attribute' => 'categoryId',
+                'filter' => kartik\select2\Select2::widget([
+                     'data' => \yii\helpers\ArrayHelper::map(\app\models\ProductCategories::find()->all(),'id','name'),
+                     'name' => 'ProductsSearch[categoryId]',
+                     'value' => $searchModel['categoryId'],
+                     'attribute' => 'categoryId',
+                     'options' => ['placeholder' => 'Selecione un Producto...','multiple' => false],
+                     'theme' => 'krajee',
+                     'hideSearch' => true,
+                     'pluginOptions' => [
+                           'allowClear' => true,
+                      ],
+                ]),
+                'value' => function($model) {
+                   return $model->category->name;
+                }
+            ],
             'name',
-            'status',
-            'createdAt',
+            // 'status',
+            // 'createdAt',
             //'updatedAt',
             //'createdBy',
             //'updatedBy',

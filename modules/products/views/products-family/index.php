@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use kartik\select2\Select2;
 /* @var $this yii\web\View */
 /* @var $searchModel app\modules\products\models\ProductsFamilySearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -27,11 +28,30 @@ use yii\widgets\Pjax;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
-            'seriesId',
+            //'id',
+            [
+                'label' => Yii::t('app','Categoria'),
+                'format'    => 'raw',
+                'attribute' => 'seriesId',
+                'filter' => Select2::widget([
+                     'data' => \yii\helpers\ArrayHelper::map(\app\models\ProductsSeries::find()->all(),'id','name'),
+                     'name' => 'ProductsFamilySearch[seriesId]',
+                     'value' => $searchModel['seriesId'],
+                     'attribute' => 'seriesId',
+                     'options' => ['placeholder' => 'Selecione una Categoria...','multiple' => false],
+                     'theme' => 'krajee',
+                     'hideSearch' => true,
+                     'pluginOptions' => [
+                           'allowClear' => true,
+                      ],
+                ]),
+                'value' => function($model) {
+                    return $model->series->name;
+                }
+            ],
             'name',
-            'status',
-            'createdAt',
+            // 'status',
+            // 'createdAt',
             //'updatedAt',
             //'createdBy',
             //'updatedBy',

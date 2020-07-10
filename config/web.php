@@ -87,7 +87,6 @@ $config = [
                 // products-series = categorias
                 'products/categorias/create' => 'products/products-series/create',
                 'products/categorias/update' => 'products/products-series/update',
-                //'products/categorias/check-products' => 'products/products-series/check-products',
                 // products-family = subcategorias
                 'products/subcategorias/create' => 'products/products-family/create',
                 'products/subcategorias/update' => 'products/products-family/update',

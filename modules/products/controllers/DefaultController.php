@@ -65,5 +65,33 @@ class DefaultController extends Controller
         ]);
     }
 
+    public function actionCheckProducts($value){
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $tablesNames = [
+            \app\models\ProductsSeries::tableName(),
+            \app\models\ProductsFamily::tableName(),
+            \app\models\ProductCategories::tableName(),
+            \app\models\Products::tableName(),
+            \app\models\ProductsModels::tableName(),
+        ];
+        $expression = new \yii\db\Expression('LOWER(`name`) = LOWER("'.$value.'")');
+
+        for ($t=0; $t < sizeOf($tablesNames) ; $t++) { 
+            $rows = (new \yii\db\Query())
+            ->cache(5)
+            ->select(['id','name'])
+            ->from($tablesNames[$t])
+            ->where($expression)
+            ->all();
+            
+            if(count($rows)){
+               $rows['tableName'] = $tablesNames[$t];
+               break;
+            }
+        }
+
+        
+        return (count($rows)) ? $rows : '';
+    }
     
 }

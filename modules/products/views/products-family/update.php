@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\ProductsFamily */
 
-$this->title = Yii::t('app', 'Update Sub Categories: {name}', [
+$this->title = Yii::t('app', 'Actualizar Sub Categorias: {name}', [
     'name' => $model->name,
 ]);
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Productos'), 'url' => ['default/index','itemId' =>1]];

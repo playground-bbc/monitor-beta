@@ -19,7 +19,7 @@ $items = [
         ]),
     ],
     [
-        'label'=>'<i class="fas fa-user"></i> Modelos',
+        'label'=>'<i class="fas fa-user"></i>Productos',
         'content'=> \Yii::$app->controller->renderPartial('/product-categories/index',
         [
             'searchModel' => $ProductCategoriesSearchModel,
@@ -27,7 +27,7 @@ $items = [
         ]),
     ],
     [
-        'label'=>'<i class="fas fa-user"></i> Productos',
+        'label'=>'<i class="fas fa-user"></i> Modelos',
         'content'=> \Yii::$app->controller->renderPartial('/products/index',
         [
             'searchModel' => $productSearchModel,

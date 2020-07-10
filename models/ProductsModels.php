@@ -35,6 +35,7 @@ class ProductsModels extends \yii\db\ActiveRecord
     {
         return [
             [['productId','name'], 'required'],
+            [['name'],\app\components\ProductsValidator::className()],
             [['productId', 'status', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['productId'], 'exist', 'skipOnError' => true, 'targetClass' => Products::className(), 'targetAttribute' => ['productId' => 'id']],

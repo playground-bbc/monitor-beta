@@ -15,7 +15,7 @@ use yii\widgets\Pjax;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Create Products Models'), ['products-models/create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Crear Codigos de Productos'), ['products-models/create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -39,7 +39,7 @@ use yii\widgets\Pjax;
                      'attribute' => 'productId',
                      'options' => ['placeholder' => 'Selecione un Modelo...','multiple' => false],
                      'theme' => 'krajee',
-                     'hideSearch' => true,
+                     'hideSearch' => false,
                      'pluginOptions' => [
                            'allowClear' => true,
                       ],

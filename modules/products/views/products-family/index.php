@@ -58,7 +58,7 @@ use kartik\select2\Select2;
 
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{update}{delete}',
+                'template' => '{update}',
                 'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
                 'buttons' => [
                     'delete' => function($url, $model){

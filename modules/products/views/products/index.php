@@ -15,7 +15,7 @@ use yii\widgets\Pjax;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Create Products'), ['products/create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Crear Modelos'), ['products/create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -39,7 +39,7 @@ use yii\widgets\Pjax;
                      'attribute' => 'categoryId',
                      'options' => ['placeholder' => 'Selecione un Producto...','multiple' => false],
                      'theme' => 'krajee',
-                     'hideSearch' => true,
+                     'hideSearch' => false,
                      'pluginOptions' => [
                            'allowClear' => true,
                       ],
@@ -57,7 +57,7 @@ use yii\widgets\Pjax;
 
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{update}{delete}',
+                'template' => '{update}',
                 'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
                 'buttons' => [
                     'delete' => function($url, $model){

@@ -43,11 +43,21 @@ AppAsset::register($this);
         ],
     ]);
     echo Nav::widget([
+        'encodeLabels' => false,
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
             ['label' => 'Logs', 'url' => ['/user/logs'],'visible' => $condition], 
             ['label' => 'Menciones', 'url' => ['/topic/']],
-            ['label' => 'Monitor', 'url' => ['/monitor/alert/index']],
+            [
+                'label' => 'Monitor',
+                'items' => [
+                    ['label' => 'Monitor', 'url' => ['/monitor/alert/index']],
+                     '<li class="divider"></li>',
+                     '<li class="dropdown-header"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configuraciones</li>',
+                     ['label' => '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear Productos', 'url' => ['/products/']],
+                ],
+            ],
+            //['label' => 'Monitor', 'url' => ['/monitor/alert/index']],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
             ) : (

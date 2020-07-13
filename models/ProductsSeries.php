@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use app\components\ProductsValidator;
 
 /**
  * This is the model class for table "products_series".
@@ -36,7 +37,17 @@ class ProductsSeries extends \yii\db\ActiveRecord
         return [
             [['status', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name', 'abbreviation_name'], 'string', 'max' => 255],
+            [['abbreviation_name'],ProductsValidator::className()],
+            [['name', 'abbreviation_name'], 'required'],
         ];
+    }
+
+    public function checklength($attribute, $params){
+        if(strlen($this->abbreviation_name) < 2){
+            $this->addError($attribute, Yii::t('app', 'At least 1 of the field must be filled up properly'));
+            return false;
+        }
+        return true;
     }
 
     /**

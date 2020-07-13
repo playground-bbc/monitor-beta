@@ -26,6 +26,9 @@ $config = [
         'user' => [
             'class' => 'app\modules\user\Module',
         ],
+        'products' => [
+            'class' => 'app\modules\products\Module',
+        ],
         // kartik
         'gridview' => [
             'class' => '\kartik\grid\Module',
@@ -79,6 +82,24 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                // rules module products
+                'products' => 'products/default/index',
+                // products-series = categorias
+                'products/categorias/create' => 'products/products-series/create',
+                'products/categorias/update' => 'products/products-series/update',
+                // products-family = subcategorias
+                'products/subcategorias/create' => 'products/products-family/create',
+                'products/subcategorias/update' => 'products/products-family/update',
+                // product-categories = product
+                'products/product/create' => 'products/product-categories/create',
+                'products/product/update' => 'products/product-categories/update',
+                // products = models
+                'products/models/create' => 'products/products/create',
+                'products/models/update' => 'products/products/update',
+                // products-models = products-code
+                'products/products-code/create' => 'products/products-models/create',
+                'products/products-code/update' => 'products/products-models/update',
+                // end rules module products
             ],
         ],
         

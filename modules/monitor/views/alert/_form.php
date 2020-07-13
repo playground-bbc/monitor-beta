@@ -68,7 +68,7 @@ if (!$alert->isNewRecord) {
             </div>
             <!-- dictionaries and social -->
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <?= $form->field($alert, 'alertResourceId')->widget(Select2::classname(), [
                             'data' => $alert->social,
                             'options' => [
@@ -140,7 +140,7 @@ if (!$alert->isNewRecord) {
                         ]);
                     ?>
                 </div>
-                <sync-product></sync-product>
+                <!-- <sync-product></sync-product> -->
             </div>
             <!-- config properties-->
             <div class="row">

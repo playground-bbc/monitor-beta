@@ -4,6 +4,8 @@ namespace app\modules\products\controllers;
 
 use Yii;
 use yii\web\Controller;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 
 use app\models\ProductsSeries;
 use app\modules\products\models\ProductsSeriesSearch;
@@ -25,6 +27,26 @@ use app\modules\products\models\ProductsModelsSearch;
  */
 class DefaultController extends Controller
 {
+
+     /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'create', 'view'],
+                'rules' => [
+                    [
+                        // 'actions' => ['create'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
     /**
      * Renders the index view for the module
      * @return string
@@ -64,7 +86,10 @@ class DefaultController extends Controller
             'productModeldataProvider' => $productModeldataProvider,
         ]);
     }
-
+    /**
+     * Returns true if products exits
+     * @return Boolean
+     */
     public function actionCheckProducts($value){
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $tablesNames = [

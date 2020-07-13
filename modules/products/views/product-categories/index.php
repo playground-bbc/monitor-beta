@@ -9,6 +9,14 @@ use yii\widgets\Pjax;
 
 // $this->title = Yii::t('app', 'Product Categories');
 // $this->params['breadcrumbs'][] = $this->title;
+if(isset(Yii::$app->user->identity->username)){
+    $usernames = ['admin'];
+    $template = (in_array(Yii::$app->user->identity->username,$usernames))? '{update}{delete}{view}' : '{update}';
+}else{
+    $template = '{update}';
+}
+
+
 ?>
 <div class="product-categories-index">
 
@@ -58,7 +66,7 @@ use yii\widgets\Pjax;
 
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{update}',
+                'template' => $template,
                 'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
                 'buttons' => [
                     'delete' => function($url, $model){

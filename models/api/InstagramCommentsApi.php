@@ -172,6 +172,8 @@ class InstagramCommentsApi extends Model {
 
 					// if get error data
 					if(\yii\helpers\ArrayHelper::getValue($posts->getData(),'error' ,false)){
+						$error = \yii\helpers\ArrayHelper::getValue($posts->getData(),'error' ,false);
+						var_dump($error);
 						// send email with data $responseData[$index]['error']['message']
 						break;
 					}

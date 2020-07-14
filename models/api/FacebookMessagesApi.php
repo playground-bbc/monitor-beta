@@ -188,7 +188,7 @@ class FacebookMessagesApi extends Model {
 			    	$responseHeaders = $messagesResponse->headers->get('x-business-use-case-usage'); // get headers
 			    	// if get error data
 					if(\yii\helpers\ArrayHelper::getValue($messagesResponse->getData(),'error' ,false)){
-						echo $responseData[$index]['error']['message'];
+						var_dump($messagesResponse->getData());
 						// send email with data $responseData[$index]['error']['message']
 						break;
 					}

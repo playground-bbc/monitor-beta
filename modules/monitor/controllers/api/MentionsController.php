@@ -512,76 +512,81 @@ class MentionsController extends Controller
   public function actionMentionOnDate($alertId){
    
     //menciones por recurso y fecha
-    $expression = new Expression("created_time,DATE(FROM_UNIXTIME(created_time)) AS date,COUNT(*) AS total");
-    $expressionGroup = new Expression("created_time,DATE(FROM_UNIXTIME(created_time))");
+    $expression = new Expression("created_time,r.name,DATE(FROM_UNIXTIME(created_time)) AS date,COUNT(*) AS total");
+    //$expressionGroup = new Expression("created_time,DATE(FROM_UNIXTIME(created_time))");
     
-    $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
+    $alertMentions = \app\models\AlertsMencions::find()->select('id')->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->asArray()->all();
+    $alertMentionsIds = \yii\helpers\ArrayHelper::getColumn($alertMentions, 'id');
     
     $resourceDateCount = [];
     $resourceNames = [];
     
-    foreach ($alertMentions as $alertMention){
-      if($alertMention->mentionsCount){
-        if(!in_array($alertMention->resources,$resourceDateCount)){
-          $rows = (new \yii\db\Query())
-          ->select($expression)
-          ->from('mentions')
-          ->where(['alert_mentionId' => $alertMention->id])
-          ->orderBy('created_time ASC')
-          ->groupBy($expressionGroup)
-          ->all();
-          if(!in_array($alertMention->resources->name, $resourceNames)){
-            $resourceNames[] = $alertMention->resources->name;
-          }
-
-          foreach ($rows as $row){
-            $date = $row['date'];
-            $row['created_time'] = $date;
-            $row['product_searched'] = $alertMention->term_searched;
-            $row['resourceName'] = $alertMention->resources->name;
-            $resourceDateCount[] = $row;  
-          }
-
-          
-        } // end if in_array
-
-      }// is not null 
-      
-    }// end foreach
-
-    \yii\helpers\ArrayHelper::multisort($resourceDateCount, ['created_time'], [SORT_ASC]);
-
-    $data = [];
-    for ($r=0; $r < sizeof($resourceDateCount) ; $r++) { 
-      $data[$resourceDateCount[$r]['date']][] = $resourceDateCount[$r];
-    }
+    $rows = (new \yii\db\Query())
+    ->select($expression)
+    ->from('mentions')
+    ->where(['alert_mentionId' => $alertMentionsIds])
+    ->join('JOIN','alerts_mencions a', 'alert_mentionId = a.id')
+    ->join('JOIN','resources r', 'r.id = a.resourcesId')
+    ->orderBy('created_time ASC')
+    ->groupBy('date')
+    ->all();
 
 
+    \yii\helpers\ArrayHelper::multisort($rows, ['created_time'], [SORT_ASC]);
 
+    
+
+    $result = ArrayHelper::index($rows, null, 'name');
+    
+     
     $model = array();
-    $i = 0;
-    foreach ($data as $date => $values) {
-      $model[$i] = array($date);
-      $b = 1;
-      foreach ($resourceNames as $index => $resourceName) {
-        $model[$i][$b] = 0;
-        for ($v=0; $v <sizeof($values) ; $v++) { 
-          if ($resourceName == $values[$v]['resourceName']) {
-              if(!empty($model[$i][$b])){
-                $model[$i][$b] += $values[$v]['total'];
-              }else{
-                $model[$i][$b] =  (int) $values[$v]['total'];
-              }
-              
-          }
+    $colors = ['Facebook Comments' => '#FF9933','Instagram Comments' => '#AF5533'];
+    $index = 0; 
+    foreach ($result as $resourceName => $data){
+      if(count($data)){
+        $model[$index]['name'] = $resourceName;
+        for($d = 0; $d < sizeOf($data); $d++){
+          $date = \app\helpers\DateHelper::asTimestamp($data[$d]['date'])."000";
+          $model[$index]['data'][] = array((int)$date,(int)$data[$d]['total']);
         }
-        $b++;
+        $model[$index]['color'] = $colors[$resourceName];
+        $index++;
       }
-      $i ++;
     }
+   
+
+    // $data = [];
+    // for ($r=0; $r < sizeof($resourceDateCount) ; $r++) { 
+    //   $data[$resourceDateCount[$r]['date']][] = $resourceDateCount[$r];
+    // }
+
+     
+
+    // $model = array();
+    // $i = 0;
+    // foreach ($data as $date => $values) {
+    //   $model[$i] = array($date);
+    //   $b = 1;
+    //   foreach ($resourceNames as $index => $resourceName) {
+    //     $model[$i][$b] = 0;
+    //     for ($v=0; $v <sizeof($values) ; $v++) { 
+    //       if ($resourceName == $values[$v]['resourceName']) {
+    //           if(!empty($model[$i][$b])){
+    //             $model[$i][$b] += $values[$v]['total'];
+    //           }else{
+    //             $model[$i][$b] =  (int) $values[$v]['total'];
+    //           }
+              
+    //       }
+    //     }
+    //     $b++;
+    //   }
+    //   $i ++;
+    // }
 
     //return array('resourceDateCount'=>$resourceDateCount);
-    return array('status'=>true,'model' => $model,'resourceNames' => $resourceNames);  
+    //return array('status'=>true,'model' => $model,'resourceNames' => $resourceNames);  
+    return array('status'=>true,'model' => $model);  
   }
 
 

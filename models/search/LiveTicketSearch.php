@@ -260,8 +260,8 @@ class LiveTicketSearch {
             if(!is_numeric($word)){
                 $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
                     [
-                        'mention_socialId' => $mention->social_id,
-                        'name' => $word,
+                        'alert_mentionId' => $alertsMencionId,
+                        'name' => $word 
                     ]
                 )->exists();
                 if (!$is_words_exists) {
@@ -271,7 +271,6 @@ class LiveTicketSearch {
                     $model->name = $word;
                     $model->weight = $weight; 
                 } else {
-                    
                     $model = \app\models\AlertsMencionsWords::find()->where(
                         [
                             'alert_mentionId' => $alertsMencionId,

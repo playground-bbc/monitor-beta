@@ -521,7 +521,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
 });
 
 /**
- * [componente que muestra grafico de post por fecha (no terminado en el backend)]
+ * [componente que muestra grafico de post por fecha]
  * template: '#view-total-resources-chart' [description]
  * @return {[component]}           [component]
  */
@@ -649,6 +649,93 @@ const count_resources_date_chat = Vue.component("count-date-resources-chart", {
   },
 });
 
+/**
+ * [componente que muestra grafico de post por fecha (Higchart)]
+ * template: '#view-total-resources-chart' [description]
+ * @return {[component]}           [component]
+ */
+const date_chart = Vue.component("date-chart", {
+  props: ["is_change"],
+  template: "#view-date-chart",
+  data: function () {
+    return {
+      alertId: id,
+      response: [],
+      headers: [],
+      loaded: false,
+      dataTable: null,
+      view: null,
+    };
+  },
+  mounted() {
+    // get firts data
+    this.fetchResourceCount();
+    // load chart
+    if (this.loaded) {
+      this.drawColumnChart();
+    }
+
+    setInterval(
+      function () {
+        if (this.loaded) {
+          this.drawColumnChart();
+        }
+        if (this.is_change) {
+          this.fetchResourceCount();
+        }
+      }.bind(this),
+      refreshTime
+    );
+  },
+  watch: {
+    isChange: function (val, oldVal) {
+      if (val) {
+        console.log("change is happen !!");
+        this.fetchResourceCount();
+      }
+    },
+  },
+  methods: {
+    fetchResourceCount() {
+      getCountDateResources(this.alertId)
+        .then((response) => {
+          if (typeof this.response === "object") {
+            this.response = response.data.model;
+            this.loaded = true;
+            console.log(this.loaded);
+          }
+        })
+        .catch((error) => console.log(error));
+    },
+    drawColumnChart() {
+      Highcharts.stockChart("date", {
+        chart: {
+          type: "column",
+        },
+        legend: {
+          enabled: true,
+        },
+        time: {
+          useUTC: false,
+        },
+        tooltip: {
+          split: false,
+          shared: true,
+        },
+        rangeSelector: {
+          enabled: false,
+          selected: 1,
+        },
+
+        title: {
+          text: "AAPL Stock Price",
+        },
+
+        series: this.response,
+      });
+    },
+  },
+});
 /**
  * [tabla de menciones]
  * template: '#mentions-list' [description]

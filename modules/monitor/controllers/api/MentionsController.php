@@ -422,9 +422,6 @@ class MentionsController extends Controller
    * @return [type]          [description]
    */
   public function actionListEmojis($alertId){
-
-   
-
     // list mentions: mentions
     $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
     $alertsId = [];
@@ -463,9 +460,7 @@ class MentionsController extends Controller
    */
   public function actionStatusAlert($alertId)
   {
-   
     $model =  \app\models\HistorySearch::findOne(['alertId' => $alertId]);
-
     return array('data' => $model);  
   }
 
@@ -540,16 +535,16 @@ class MentionsController extends Controller
     
      
     $model = array();
-    $colors = ['Facebook Comments' => '#FF9933','Instagram Comments' => '#AF5533'];
+    
     $index = 0; 
     foreach ($result as $resourceName => $data){
       if(count($data)){
         $model[$index]['name'] = $resourceName;
         for($d = 0; $d < sizeOf($data); $d++){
-          $date = \app\helpers\DateHelper::asTimestamp($data[$d]['date'])."000";
+          $date = strtotime($data[$d]['date'])."000";
           $model[$index]['data'][] = array((int)$date,(int)$data[$d]['total']);
         }
-        $model[$index]['color'] = $colors[$resourceName];
+        $model[$index]['color'] = \app\helpers\MentionsHelper::getColorResourceByName($resourceName);
         $index++;
       }
     }

@@ -174,7 +174,7 @@ class MentionsHelper
             'Facebook Messages' => '#9ba2e0',
             'Instagram Comments' => '#e01f56',
             'Live Chat' => '#eb34e8',
-            'Live Chat Conversations' => '#eb34e8',
+            'Live Chat Conversations' => '#F18F11',
             'Paginas Webs' => '#bbc71c',
             'Excel Document' => '#1ee321'
             

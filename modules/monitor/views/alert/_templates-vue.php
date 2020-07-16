@@ -127,7 +127,6 @@ use yii\widgets\ActiveForm;
 </script>
 
 <!-- template que muestra todas las menciones -->
-<!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
   <div>
     <!-- <button v-on:click="reload">Reload</button> -->
@@ -288,9 +287,15 @@ use yii\widgets\ActiveForm;
 <!-- template que muestra las tablas recurso: higchart fecha - total -->
 <script type="text/x-template" id="view-date-chart">
   <div>
-    <div v-if="loaded">
+    <!-- <div id="date"></div>        -->
+    <div v-show="loaded">
       <div id="date"></div>  
       <hr>
+    </div>
+    <div v-show="!loaded">
+        <div class="loader">
+          <div class="spinner"></div>
+        </div>
     </div>
   </div>
 </script>

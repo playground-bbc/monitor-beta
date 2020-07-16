@@ -522,7 +522,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
 
 /**
  * [componente que muestra grafico de post por fecha]
- * template: '#view-total-resources-chart' [description]
+ * template: '#view-total-resources-chart' [depred]
  * @return {[component]}           [component]
  */
 const count_resources_date_chat = Vue.component("count-date-resources-chart", {
@@ -660,79 +660,135 @@ const date_chart = Vue.component("date-chart", {
   data: function () {
     return {
       alertId: id,
-      response: [],
-      headers: [],
       loaded: false,
-      dataTable: null,
-      view: null,
     };
   },
   mounted() {
-    // get firts data
-    this.fetchResourceCount();
-    // load chart
-    if (this.loaded) {
-      this.drawColumnChart();
-    }
-
-    setInterval(
-      function () {
-        if (this.loaded) {
-          this.drawColumnChart();
-        }
-        if (this.is_change) {
-          this.fetchResourceCount();
-        }
-      }.bind(this),
-      refreshTime
-    );
+    this.drawColumnChart();
   },
   watch: {
-    isChange: function (val, oldVal) {
+    is_change: function (val, oldVal) {
       if (val) {
-        console.log("change is happen !!");
-        this.fetchResourceCount();
+        this.drawColumnChart();
       }
     },
   },
   methods: {
-    fetchResourceCount() {
-      getCountDateResources(this.alertId)
-        .then((response) => {
-          if (typeof this.response === "object") {
-            this.response = response.data.model;
-            this.loaded = true;
-            console.log(this.loaded);
-          }
-        })
-        .catch((error) => console.log(error));
-    },
     drawColumnChart() {
-      Highcharts.stockChart("date", {
-        chart: {
-          type: "column",
-        },
-        legend: {
-          enabled: true,
-        },
-        time: {
-          useUTC: false,
-        },
-        tooltip: {
-          split: false,
-          shared: true,
-        },
-        rangeSelector: {
-          enabled: false,
-          selected: 1,
-        },
+      this.loaded = true;
+      $.getJSON(
+        `${origin}/${appId}/web/monitor/api/mentions/mention-on-date?alertId=` +
+          id,
+        function (data) {
+          Highcharts.stockChart("date", {
+            chart: {
+              type: "column",
+              zoomType: "x",
+            },
+            credits: {
+              enabled: false,
+            },
+            legend: {
+              enabled: true,
+            },
+            rangeSelector: {
+              selected: 4,
+            },
+            // time: {
+            //   useUTC: false,
+            // },
+            // tooltip: {
+            //   split: false,
+            //   shared: true,
+            // },
+            rangeSelector: {
+              enabled: false,
+              selected: 1,
+            },
 
-        title: {
-          text: "AAPL Stock Price",
-        },
-
-        series: this.response,
-      });
+            title: {
+              text: "Grafico total de registros por fecha y recurso",
+            },
+            rangeSelector: {
+              buttons: [
+                {
+                  type: "minute",
+                  count: 60,
+                  text: "h",
+                },
+                {
+                  type: "day",
+                  count: 1,
+                  text: "d",
+                },
+                {
+                  type: "week",
+                  count: 1,
+                  text: "w",
+                },
+                {
+                  type: "month",
+                  count: 1,
+                  text: "m",
+                },
+                {
+                  type: "month",
+                  count: 6,
+                  text: "6m",
+                },
+                {
+                  type: "year",
+                  count: 1,
+                  text: "1y",
+                },
+                {
+                  type: "ytd",
+                  text: "YTD",
+                },
+                {
+                  type: "all",
+                  text: "All",
+                },
+              ],
+              //selected: 1,
+              inputEnabled: false,
+            },
+            global: {
+              useUTC: false,
+            },
+            scrollbar: {
+              barBackgroundColor: "grey",
+              barBorderRadius: 7,
+              barBorderWidth: 0,
+              buttonBackgroundColor: "grey",
+              buttonBorderWidth: 0,
+              buttonBorderRadius: 7,
+              trackBackgroundColor: "black",
+              trackBorderWidth: 1,
+              trackBorderRadius: 8,
+              trackBorderColor: "black",
+            },
+            xAxis: {
+              categories: [
+                "Live Chat",
+                "Instagram Comments",
+                "Facebook Comments",
+              ],
+            },
+            tooltip: {
+              pointFormat:
+                '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+              valueDecimals: 1,
+              split: true,
+            },
+            navigator: {
+              basseSeries: 1,
+              series: data.model,
+            },
+            series: data.model,
+          });
+        }
+      );
     },
   },
 });

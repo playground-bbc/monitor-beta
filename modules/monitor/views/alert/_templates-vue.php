@@ -107,11 +107,6 @@ use yii\widgets\ActiveForm;
     <div id="date-resources-chart"></div>
     <hr>
   </div>
-  <div v-else>
-        <div class="loader">
-          <div class="spinner"></div>
-        </div>
-    </div>  
 </script>
 
 <!-- template que muestra el total de todas las menciones por Red Social -->
@@ -131,7 +126,6 @@ use yii\widgets\ActiveForm;
     </div>
 </script>
 
-<!-- template que muestra todas las menciones -->
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
   <div>
@@ -287,6 +281,23 @@ use yii\widgets\ActiveForm;
           <div class="spinner"></div>
         </div>
     </div>
+</script>
+
+
+<!-- template que muestra las tablas recurso: higchart fecha - total -->
+<script type="text/x-template" id="view-date-chart">
+  <div>
+    <!-- <div id="date"></div>        -->
+    <div v-show="loaded">
+      <div id="date"></div>  
+      <hr>
+    </div>
+    <div v-show="!loaded">
+        <div class="loader">
+          <div class="spinner"></div>
+        </div>
+    </div>
+  </div>
 </script>
 
 <!-- template que muestra la tabla de lista de emojis -->

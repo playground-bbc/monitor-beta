@@ -9,7 +9,7 @@ use kartik\select2\Select2;
 \app\assets\SweetAlertAsset::register($this);
 \app\assets\AxiosAsset::register($this);
 \app\assets\VueAsset::register($this);
-\app\assets\DataTableAsset::register($this);
+// \app\assets\DataTableAsset::register($this);
 \app\assets\JqcloudAsset::register($this);
 \app\assets\highchartsAsset::register($this);
 \app\assets\GoogleChartAsset::register($this);
@@ -70,9 +70,14 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
                 <products-interations-chart :is_change="is_change"> 
             </div>
         </div>
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-md-12">
                 <count-date-resources-chart :is_change="is_change">
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-12">
+                <date-chart :is_change="is_change"></date-chart>
             </div>
         </div>
         <div id="mentions-list" class="row">

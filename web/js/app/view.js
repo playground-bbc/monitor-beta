@@ -521,8 +521,8 @@ const products_interations_chart = Vue.component("products-interations-chart", {
 });
 
 /**
- * [componente que muestra grafico de post por fecha (no terminado en el backend)]
- * template: '#view-total-resources-chart' [description]
+ * [componente que muestra grafico de post por fecha]
+ * template: '#view-total-resources-chart' [depred]
  * @return {[component]}           [component]
  */
 const count_resources_date_chat = Vue.component("count-date-resources-chart", {
@@ -649,6 +649,149 @@ const count_resources_date_chat = Vue.component("count-date-resources-chart", {
   },
 });
 
+/**
+ * [componente que muestra grafico de post por fecha (Higchart)]
+ * template: '#view-total-resources-chart' [description]
+ * @return {[component]}           [component]
+ */
+const date_chart = Vue.component("date-chart", {
+  props: ["is_change"],
+  template: "#view-date-chart",
+  data: function () {
+    return {
+      alertId: id,
+      loaded: false,
+    };
+  },
+  mounted() {
+    this.drawColumnChart();
+  },
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.drawColumnChart();
+      }
+    },
+  },
+  methods: {
+    drawColumnChart() {
+      this.loaded = true;
+      $.getJSON(
+        `${origin}/${appId}/web/monitor/api/mentions/mention-on-date?alertId=` +
+          id,
+        function (data) {
+          Highcharts.stockChart("date", {
+            chart: {
+              type: "column",
+              zoomType: "x",
+            },
+            credits: {
+              enabled: false,
+            },
+            legend: {
+              enabled: true,
+            },
+            rangeSelector: {
+              selected: 4,
+            },
+            // time: {
+            //   useUTC: false,
+            // },
+            // tooltip: {
+            //   split: false,
+            //   shared: true,
+            // },
+            rangeSelector: {
+              enabled: false,
+              selected: 1,
+            },
+
+            title: {
+              text: "Grafico total de registros por fecha y recurso",
+            },
+            rangeSelector: {
+              buttons: [
+                {
+                  type: "minute",
+                  count: 60,
+                  text: "h",
+                },
+                {
+                  type: "day",
+                  count: 1,
+                  text: "d",
+                },
+                {
+                  type: "week",
+                  count: 1,
+                  text: "w",
+                },
+                {
+                  type: "month",
+                  count: 1,
+                  text: "m",
+                },
+                {
+                  type: "month",
+                  count: 6,
+                  text: "6m",
+                },
+                {
+                  type: "year",
+                  count: 1,
+                  text: "1y",
+                },
+                {
+                  type: "ytd",
+                  text: "YTD",
+                },
+                {
+                  type: "all",
+                  text: "All",
+                },
+              ],
+              //selected: 1,
+              inputEnabled: false,
+            },
+            global: {
+              useUTC: false,
+            },
+            scrollbar: {
+              barBackgroundColor: "grey",
+              barBorderRadius: 7,
+              barBorderWidth: 0,
+              buttonBackgroundColor: "grey",
+              buttonBorderWidth: 0,
+              buttonBorderRadius: 7,
+              trackBackgroundColor: "black",
+              trackBorderWidth: 1,
+              trackBorderRadius: 8,
+              trackBorderColor: "black",
+            },
+            xAxis: {
+              categories: [
+                "Live Chat",
+                "Instagram Comments",
+                "Facebook Comments",
+              ],
+            },
+            tooltip: {
+              pointFormat:
+                '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+              valueDecimals: 1,
+              split: true,
+            },
+            navigator: {
+              basseSeries: 1,
+              series: data.model,
+            },
+            series: data.model,
+          });
+        }
+      );
+    },
+  },
+});
 /**
  * [tabla de menciones]
  * template: '#mentions-list' [description]

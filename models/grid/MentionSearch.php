@@ -20,6 +20,7 @@ class MentionSearch extends Mentions
     public $screen_name;
     public $subject;
     public $message_markup;
+    public $created_time;
     // for search grid
     public $pageSize = 10;
     // detail
@@ -36,7 +37,7 @@ class MentionSearch extends Mentions
         return [
             [['resourceName','termSearch','name','screen_name','subject','message_markup','social_id','status','publication_id'], 'string'],
             [['resourceId'], 'integer'],
-            [['resourceName'], 'safe'],
+            [['resourceName','created_time'], 'safe'],
         ];
     }
 
@@ -242,6 +243,13 @@ class MentionSearch extends Mentions
                 $name = strtolower(trim($this->status));
                 $rows = array_filter($rows, function ($role) use ($name) {
                     return (empty($name) || strpos((strtolower(is_object($role) ? $role->status : $role['status'])), $name) !== false);
+                });
+            }
+
+            if($this->created_time){
+                $name = strtotime(trim($this->created_time));
+                $rows = array_filter($rows, function ($role) use ($name) {
+                    return ($role['created_time'] >= $name);
                 });
             }
 

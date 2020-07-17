@@ -731,16 +731,32 @@ class DetailHelper {
     /**
      * return group columns for mentions grid index detail
      */
-    public static function setGridMentionsColumnsOnDetailView($resourceName){
+    public static function setGridMentionsColumnsOnDetailView($resourceName,$searchModel){
 
-        $columns = [];
+        $columns = [
+            [
+                'label' => Yii::t('app','Fecha'),
+                'headerOptions' => ['style' => 'width:25%'],
+                'attribute' => 'created_time',
+                'format' => 'raw',
+                'value' => function($model){
+                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                },
+                'filter' => \kartik\date\DatePicker::widget([
+                    'name' => 'MentionSearch[created_time]',
+                    'type' => \kartik\date\DatePicker::TYPE_COMPONENT_APPEND,
+                    'value' => $searchModel['created_time'],
+                  // 'layout' => $layout2,
+                    'pluginOptions' => [
+                        'autoclose' => true,
+                        'format' => 'yyyy/mm/dd',
+                    ]
+                ]),
+            ],
+        ];
 
         if($resourceName == 'Twitter'){
-            $columns = [
-                self::composeColum("Fecha","created_time","raw",function($model){
-                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                },['style' => 'width: 10%;min-width: 20px']),
-                
+            array_push($columns,
                 self::composeColum("Nombre","name","raw",function($model){
                     return \yii\helpers\Html::encode($model['name']);
                 }),
@@ -763,16 +779,12 @@ class DetailHelper {
 
                 self::composeColum("Url","","raw",function($model){
                     return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
-                }),
-            ];
+                })
+            );
         }
 
         if($resourceName == 'Live Chat'){
-            $columns = [
-                self::composeColum("Fecha","created_time","raw",function($model){
-                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                },['style' => 'width: 10%;min-width: 20px']),
-
+            array_push($columns,
                 self::composeColum("Nombre","name","raw",function($model){
                     $type_user = '';
                     if(isset($model['user_mention']['type'])){
@@ -780,8 +792,8 @@ class DetailHelper {
                     }
                     $name = "{$model['name']} {$type_user}";
                     return \yii\helpers\Html::encode($name);
-                },['style' => 'width: 10%;min-width: 20px']),
-
+                },['style' => 'width: 10%;min-width: 20px']), 
+                
                 self::composeColum("Mencion","message_markup","raw",function($model){
                     return $model['message_markup'];
                 }),
@@ -792,19 +804,13 @@ class DetailHelper {
                         $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
                     }
                     return $url;
-                }),
-
-                
-                
-            ];
+                })
+        
+            );
         }
 
         if($resourceName == 'Live Chat Conversations'){
-            $columns = [
-                self::composeColum("Fecha","created_time","raw",function($model){
-                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                },['style' => 'width: 10%;min-width: 20px']),
-
+            array_push($columns,
                 self::composeColum("Nombre","name","raw",function($model){
                     return \yii\helpers\Html::encode($model['name']);
                 },['style' => 'width: 10%;min-width: 20px']),
@@ -831,17 +837,12 @@ class DetailHelper {
                         $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
                     }
                     return $url;
-                }),
-            ];
+                })
+            );
         }
 
         if($resourceName == 'Facebook Comments'){
-            $columns = [
-                self::composeColum("Fecha","created_time","raw",function($model){
-                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                },['style' => 'width: 10%;min-width: 20px']),
-
-
+            array_push($columns,
                 self::composeColum("Mencion","message_markup","raw",function($model){
                     return $model['message_markup'];
                 }),
@@ -852,17 +853,12 @@ class DetailHelper {
                         $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
                     }
                     return $url;
-                }),
-                
-            ];
+                })
+            );
         }
 
         if($resourceName == 'Facebook Messages'){
-            $columns = [
-                self::composeColum("Fecha","created_time","raw",function($model){
-                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                },['style' => 'width: 10%;min-width: 20px']),
-
+            array_push($columns,
                 self::composeColum("Nombre","Name","raw",function($model){
                     return \yii\helpers\Html::encode($model['name']);
                 }),
@@ -883,17 +879,13 @@ class DetailHelper {
                         $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
                     }
                     return $url;
-                }),
-                
-            ];
+                })
+            );
 
         }
 
         if($resourceName == 'Instagram Comments'){
-            $columns = [
-                self::composeColum("Fecha","created_time","raw",function($model){
-                    return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                },['style' => 'width: 10%;min-width: 20px']),
+            array_psuh($columns,
 
                 self::composeColum("Nombre","name","raw",function($model){
                     return \yii\helpers\Html::encode($model['name']);
@@ -913,11 +905,8 @@ class DetailHelper {
                         $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
                     }
                     return $url;
-                }),
-
-                
-                
-            ];
+                })
+            );
         }
 
      

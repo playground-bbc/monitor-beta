@@ -120,7 +120,7 @@ use yii\widgets\ActiveForm;
               GridView::PDF => ['label' => 'Guardar como Pdf'],
               GridView::JSON => ['label' => 'Guardar como JSON'],
           ],
-            'columns' => \app\helpers\DetailHelper::setGridMentionsColumnsOnDetailView($resource->name),
+            'columns' => \app\helpers\DetailHelper::setGridMentionsColumnsOnDetailView($resource->name,$searchModel),
             'class' => 'yii\grid\Column',
             'pjax'=>false,
             'pjaxSettings'=>[

@@ -168,12 +168,22 @@ use yii\widgets\ActiveForm;
               ],
               [
                   'label' => Yii::t('app','Fecha'),
-                  'headerOptions' => ['style' => 'width:8%'],
+                  'headerOptions' => ['style' => 'width:25%'],
                   'attribute' => 'created_time',
                   'format' => 'raw',
                   'value' => function($model){
                       return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                  }
+                  },
+                  'filter' => \kartik\date\DatePicker::widget([
+                      'name' => 'MentionSearch[created_time]',
+                      'type' => \kartik\date\DatePicker::TYPE_COMPONENT_APPEND,
+                      'value' => $searchModel['created_time'],
+                    // 'layout' => $layout2,
+                      'pluginOptions' => [
+                          'autoclose' => true,
+                          'format' => 'yyyy/mm/dd',
+                      ]
+                  ]),
               ],
               [
                   'label' => Yii::t('app','Nombre'),

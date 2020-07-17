@@ -513,6 +513,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
 
       google.visualization.events.addListener(chart, "ready", function () {
         data_chart["products_interations"] = chart.getImageURI();
+        //console.log(data_chart["products_interations"]);
       });
 
       chart.draw(view, this.options);
@@ -680,7 +681,7 @@ const date_chart = Vue.component("date-chart", {
         `${origin}/${appId}/web/monitor/api/mentions/mention-on-date?alertId=` +
           id,
         function (data) {
-          Highcharts.stockChart("date", {
+          var chart = Highcharts.stockChart("date", {
             chart: {
               type: "column",
               zoomType: "x",
@@ -787,6 +788,27 @@ const date_chart = Vue.component("date-chart", {
             },
             series: data.model,
           });
+          // var test = chart.exportChart({
+          //   type: "image/png",
+          //   filename: "chart",
+          // });
+          //console.log(test);
+          var svg = chart.getSVG();
+          var data = {
+            options: svg,
+            filename: "test.png",
+            type: "image/png",
+            async: true,
+          };
+
+          var exportUrl = "https://export.highcharts.com/";
+          $.post(exportUrl, data, function (data) {
+            var imageUrl = exportUrl + data;
+            data_chart["date_resources"] = imageUrl;
+            loadedChart = true;
+          });
+          // data_chart["date_resources"] = chart.getSVG();
+          // console.log(data_chart["date_resources"]);
         }
       );
     },

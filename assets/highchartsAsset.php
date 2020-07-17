@@ -19,6 +19,7 @@ class highchartsAsset extends AssetBundle
      */
     public $js = [
         'highstock.js',
+        'modules/exporting.js',
         //'highcharts.js',
         
     ];

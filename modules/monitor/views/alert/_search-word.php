@@ -26,7 +26,7 @@ $action = (isset($view)) ? $view : 'view';
 
     <?= $form->field($model, 'id',['inputOptions' => ['name' => 'id']])  ?>
     
-    <?= $form->field($model, 'resourceId',['inputOptions' => ['name' => 'resourceId']])?>
+    <?= $form->field($model, 'resourceId')?>
 
     <?= $form->field($model, 'publication_id') ?>
 

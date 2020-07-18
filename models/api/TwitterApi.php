@@ -37,7 +37,7 @@ class TwitterApi extends Model {
 	private $country;
 	
 	private $limit = 0;
-	private $minimum = 50;
+	private $minimum = 1;
 
 	private $filename;
 	private $resourceName = 'Twitter';

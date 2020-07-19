@@ -176,7 +176,6 @@ class LiveTicketApi extends Model {
 				\Yii::warning("Erro Livechat ticket id: {$this->alertId}.");
 				var_dump($e->getMessage(),$this->alertId);
 			}
-			$response = $client->tickets->get($params);
 			//echo "searching start date". $params['date_from']. " to  ". $params['date_to']. " in productName: ".$params['query']. "\n";
 			
 

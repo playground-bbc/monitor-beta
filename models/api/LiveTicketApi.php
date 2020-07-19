@@ -150,7 +150,6 @@ class LiveTicketApi extends Model {
 	public function call($products_params = []){
 
 		foreach($products_params as $productName => $params){
-			//\yii\helpers\Console::stdout("loop in call method {$productName}.. \n", Console::BOLD);
 			$this->data[$productName] =  $this->_getTickets($params);
 		}
 		$tickets = $this->_orderTickets($this->data);
@@ -171,6 +170,7 @@ class LiveTicketApi extends Model {
 			// set page 
 			$params['page'] = $page;
 			try {
+				sleep(1);
 				$response = $client->tickets->get($params);
 			} catch (ErrorException $e) {
 				\Yii::warning("Erro Livechat ticket id: {$this->alertId}.");

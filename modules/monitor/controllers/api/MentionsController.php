@@ -539,7 +539,7 @@ class MentionsController extends Controller
         ->join('JOIN','alerts_mencions a', 'alert_mentionId = a.id')
         ->join('JOIN','resources r', 'r.id = a.resourcesId')
         ->orderBy('date_created ASC')
-        ->groupBy(['date_created'])
+        ->groupBy(['date_created','r.name'])
         ->all(); 
     }
     $rowsComments = [];
@@ -554,7 +554,7 @@ class MentionsController extends Controller
         ->join('JOIN','alerts_mencions a', 'alert_mentionId = a.id')
         ->join('JOIN','resources r', 'r.id = a.resourcesId')
         ->orderBy('date_created ASC')
-        ->groupBy('date_created')
+        ->groupBy(['date_created','r.name'])
         ->all();
 
         

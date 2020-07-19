@@ -124,7 +124,6 @@ class InstagramSearch
                 }
             }// end foreach data
         } // end if null
-        var_dump($error);
         return (empty($error)) ? true : false;
     }
 

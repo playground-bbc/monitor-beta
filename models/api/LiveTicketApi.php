@@ -4,6 +4,7 @@ namespace app\models\api;
 use Yii;
 use yii\base\Model;
 use yii\helpers\Console;
+use yii\base\ErrorException;
 use LiveChat\Api\Client as LiveChat;
 use yii\helpers\ArrayHelper;
 use app\models\file\JsonFile;
@@ -169,7 +170,12 @@ class LiveTicketApi extends Model {
 		do{
 			// set page 
 			$params['page'] = $page;
-			
+			try {
+				$response = $client->tickets->get($params);
+			} catch (ErrorException $e) {
+				\Yii::warning("Erro Livechat ticket id: {$this->alertId}.");
+				var_dump($e->getMessage(),$this->alertId);
+			}
 			$response = $client->tickets->get($params);
 		//	echo "searching start date". $params['date_from']. " to  ". $params['date_to']. " in productName: ".$params['query']. "\n";
 		//	echo "Count result: {$response->total} ". "\n";

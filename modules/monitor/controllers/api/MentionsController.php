@@ -511,9 +511,9 @@ class MentionsController extends Controller
     // get resources
     $alertResources = \yii\helpers\ArrayHelper::map($model->config->sources,'id','name');
     //menciones por recurso y fecha
-    $expression = new Expression("created_time,r.name,DATE(FROM_UNIXTIME(created_time)) AS date,COUNT(*) AS total");
+    $expression = new Expression("r.name,DATE(FROM_UNIXTIME(created_time)) AS date_created,COUNT(*) AS total");
     // menciones por recurso y fecha para los chats
-    $expressionChats = new Expression("created_time,r.name,DATE(FROM_UNIXTIME(created_time)) AS date_created,COUNT( DISTINCT social_id) AS total");
+    $expressionChats = new Expression("r.name,DATE(FROM_UNIXTIME(created_time)) AS date_created,COUNT( DISTINCT social_id) AS total");
     
     // query by target resourceName chats
     $target = ['Facebook Messages','Live Chat Conversations','Live Chat'];
@@ -538,8 +538,8 @@ class MentionsController extends Controller
         ->where(['alert_mentionId' => $alertMentionsIds])
         ->join('JOIN','alerts_mencions a', 'alert_mentionId = a.id')
         ->join('JOIN','resources r', 'r.id = a.resourcesId')
-        ->orderBy('created_time ASC')
-        ->groupBy('date_created')
+        ->orderBy('date_created ASC')
+        ->groupBy(['date_created'])
         ->all(); 
     }
     $rowsComments = [];
@@ -553,16 +553,15 @@ class MentionsController extends Controller
         ->where(['alert_mentionId' => $alertMentionsIds])
         ->join('JOIN','alerts_mencions a', 'alert_mentionId = a.id')
         ->join('JOIN','resources r', 'r.id = a.resourcesId')
-        ->orderBy('created_time ASC')
-        ->groupBy('date')
+        ->orderBy('date_created ASC')
+        ->groupBy('date_created')
         ->all();
 
         
     }
     // merge both arrays
     $rows = ArrayHelper::merge($rowsChats, $rowsComments);
-    //sort
-    \yii\helpers\ArrayHelper::multisort($rows, ['created_time'], [SORT_ASC]);
+   
     $result = ArrayHelper::index($rows, null, 'name');
     // compose array to higchart  
     $model = array();
@@ -571,7 +570,7 @@ class MentionsController extends Controller
       if(count($data)){
         $model[$index]['name'] = $resourceName;
         for($d = 0; $d < sizeOf($data); $d++){
-          $date = (int) $data[$d]['created_time'] * 1000;
+          $date = (int) strtotime($data[$d]['date_created']) * 1000;
           $model[$index]['data'][] = array((int)$date,(int)$data[$d]['total']);
         }
         $model[$index]['color'] = \app\helpers\MentionsHelper::getColorResourceByName($resourceName);

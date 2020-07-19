@@ -148,7 +148,6 @@ class LiveTicketApi extends Model {
 	 * @return [type]                  [data]
 	 */
 	public function call($products_params = []){
-
 		foreach($products_params as $productName => $params){
 			$this->data[$productName] =  $this->_getTickets($params);
 		}
@@ -169,6 +168,7 @@ class LiveTicketApi extends Model {
 		do{
 			// set page 
 			$params['page'] = $page;
+			//echo "page : {$params['page']} ". "\n";
 			try {
 				sleep(1);
 				$response = $client->tickets->get($params);
@@ -177,8 +177,8 @@ class LiveTicketApi extends Model {
 				var_dump($e->getMessage(),$this->alertId);
 			}
 			$response = $client->tickets->get($params);
-		//	echo "searching start date". $params['date_from']. " to  ". $params['date_to']. " in productName: ".$params['query']. "\n";
-		//	echo "Count result: {$response->total} ". "\n";
+			//echo "searching start date". $params['date_from']. " to  ". $params['date_to']. " in productName: ".$params['query']. "\n";
+			
 
 			if(count($response->tickets)){
 				// get the data
@@ -188,7 +188,8 @@ class LiveTicketApi extends Model {
 			
 			$pageresponse = $response->pages;
 			$page++;
-
+			// echo "page response: {$pageresponse} ". "\n";
+			// echo "page : {$page} ". "\n";
 
 		}while($pageresponse >= $page);
 

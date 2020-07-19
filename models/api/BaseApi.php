@@ -281,7 +281,7 @@ class BaseApi extends Model {
 
 
 		if($searchInstagramApi->search()){
-			//\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Instagram Comments');
+			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Instagram Comments');
 
 		}
 		

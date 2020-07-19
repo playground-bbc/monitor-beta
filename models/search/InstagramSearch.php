@@ -124,6 +124,7 @@ class InstagramSearch
                 }
             }// end foreach data
         } // end if null
+        var_dump($error);
         return (empty($error)) ? true : false;
     }
 
@@ -198,7 +199,7 @@ class InstagramSearch
                 $mention->created_time = \app\helpers\DateHelper::asTimestamp($comment['timestamp']);
                 $mention->mention_data = $mention_data;
                 $mention->message = $comment['text'];
-                $mention->message_markup = $comment['message_markup'];
+                $mention->message_markup = (isset($comment['message_markup'])) ? $comment['message_markup'] : $comment['text'];
                 $mention->url = $permalink;
                 $mention->domain_url = (!is_null($mention->url)) ? \app\helpers\StringHelper::getDomain($mention->url): null;
             

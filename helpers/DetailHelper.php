@@ -499,7 +499,7 @@ class DetailHelper {
                       ->select(['social_id','subject'])
                       ->from('mentions')
                       ->where(['alert_mentionId' => $alertMentions[$m]['id']])
-                      ->groupBy('social_id')
+                      ->groupBy(['social_id','subject'])
                       ->all();
                      
                 if(count($rows)){
@@ -540,8 +540,8 @@ class DetailHelper {
                       ->from('mentions')
                       ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
                       ->where(['alert_mentionId' => $alertMentions[$m]['id']])
-                      ->andWhere(['<>', 'users_mentions.name', 'Mundo LG'])
-                      ->groupBy('social_id')
+                      ->andWhere(['<>', 'users_mentions.name', 'Cliente'])
+                      ->groupBy(['social_id','users_mentions.name'])
                       ->all();
                
                 if(count($rows)){
@@ -610,7 +610,7 @@ class DetailHelper {
                       ->join('JOIN','users_mentions', 'mentions.origin_id = users_mentions.id')
                       ->where(['alert_mentionId' => $alertsMentions[$a]['id']])
                       ->andWhere(['<>', 'users_mentions.name', 'Mundo LG'])
-                      ->groupBy('social_id')
+                      ->groupBy(['social_id','users_mentions.name'])
                       ->all();
                     
                 if(count($rows)){
@@ -885,7 +885,7 @@ class DetailHelper {
         }
 
         if($resourceName == 'Instagram Comments'){
-            array_psuh($columns,
+            array_push($columns,
 
                 self::composeColum("Nombre","name","raw",function($model){
                     return \yii\helpers\Html::encode($model['name']);

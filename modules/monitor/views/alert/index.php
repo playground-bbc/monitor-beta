@@ -41,6 +41,10 @@ $this->registerJsFile('@web/js/app/index.js',[
 
 $escape = new JsExpression("function(m) { return m; }");
 
+// if(isset(Yii::$app->user->identity->username)){
+//     $usernames = ['admin'];
+//     $template = (in_array(Yii::$app->user->identity->username,$usernames))? '{view}' : '{update}{delete}{view}';
+// }
 
 ?>
 <div class="alerts-index">
@@ -67,7 +71,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'userId',
                 'format' => 'raw',
                 'value' => function($model){
-                    return Html::a($model->user->username,['update', 'id' => $model->id]);
+                    return Html::a($model->user->username,['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 }
             ],
             [
@@ -75,7 +79,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'name',
                 'format' => 'raw',
                 'value' => function($model) {
-                  return Html::a($model->name,['update', 'id' => $model->id]);
+                  return Html::a($model->name,['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 }
             ],
             [
@@ -83,7 +87,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'start_date',
                 'format' => 'raw',
                 'value' => function($model) { 
-                    return Html::a(Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy/MM/dd'), ['update', 'id' => $model->id]);
+                    return Html::a(Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy/MM/dd'), ['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 },
                 'filter' => DatePicker::widget([
                     'name' => 'AlertSearch[start_date]',
@@ -101,7 +105,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'end_date',
                 'format' => 'raw',
                 'value' => function($model) { 
-                    return Html::a(Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy/MM/dd'), ['update', 'id' => $model->id]);
+                    return Html::a(Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy/MM/dd'), ['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 },
                 'filter' => DatePicker::widget([
                     'name' => 'AlertSearch[end_date]',
@@ -178,15 +182,21 @@ $escape = new JsExpression("function(m) { return m; }");
             
             [
                 'class' => 'yii\grid\ActionColumn',
+                'template' => '{update}{delete}{view}',
                 'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
                 'buttons' => [
                     'delete' => function($url, $model){
                         return Html::a('<span class="glyphicon glyphicon-trash"></span>', ['delete', 'id' => $model->id], [
-                            'class' => '',
+                            'style' => ($model->userId != \Yii::$app->user->getId()) ? 'display: none;': '',
                             'data' => [
                                 'confirm' => 'Are you absolutely sure ? You will lose all the information about this user with this action.',
                                 'method' => 'post',
                             ],
+                        ]);
+                    },
+                    'update' => function($url, $model){
+                        return Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['update', 'id' => $model->id], [
+                            'style' => ($model->userId != \Yii::$app->user->getId()) ? 'display: none;': '',
                         ]);
                     }
                 ]

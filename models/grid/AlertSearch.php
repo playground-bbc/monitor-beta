@@ -48,12 +48,18 @@ class AlertSearch extends Alerts
     public function search($params)
     {   
         $userId = \Yii::$app->user->getId();
-        $query = Alerts::find()->where(['userId' => $userId]);
+        
+        $query = (\Yii::$app->user->identity->username === 'admin') ? Alerts::find() : Alerts::find()->where(['userId' => $userId]);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'createdAt' => SORT_DESC,
+                ]
+            ],
             'pagination' => ['pageSize' => 20],
         ]);
 

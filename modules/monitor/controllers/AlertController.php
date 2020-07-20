@@ -693,6 +693,13 @@ class AlertController extends Controller
                 'DELETE FROM users_mentions WHERE users_mentions.id NOT IN ( SELECT distinct origin_id FROM mentions)'
             )
             ->execute();
+        // delete products models
+        $product_alert_delete = Yii::$app->db->createCommand(
+            'DELETE FROM products_models_alerts WHERE alertId=:alertId'
+        );  
+        // prepare and execute delete products_models_alerts
+        $product_alert_delete->bindParam(':alertId', $id);
+        $product_alert_delete->execute();  
 
         return $this->redirect(['index']);
     }

@@ -76,6 +76,7 @@ class DaemonController extends Controller
         if(!empty($alertsConfig)){
             $baseApi = new BaseApi();
             $api = $baseApi->readDataResource($alertsConfig);
+            \app\helpers\AlertMentionsHelper::deleteAlertsMentionsThatHaveNoMentions();
         }
     }
     /**

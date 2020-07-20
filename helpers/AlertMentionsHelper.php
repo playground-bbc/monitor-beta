@@ -727,8 +727,15 @@ class AlertMentionsHelper
 
         return $detail_attributes;
     }
-    
-
+    /**	 
+	* [deleteAlertsMentionsThatHaveNoMentions delete alert mentions then no have mention]
+	*/
+    public static function deleteAlertsMentionsThatHaveNoMentions(){
+        \Yii::$app->db
+            ->createCommand(
+                'DELETE FROM alerts_mencions WHERE alerts_mencions.id NOT IN ( SELECT distinct alert_mentionId FROM mentions)'
+        )->execute();
+    }
 
 
 }

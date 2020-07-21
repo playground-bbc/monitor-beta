@@ -97,9 +97,9 @@ class Scraping extends Model
 					//echo $link."\n";
 					for ($n=0; $n < sizeof($nodes) ; $n++) { 
 						//echo $nodes[$n]."\n";
-						$sentence = $nodes[$n];
+						$sentence = \app\helpers\StringHelper::lowercase($nodes[$n]);
 						for ($t=0; $t <sizeof($terms) ; $t++) { 
-
+							$term = \app\helpers\StringHelper::lowercase($terms[$t]);
 							$isContains = \app\helpers\StringHelper::containsCountIncaseSensitive($sentence,$terms[$t]);
 							if ($isContains) {
 								if (!ArrayHelper::keyExists($terms[$t], $model, false)) {

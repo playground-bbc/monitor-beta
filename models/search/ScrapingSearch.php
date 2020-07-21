@@ -19,35 +19,18 @@ class ScrapingSearch
   	public $isBoolean = false;
   	public $resourceName = 'Paginas Webs';
 
-  	public function load($params)
+  	public function load($data)
   	{
-  		if (empty($params)) {
+  		if (empty($data)) {
   			return false;
   		}
 
-  		$this->alertId        = ArrayHelper::getValue($params, 0);
 	    $this->resourcesId    = \app\helpers\AlertMentionsHelper::getResourceIdByName($this->resourceName);
 	    $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
 
-	    for($p = 1 ; $p < sizeof($params); $p++){
-	        foreach($params[$p] as $data => $group){
-	            foreach($group as $pages => $terms){
-	                foreach($terms as $term => $content){
-	                    //echo $term."\n";
-	                    if(!ArrayHelper::keyExists($term,$this->data)){
-	                        $this->data[$term] = [];
-	                    }// end if keyExists
-	                    for($n = 0 ; $n < sizeOf($content); $n++){
-	                        if(!in_array($content[$n], $this->data[$term])){
-	                            $this->data[$term][] = $content[$n];
-	                        }// end if in_array
-	                    }// end loop news
-	                }
-	            }// end foreach terms
-	        }// end foreach group
-	    }// end loop
-
-	    return (count($this->data)) ? true : false;
+		$this->data = current($data);
+        unset($data);
+        return (count($this->data)) ? true : false;
   	}
 
 	/**
@@ -98,7 +81,7 @@ class ScrapingSearch
 	{
 		$error = [];
 	    foreach ($webContent as $term => $content) {
-	      $alertsMencionsModel = $this->findAlertsMencionsByterms($term);
+		  $alertsMencionsModel = $this->findAlertsMencionsByterms($term);
 	      if(!is_null($alertsMencionsModel)){
 	        for ($c=0; $c < sizeof($content) ; $c++) { 
 	        	$webPageName = $content[$c]['source']['name'];

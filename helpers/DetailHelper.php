@@ -909,6 +909,24 @@ class DetailHelper {
             );
         }
 
+
+        if($resourceName == 'Paginas Webs'){
+            array_push($columns,
+
+                self::composeColum("Mencion","message_markup","raw",function($model){
+                    return $model['message_markup'];
+                }),
+
+                self::composeColum("Url Comentario","","raw",function($model){
+                    $url = '-';
+                    if(!is_null($model['url'])){
+                        $url = \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);  
+                    }
+                    return $url;
+                })
+            );
+        }
+
      
         return $columns;
     }

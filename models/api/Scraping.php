@@ -100,7 +100,8 @@ class Scraping extends Model
 						$sentence = \app\helpers\StringHelper::lowercase($nodes[$n]);
 						for ($t=0; $t <sizeof($terms) ; $t++) { 
 							$term = \app\helpers\StringHelper::lowercase($terms[$t]);
-							$isContains = \app\helpers\StringHelper::containsCountIncaseSensitive($sentence,$terms[$t]);
+							$term_structured = \app\helpers\StringHelper::structure_product_to_search($term);
+							$isContains = \app\helpers\StringHelper::containsAny($sentence,$term_structured);
 							if ($isContains) {
 								if (!ArrayHelper::keyExists($terms[$t], $model, false)) {
 									$model[$terms[$t]] = [];

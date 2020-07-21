@@ -101,6 +101,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
     [
         'dataProvider' => $dataProvider,
         'searchModel' => $searchModel,
+        'model' => $model
     ]);  
 ?>
 

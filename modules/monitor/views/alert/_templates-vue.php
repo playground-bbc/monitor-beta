@@ -155,7 +155,19 @@ use yii\widgets\ActiveForm;
                   'format' => 'raw',
                   'value' => function($model){
                       return $model['recurso'];
-                  }
+                  },
+                  'filter' => Select2::widget([
+                      'data' => \yii\helpers\ArrayHelper::map($model->config->sources,'name','name'),
+                      'name' => 'MentionSearch[resourceName]',
+                      'value' => $searchModel['resourceName'],
+                      'attribute' => 'resourceName',
+                      'options' => ['placeholder' => 'Select resources...','multiple' => false],
+                      'theme' => 'krajee',
+                      'hideSearch' => true,
+                      'pluginOptions' => [
+                            'allowClear' => true,
+                        ],
+                  ]),
               ],
               [
                   'label' => Yii::t('app','Término buscado'),
@@ -164,7 +176,19 @@ use yii\widgets\ActiveForm;
                   'format' => 'raw',
                   'value' => function($model){
                       return $model['term_searched'];
-                  }
+                  },
+                  'filter' => Select2::widget([
+                      'data' => $model->termsFind,
+                      'name' => 'MentionSearch[termSearch]',
+                      'value' => $searchModel['termSearch'],
+                      'attribute' => 'termSearch',
+                      'options' => ['placeholder' => 'Select term...','multiple' => false],
+                      'theme' => 'krajee',
+                      'hideSearch' => true,
+                      'pluginOptions' => [
+                            'allowClear' => true,
+                        ],
+                  ]),
               ],
               [
                   'label' => Yii::t('app','Fecha'),

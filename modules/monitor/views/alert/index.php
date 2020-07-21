@@ -71,7 +71,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'userId',
                 'format' => 'raw',
                 'value' => function($model){
-                    return Html::a($model->user->username,['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
+                    return Html::a($model->user->username,['view', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 }
             ],
             [
@@ -79,7 +79,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'name',
                 'format' => 'raw',
                 'value' => function($model) {
-                  return Html::a($model->name,['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
+                  return Html::a($model->name,['view', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 }
             ],
             [
@@ -87,7 +87,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'start_date',
                 'format' => 'raw',
                 'value' => function($model) { 
-                    return Html::a(Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy/MM/dd'), ['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
+                    return Html::a(Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy/MM/dd'), ['view', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 },
                 'filter' => DatePicker::widget([
                     'name' => 'AlertSearch[start_date]',
@@ -105,7 +105,7 @@ $escape = new JsExpression("function(m) { return m; }");
                 'attribute' => 'end_date',
                 'format' => 'raw',
                 'value' => function($model) { 
-                    return Html::a(Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy/MM/dd'), ['update', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
+                    return Html::a(Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy/MM/dd'), ['view', 'id' => $model->id],['class' => ($model->userId != \Yii::$app->user->getId()) ? 'btn disabled' : '']);
                 },
                 'filter' => DatePicker::widget([
                     'name' => 'AlertSearch[end_date]',

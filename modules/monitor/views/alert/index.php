@@ -48,7 +48,6 @@ $escape = new JsExpression("function(m) { return m; }");
 
 ?>
 <div class="alerts-index">
-    <?= app\widgets\insights\InsightsWidget::widget() ?>
     <h1><?= Html::encode($this->title) ?></h1>
     <p>
         <?= Html::a('Crear Alerta', ['create'], ['class' => 'btn btn-success']) ?>

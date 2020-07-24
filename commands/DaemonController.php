@@ -55,14 +55,19 @@ class DaemonController extends Controller
      * @return [type] [description]
      */
     public function actionAlertsRunWeb(){
+        
+        //$startTime = microtime(true);
+        
         $alert = new Alerts();
         $alertsConfig = $alert->getBringAllAlertsToRun(true,'PaginasWebs');
         
+       // echo "Elapsed time on : getBringAllAlertsToRun ". (microtime(true) - $startTime) ." seconds \n";
         
         if(!empty($alertsConfig)){
            $baseApi = new BaseApi();
            $api = $baseApi->callResourcesApi($alertsConfig);
         }
+       // echo "Elapsed time finis : actionAlertsRunWeb ". (microtime(true) - $startTime) ." seconds \n";
         return ExitCode::OK;
     }
     /**

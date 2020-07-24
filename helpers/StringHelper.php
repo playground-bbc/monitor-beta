@@ -31,7 +31,7 @@ class StringHelper
      */
     public static function structure_product_to_search($product)
     {
-        $black_list_words = ['con','por','Casa','oficina','Blue','Ice','Fit','Frontal'];
+        $black_list_words = ['con','por','casa','oficina','blue','ice','fit','frontal','dual','tv','televisor'];
         // if acents
         $product = self::normalizeChars($product);
         // eliminamos / y -
@@ -44,13 +44,13 @@ class StringHelper
         foreach($product_exploded as $product){
             $stringy = S::create($product);
             // contamos si el product a buscar es mayor a 3 palabras o si es un valor numeric
-            if(count($stringy) >= 3){
+            if(count($stringy) >= 1){
                 if(!is_numeric($product)){
                     // si no esta en el array para evitar repetidos
                     if(!in_array($product,$data)){
                         // if not black_list_words
                         if(!in_array($product,$black_list_words)){
-                            $data[] = $product;
+                            $data[] = " {$product} ";
                         }
 
                     }
@@ -72,6 +72,13 @@ class StringHelper
      */
     public static function containsAll($sentence,$data){
         return s($sentence)->containsAll($data,false);
+    }
+
+    /**
+     * https://github.com/danielstjules/Stringy#containsstring-needle--boolean-casesensitive--true-
+     */
+    public static function contains($sentence,$data){
+        return s($sentence)->contains($data,true);
     }
     /**
      * https://github.com/jasonlam604/Stringizer#containscount

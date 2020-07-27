@@ -4,8 +4,8 @@ const baseUrlImg = `${origin}/monitor-beta/web/img/`;
 const titleInsights = {
   //facebook
   page_impressions: "Impresiones",
-  page_post_engagements: "Alcance total diario",
-  page_impressions_unique: "Engagements Post Diarios",
+  page_post_engagements: "Interaciones",
+  page_impressions_unique: "Alcance total diario",
   fan_count: "Me gusta la Pagina ",
   // instagram
   reach: "Alcance",

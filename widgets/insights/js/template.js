@@ -3,23 +3,23 @@ const baseUrlImg = `${origin}/monitor-beta/web/img/`;
 
 const titleInsights = {
   //facebook
-  page_impressions: "Impresiones totales diarias",
+  page_impressions: "Impresiones",
   page_post_engagements: "Alcance total diario",
   page_impressions_unique: "Engagements Post Diarios",
-  fan_count: "El número de usuarios a los que les gusta la página",
+  fan_count: "Me gusta la Pagina ",
   // instagram
   reach: "Alcance",
   impressions: "Impresiones",
   profile_views: "Visitas al perfil",
-  follower_count: "Número seguidores",
-  followers_count: "Seguidores Unicos",
+  follower_count: "Nuevos seguidores",
+  followers_count: "Total de Seguidores",
 };
 
 const headersPost = {
   //facebook
-  post_impressions: "Alcance",
+  post_impressions: "Impresiones",
   post_engaged_users: "Interaciones",
-  post_reactions_by_type_total: "Likes / ROT",
+  post_reactions_by_type_total: "likes/reacciones",
   // instagram
   impressions: "Impresiones",
   reach: "Alcance",
@@ -31,7 +31,7 @@ const headersPost = {
 const titleToolTipsInsights = {
   //facebook
   page_impressions:
-    "El número total de impresiones vistas de cualquier contenido asociado con su página. (Diario)",
+    "El número de veces que cualquier contenido de tu página o sobre tu página apareció en la pantalla de una persona. Incluidos post, stories, check-in, ads e información social de personas que interactuaron con tu página y más (Total diario)",
   page_impressions_unique:
     "El número de personas que han visto cualquier contenido asociado con su página.(Diario)",
   page_post_engagements:

@@ -44,7 +44,6 @@ class Scraping extends Model
 			// set if search finish
 			$this->searchFinish();
 			
-			
 			$this->urls = $this->_setUrls($alert['config']['urls']);
 		}
 	}
@@ -60,7 +59,8 @@ class Scraping extends Model
 		$urls = \app\helpers\ScrapingHelper::getLinksInUrlsWebPage($valid_urls);
 		// get from cache
 		$urls =  \app\helpers\ScrapingHelper::getOrSetUrlsFromCache($urls,'alert',$this->alertId);
-		return $urls;
+
+		return (empty($urls)) ? $valid_urls : $urls;
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Scraping extends Model
 	 */
 	public function getRequest()
     {
-        return \app\helpers\ScrapingHelper::getRequest($this->urls);
+		return \app\helpers\ScrapingHelper::getRequest($this->urls);
     }
 	
 	/**
@@ -81,6 +81,7 @@ class Scraping extends Model
 	{
 		$model = [];
 		$terms = $this->terms;
+		
 
 		$properties = [
 			'alertId'       => $this->alertId,
@@ -88,56 +89,46 @@ class Scraping extends Model
 			'date_searched' => \app\helpers\DateHelper::getToday(),
 			'type'          => self::TYPE_MENTIONS,
 		];
-		
-
 		if (!empty($data)) {
 			foreach ($data as $url => $values) {
+				$tmp = [];
 				//echo $url."\n";
 				foreach ($values as $link => $nodes) {
-					//echo $link."\n";
+					echo $link."\n";
 					for ($n=0; $n < sizeof($nodes) ; $n++) { 
-						//echo $nodes[$n]."\n";
-						$sentence = \app\helpers\StringHelper::lowercase($nodes[$n]);
+						$sentence = $nodes[$n];
 						for ($t=0; $t <sizeof($terms) ; $t++) { 
-							$term = \app\helpers\StringHelper::lowercase($terms[$t]);
-							$term_structured = \app\helpers\StringHelper::structure_product_to_search($term);
-							$isContains = \app\helpers\StringHelper::containsAny($sentence,$term_structured);
+							//$term = \app\helpers\StringHelper::lowercase($terms[$t]);
+							$product_data = \app\helpers\StringHelper::structure_product_to_search($terms[$t]);
+							$isContains = \app\helpers\StringHelper::containsAny($sentence,$product_data);
+
 							if ($isContains) {
-								if (!ArrayHelper::keyExists($terms[$t], $model, false)) {
-									$model[$terms[$t]] = [];
-								}
-								$register = [
-									'source' => [
-										'name' => \app\helpers\StringHelper::getDomain($link)
-									],
-									'url' => $link,
-									'content' => $sentence,
-									'message_markup' => $sentence
-								];
-								if (!in_array($register, $model[$terms[$t]])) {
-									$model[$terms[$t]][] = $register;
+								if(!in_array($sentence,$tmp)){
+									if (!ArrayHelper::keyExists($terms[$t], $model, false)) {
+										$model[$terms[$t]] = [];
+									}
+									$model[$terms[$t]][] = [
+										'source' => [
+											'name' => \app\helpers\StringHelper::getDomain($link)
+										],
+										'url' => $link,
+										'content' => $sentence,
+										'message_markup' => $sentence
+									];
 									$properties['term_searched'] = $terms[$t];
 									$properties['url'] = $url;
 									$this->_saveAlertsMencions($properties);
-								}
-							}else{
-								$ismodel = \app\models\AlertsMencions::find()->where([
-									'alertId'       => $this->alertId,
-									'resourcesId'   => $this->resourcesId,
-									'type'          => self::TYPE_MENTIONS,
-									'term_searched' => $terms[$t],
-									'url'			=> $link
-								])->one();
-								if (!is_null($ismodel)) {
-									$ismodel->date_searched = \app\helpers\DateHelper::getToday();
-									$ismodel->save();
+									$tmp[] = $sentence;
 								}
 							}
 						}
 					}// end loop nodes
+					unset($sentence);
 				}// end loop values
+				//unset($tmp);
 			}// end loop end data
 		}// end if emty data
+		unset($tmp);
 		$this->data = $model;
 		return (!empty($this->data)) ? true : false;
 	}

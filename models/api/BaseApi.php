@@ -165,6 +165,7 @@ class BaseApi extends Model {
 			if ($alert['config']['urls'] != '') {
 				$scraping = new \app\models\api\Scraping();
 				$query_params = $scraping->prepare($alert);
+				//$startTime = microtime(true);
 				$crawlers = $scraping->getRequest();
 				$content  = \app\helpers\ScrapingHelper::getContent($crawlers);
 				$data     = \app\helpers\ScrapingHelper::setContent($content);
@@ -172,6 +173,7 @@ class BaseApi extends Model {
 				if(!empty($model)){
 					$scraping->saveJsonFile();
 				}
+			//	echo "Elapsed time on : saveJsonFile ". (microtime(true) - $startTime) ." seconds \n";
 			}
 		}
 	}

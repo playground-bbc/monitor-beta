@@ -73,19 +73,22 @@ class ScrapingHelper{
 					$links_count = $crawler->filter('a')->count();
 					if ($links_count > 0) {
 						$links = $crawler->filter('a')->links();
+						
 						$all_links = [];
-						foreach ($links as $link) {
-						    $link_web = $link->getURI();
-						    $link_same_domain = \app\helpers\StringHelper::getDomain($link_web);
-						    if($domain == $link_same_domain){
-						      $all_links[] = $link_web;  
-						    }
-						    
-						} // for each links
 						// put original url
 						if (!in_array($url, $all_links)) {
 							array_push($all_links, $url);
 						}
+						foreach ($links as $link) {
+							$link_web = $link->getURI();
+							$link_same_domain = \app\helpers\StringHelper::getDomain($link_web);
+						    if($domain == $link_same_domain){
+							  $url_without_query_string = strtok($link_web, '?');
+						      $all_links[] = $url_without_query_string;  
+						    }
+						    
+						} // for each links
+						
 						$all_links = array_unique($all_links);
 						// reorder array
 						$links_order = array_values($all_links);
@@ -99,6 +102,14 @@ class ScrapingHelper{
 				continue;
 			}
 		}
+		// $urls = [
+		// 	'https://www.lg.com'=>[
+		// 		'domain' => 'lg.com',
+		// 		'links'  => [
+		// 			'https://www.lg.com/es'
+		// 		],
+		// 	]
+		// ];
 		return $urls;
 		
 	}
@@ -178,6 +189,8 @@ class ScrapingHelper{
 	    $client->setClient($guzzleClient);
         $crawler = [];
 
+		//$startTime = microtime(true);
+
         if (!empty($urls)) {
             foreach ($urls as $url => $values) {
                 if (!empty($values['links'])) {
@@ -204,6 +217,7 @@ class ScrapingHelper{
                 }// end if empty
             }// end loop foreach
 		}// end if empty
+		//echo "Elapsed time on : getRequest ". (microtime(true) - $startTime) ." seconds \n";
         return $crawler;
     }
 	/**
@@ -227,7 +241,7 @@ class ScrapingHelper{
 	                    		//echo $rule."\n";
 	                    		return [
 		                           // 'id' => $node->extract(['id'])[0],
-		                            '_text' => trim($text_without_spaces),
+		                            '_text' => \app\helpers\StringHelper::lowercase(trim($text_without_spaces)),
 		                        ];
 	                    	}
 	                    	//return null;

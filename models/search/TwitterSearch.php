@@ -185,9 +185,9 @@ class TwitterSearch
                 $mention->message_markup  = $message_markup;
                 $mention->alert_mentionId = $alertsMencions->id;
 
-                if(strlen($mention->message) > 2){
-                    $this->saveOrUpdatedCommonWords($mention,$mention->alert_mentionId);
-                }
+                // if(strlen($mention->message) > 2){
+                //     $this->saveOrUpdatedCommonWords($mention,$mention->alert_mentionId);
+                // }
 
             }
             unset($mention_data);

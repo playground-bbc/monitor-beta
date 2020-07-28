@@ -170,23 +170,33 @@ class ScrapingSearch
 		$url = $content['url'];
 		$domain_url = \app\helpers\StringHelper::getDomain($content['url']);
 
+		// set params for search
+		$alertsMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($this->alertId,$this->resourcesId);
 
-		$mention = \app\helpers\MentionsHelper::saveMencions(
-		    [
-		        'alert_mentionId'     => $alertsMencionsId,
-		        'origin_id'           => $originId ,
-		        'message'             => $message,
-		    ],
-		    [
-		        'created_time'   => $created_time,
-		        'message'        => $message,
-		        'message_markup' => $message_markup,
-		        'url'            => $url ,
-		        'domain_url'     => $domain_url ,
-		        'location'       => '-' ,
-		        
-		    ]
-		);
+		if(!\app\models\Mentions::find()->where(
+			[
+				'alert_mentionId' => $alertsMentionsIds,
+				'message'         => $message,
+			])->exists()){
+
+			$mention  = new \app\models\Mentions();
+			$mention->origin_id = $originId;
+			$mention->alert_mentionId = $alertsMencionsId;
+			$mention->created_time = $created_time;
+			$mention->message = $message;
+			$mention->message_markup  = $message_markup;
+			$mention->url   = $url;
+			$mention->domain_url = $domain_url;
+			
+
+			// if(strlen($mention->message) > 2){
+			// 	$this->saveOrUpdatedCommonWords($mention,$mention->alert_mentionId);
+			// }	
+			
+			
+		}
+		unset($mention_data);
+		if(!$mention->save()){ throw new \Exception('Error mentions Save');}
 
 		return $mention;
 

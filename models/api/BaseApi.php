@@ -165,18 +165,11 @@ class BaseApi extends Model {
 			if ($alert['config']['urls'] != '') {
 				$scraping = new \app\models\api\Scraping();
 				$query_params = $scraping->prepare($alert);
-				
 				//$startTime = microtime(true);
-				
 				$crawlers = $scraping->getRequest();
-				//echo "Elapsed time on : getRequest ". (microtime(true) - $startTime) ." seconds \n";
 				$content  = \app\helpers\ScrapingHelper::getContent($crawlers);
-				//echo "Elapsed time on : \ScrapingHelper::getContent ". (microtime(true) - $startTime) ." seconds \n";
 				$data     = \app\helpers\ScrapingHelper::setContent($content);
-			//	echo "Elapsed time on : \ScrapingHelper::setContent ". (microtime(true) - $startTime) ." seconds \n";
-				$startTime = microtime(true);
 				$model    = $scraping->searchTermsInContent($data);
-				//echo "Elapsed time on : \ScrapingHelper::scraping->searchTermsInContent ". (microtime(true) - $startTime) ." seconds \n";
 				if(!empty($model)){
 					$scraping->saveJsonFile();
 				}

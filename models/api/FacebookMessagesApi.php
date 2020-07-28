@@ -284,14 +284,14 @@ class FacebookMessagesApi extends Model {
 							if(\app\helpers\DateHelper::isBetweenDate($created_time,$this->start_date,$this->end_date)){
 								$messages[$m]['data'][$d]['messages']['data'][$c]['url'] = $url_link; 
 								// destrutura el product
-								$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p]);
+								$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p],false);
 								// if mentions products
 								$is_contains =  \app\helpers\StringHelper::containsAny($message,$product_data);
 								
 								if($is_contains){
 									if(!in_array($message_id, $id_recolect)){
 										if(!ArrayHelper::keyExists($this->products[$p], $data, false)){
-										$data[$this->products[$p]] = [] ;
+											$data[$this->products[$p]] = [];
 										}
 										if(!ArrayHelper::keyExists($message_id,$data[$this->products[$p]], false)){
 

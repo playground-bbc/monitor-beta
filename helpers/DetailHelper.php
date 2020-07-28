@@ -909,12 +909,20 @@ class DetailHelper {
             );
         }
 
-
+        
         if($resourceName == 'Paginas Webs'){
             array_push($columns,
 
                 self::composeColum("Mencion","message_markup","raw",function($model){
                     return $model['message_markup'];
+                }),
+
+                self::composeColum("Dominio","","raw",function($model){
+                    $domain = '-';
+                    if(!is_null($model['domain_url'])){
+                        $domain = \yii\helpers\Html::encode($model['domain_url']);  
+                    }
+                    return $domain;
                 }),
 
                 self::composeColum("Url Comentario","","raw",function($model){

@@ -136,6 +136,7 @@ class MentionSearch extends Mentions
           'user_data' => 'u.user_data',
           'subject' => 'm.subject',
           'message_markup' => 'm.message_markup',
+          'domain_url' => 'm.domain_url',
           'social_id' => 'm.social_id',
           'mention_data' => 'm.mention_data',
           'url' => 'm.url',

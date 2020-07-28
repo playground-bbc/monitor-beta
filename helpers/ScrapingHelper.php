@@ -316,7 +316,9 @@ class ScrapingHelper{
 				if(!\app\helpers\StringHelper::isEmpty($word_remove_tags) && !is_numeric($word_remove_tags)){
 					$word_lower = \app\helpers\StringHelper::lowercase($word_remove_tags);
 					if(!is_null($stopWord_en->transform($word_lower)) && !is_null($stopWord_es->transform($word_lower)) && count($data) < $limit){
-						$data[$word_lower] = $value;
+						$word_encode = \yii\helpers\Html::encode($word_lower);
+						$data[$word_encode] = $value;
+						unset($word_encode);
 					}
 				}
 			}

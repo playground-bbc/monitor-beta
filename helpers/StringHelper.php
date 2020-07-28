@@ -29,17 +29,37 @@ class StringHelper
      * @param  [string] $product   [product to convert]
      * @return [array] $data [ej: ['ThinQ','Aurora','Black']]
      */
-    public static function structure_product_to_search($product)
+    public static function structure_product_to_search($term)
     {
-        $black_list_words = ['con','por','casa','oficina','blue','ice','fit','frontal','dual','tv','televisor'];
+        $data = [];
+        $white_list = [' MundoLG ',' LG '];
+        // put original terms in data
+        $data[] = $term;
+        // put original lower terms in data
+        $data[] = self::lowercase($term);
+        // put original upper terms in data
+        $data[] = self::uppercase($term);
+        // put original upper case word terms in data
+        $data[] = self::uppercaseWords($term);
         // if acents
-        $product = self::normalizeChars($product);
+        $term_normalize = self::normalizeChars($term);
+        $data[] = $term_normalize;
+        // concat for white list
+        $temp = $data;
+        foreach ($temp as $term){
+            foreach($white_list as $product){
+                $temp[] = "{$term}{$product}";
+                $temp[] = "{$product}{$term}";
+            }
+        }
+        $data = array_merge($data,$temp);
+        unset($temp);
         // eliminamos / y -
-        $s = trim(preg_replace('/[\W]+/', ' ', $product));
+        $s = trim(preg_replace('/[\W]+/', ' ', $term_normalize));
         // convertimos en array 
         $product_exploded = explode(' ',$s);
 
-        $data = [];
+        
         // recorremos el array
         foreach($product_exploded as $product){
             $stringy = S::create($product);
@@ -49,7 +69,7 @@ class StringHelper
                     // si no esta en el array para evitar repetidos
                     if(!in_array($product,$data)){
                         // if not black_list_words
-                        if(!in_array($product,$black_list_words)){
+                        if(!in_array(self::lowercase($product),self::blacklistTermsProductsLG())){
                             $data[] = " {$product} ";
                         }
 
@@ -58,8 +78,61 @@ class StringHelper
             }
             
         }
-        return $data;
+        $data = array_merge($data,$white_list);
+        $term_to_search = [];
 
+        foreach($data as $term){
+            if(!in_array($term,$term_to_search)){
+                $term_to_search [] = $term;
+            }
+        }
+        unset($data);
+        return $term_to_search;
+
+    }
+
+    public static function blacklistTermsProductsLG(){
+        return [
+                'en',
+                'con',
+                'por',
+                'casa',
+                'oficina',
+                'blue',
+                'ice',
+                'fit',
+                'frontal',
+                'dual',
+                'de',
+                'la',
+                'el',
+                'los',
+                'carga',
+                'superior',
+                'kilos',
+                'top',
+                'capacidad',
+                'total',
+                'l',
+                'by',
+                'grill',
+                'litros',
+                'combo',
+                'mini',
+                'new',
+                'gb',
+                'blue',
+                'black',
+                'premium',
+                'cuatro',
+                'plus',
+                'negro',
+                'gold',
+                'plus',
+                'triple',
+                'Cámaras'
+
+        ];
     }
     /**
      * https://github.com/danielstjules/Stringy#containsanyarray-needles--boolean-casesensitive--true-
@@ -93,6 +166,24 @@ class StringHelper
     public static function dasherize($sentence){
         $s = new Stringizer($sentence);
         return $s->dasherize();
+    }
+
+    /**
+     * https://github.com/jasonlam604/Stringizer#uppercaseWords
+     */
+    public static function uppercaseWords($sentence){
+        $s = new Stringizer($sentence);
+        $s->uppercaseWords();
+        return $s->getString();
+    }
+
+    /**
+     * https://github.com/jasonlam604/Stringizer#uppercase
+     */
+    public static function uppercase($sentence){
+        $s = new Stringizer($sentence);
+        $s->uppercase();
+        return $s->getString();
     }
 
     /**

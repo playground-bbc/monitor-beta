@@ -75,6 +75,10 @@ class ScrapingHelper{
 						$links = $crawler->filter('a')->links();
 						
 						$all_links = [];
+						// put original url
+						if (!in_array($url, $all_links)) {
+							array_push($all_links, $url);
+						}
 						foreach ($links as $link) {
 							$link_web = $link->getURI();
 							$link_same_domain = \app\helpers\StringHelper::getDomain($link_web);
@@ -84,10 +88,7 @@ class ScrapingHelper{
 						    }
 						    
 						} // for each links
-						// put original url
-						if (!in_array($url, $all_links)) {
-							array_push($all_links, $url);
-						}
+						
 						$all_links = array_unique($all_links);
 						// reorder array
 						$links_order = array_values($all_links);

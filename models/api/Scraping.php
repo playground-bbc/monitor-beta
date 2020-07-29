@@ -94,7 +94,7 @@ class Scraping extends Model
 				$tmp = [];
 				//echo $url."\n";
 				foreach ($values as $link => $nodes) {
-					echo $link."\n";
+					//echo $link."\n";
 					for ($n=0; $n < sizeof($nodes) ; $n++) { 
 						$sentence = $nodes[$n];
 						for ($t=0; $t <sizeof($terms) ; $t++) { 

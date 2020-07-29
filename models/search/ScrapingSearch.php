@@ -193,10 +193,11 @@ class ScrapingSearch
 			// 	$this->saveOrUpdatedCommonWords($mention,$mention->alert_mentionId);
 			// }	
 			
+			unset($mention_data);
+			if(!$mention->save()){ throw new \Exception('Error mentions Save');}
 			
 		}
-		unset($mention_data);
-		if(!$mention->save()){ throw new \Exception('Error mentions Save');}
+		
 
 		return $mention;
 

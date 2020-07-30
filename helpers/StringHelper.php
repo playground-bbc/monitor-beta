@@ -23,60 +23,28 @@ use Stringizer\Stringizer;
 class StringHelper
 {
 
-	
-    /**
-     * [convert a product string in to array ,delete / and () if exclude words less to 3]
-     * @param  [string] $product   [product to convert]
-     * @return [array] $data [ej: ['ThinQ','Aurora','Black']]
-     */
-    public static function structure_product_to_search($term,$w_list = true)
+    public static function structure_product_to_search($product)
     {
-        $data = [];
-        $white_list = [' MundoLG ',' LG '];
-        // put original terms in data
-        $data[] = $term;
-        // put original lower terms in data
-        $data[] = self::lowercase($term);
-        // put original upper terms in data
-        $data[] = self::uppercase($term);
-        // put original upper case word terms in data
-        $data[] = self::uppercaseWords($term);
+        $black_list_words = ['con','por','Casa','oficina','Blue','Ice','Fit','Frontal'];
         // if acents
-        $term_normalize = self::normalizeChars($term);
-        $data[] = $term_normalize;
-        // concat for white list
-        if($w_list){
-            $temp = $data;
-            foreach ($temp as $term){
-                foreach($white_list as $product){
-                    $temp[] = "{$term}{$product}";
-                    $temp[] = "{$product}{$term}";
-                }
-            }
-            $data = array_merge($data,$temp);
-            unset($temp);
-        }
-        
+        $product = self::normalizeChars($product);
         // eliminamos / y -
-        $s = trim(preg_replace('/[\W]+/', ' ', $term_normalize));
+        $s = trim(preg_replace('/[\W]+/', ' ', $product));
         // convertimos en array 
         $product_exploded = explode(' ',$s);
-        // search word LG and unset
-        $clave = array_search('LG', $product_exploded);
-        if($clave !== false){
-            unset($product_exploded[$clave]);
-        }
+
+        $data = [];
         // recorremos el array
         foreach($product_exploded as $product){
             $stringy = S::create($product);
             // contamos si el product a buscar es mayor a 3 palabras o si es un valor numeric
-            if(count($stringy) >= 1){
+            if(count($stringy) >= 3){
                 if(!is_numeric($product)){
                     // si no esta en el array para evitar repetidos
                     if(!in_array($product,$data)){
                         // if not black_list_words
-                        if(!in_array(self::lowercase($product),self::blacklistTermsProductsLG())){
-                            $data[] = " {$product} ";
+                        if(!in_array($product,$black_list_words)){
+                            $data[] = $product;
                         }
 
                     }
@@ -84,19 +52,83 @@ class StringHelper
             }
             
         }
-       
-        
-        $term_to_search = [];
-
-        foreach($data as $term){
-            if(!in_array($term,$term_to_search)){
-                $term_to_search [] = $term;
-            }
-        }
-        unset($data);
-        return $term_to_search;
+        return $data;
 
     }
+	
+    /**
+     * [convert a product string in to array ,delete / and () if exclude words less to 3]
+     * @param  [string] $product   [product to convert]
+     * @return [array] $data [ej: ['ThinQ','Aurora','Black']]
+     */
+    // public static function structure_product_to_search($term,$w_list = true)
+    // {
+    //     $data = [];
+    //     $white_list = [' MundoLG ',' LG '];
+    //     // put original terms in data
+    //     $data[] = $term;
+    //     // put original lower terms in data
+    //     $data[] = self::lowercase($term);
+    //     // put original upper terms in data
+    //     $data[] = self::uppercase($term);
+    //     // put original upper case word terms in data
+    //     $data[] = self::uppercaseWords($term);
+    //     // if acents
+    //     $term_normalize = self::normalizeChars($term);
+    //     $data[] = $term_normalize;
+    //     // concat for white list
+    //     if($w_list){
+    //         $temp = $data;
+    //         foreach ($temp as $term){
+    //             foreach($white_list as $product){
+    //                 $temp[] = "{$term}{$product}";
+    //                 $temp[] = "{$product}{$term}";
+    //             }
+    //         }
+    //         $data = array_merge($data,$temp);
+    //         unset($temp);
+    //     }
+        
+    //     // eliminamos / y -
+    //     $s = trim(preg_replace('/[\W]+/', ' ', $term_normalize));
+    //     // convertimos en array 
+    //     $product_exploded = explode(' ',$s);
+    //     // search word LG and unset
+    //     $clave = array_search('LG', $product_exploded);
+    //     if($clave !== false){
+    //         unset($product_exploded[$clave]);
+    //     }
+    //     // recorremos el array
+    //     foreach($product_exploded as $product){
+    //         $stringy = S::create($product);
+    //         // contamos si el product a buscar es mayor a 3 palabras o si es un valor numeric
+    //         if(count($stringy) >= 1){
+    //             if(!is_numeric($product)){
+    //                 // si no esta en el array para evitar repetidos
+    //                 if(!in_array($product,$data)){
+    //                     // if not black_list_words
+    //                     if(!in_array(self::lowercase($product),self::blacklistTermsProductsLG())){
+    //                         $data[] = " {$product} ";
+    //                     }
+
+    //                 }
+    //             }
+    //         }
+            
+    //     }
+       
+        
+    //     $term_to_search = [];
+
+    //     foreach($data as $term){
+    //         if(!in_array($term,$term_to_search)){
+    //             $term_to_search [] = $term;
+    //         }
+    //     }
+    //     unset($data);
+    //     return $term_to_search;
+
+    // }
 
     public static function blacklistTermsProductsLG(){
         return [

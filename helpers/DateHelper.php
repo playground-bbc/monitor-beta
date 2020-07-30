@@ -16,6 +16,10 @@ use Jenssegers\Date\Date;
  */
 class DateHelper
 {
+
+    public static function createFormat($date,$format= 'Y-m-d H:i:s'){
+        return Date::createFromFormat($format, Date::parse($date));
+    }
 	/**
      * [add plus a date depending in number]
      * @param  [string] $date   [date]

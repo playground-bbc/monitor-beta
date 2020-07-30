@@ -55,7 +55,6 @@ class AlertMentionsHelper
      */
     public static function getAlersMentions($properties = []){
         $alertsMencions = \app\models\AlertsMencions::find()->where($properties)->asArray()->all();
-
         return (!empty($alertsMencions)) ? $alertsMencions : null;
     }
 

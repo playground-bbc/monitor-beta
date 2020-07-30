@@ -114,7 +114,6 @@ class FacebookCommentsApi extends Model {
 
 	}
 
-
 	/**
 	 * [call loop in to for each alert and call method _getComments]
 	 * @param  array  $query_params   [array of query]
@@ -137,22 +136,32 @@ class FacebookCommentsApi extends Model {
 		
 	}
 
+	/**
+	 * [_getDataApi call methods to get data from api facebook]
+	 * @param  [array] $query_params [all posts and comments]
+	 * @return [array] $responseData [ post/comments]
+	 */
 	private function _getDataApi($query_params){
 
 		$feeds = $this->_getPostsComments($query_params);
-		
-		$feedsCandidate = $this->_setCandidate($feeds);
-
-		$feeds_comments = $this->_getComments($feedsCandidate);
-		$feeds_reviews = $this->_getSubComments($feeds_comments);
-		$model = $this->_orderFeedsComments($feeds_reviews);
-
-		
-		return $model;
-
-			
+		if(!empty($feeds)){
+			// get post candidate with terms
+			$feedsCandidate = $this->_setCandidate($feeds);
+			// get comments
+			$feeds_comments = $this->_getComments($feedsCandidate);
+			// get anwers the comments
+			$feeds_reviews = $this->_getSubComments($feeds_comments);
+			// order post and comments
+			$model = $this->_orderFeedsComments($feeds_reviews);
+			return $model;
+		}
 	}
 
+	/**
+	 * [_getPostsComments call API to get post on facebook]
+	 * @param  [array] $query_params [all posts and comments]
+	 * @return [array] $responseData [ post/comments]
+	 */
 	private function _getPostsComments($query_params){
 		$client = $this->_client;
 		// simple query
@@ -199,9 +208,49 @@ class FacebookCommentsApi extends Model {
 					
 					$is_next = (empty($data['data'])) ? false : true;
 
+					// if there comments, check if post is register - check the time his update 	
 					if(isset($data['data'][0]['comments']['data'])){
-						$responseData[$index] = $data;
-						$index++;
+						// point current feed
+						$feed = current($data['data']);
+
+						$publication_id = \yii\helpers\ArrayHelper::getValue($feed,'id' ,false);
+						// if post is not register: get all data
+						if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExists($publication_id,$this->alertId)){
+							$responseData[$index] = $data;
+							$index++;
+						}else{
+							$updated_time = \yii\helpers\ArrayHelper::getValue($feed,'updated_time' ,false);
+							$post_model = \app\helpers\AlertMentionsHelper::getAlersMentions(['alertId' => $this->alertId,'publication_id' => $publication_id]);
+							// format date
+							$updated_time = \app\helpers\DateHelper::createFormat($updated_time);
+							$max_id = (int) \yii\helpers\ArrayHelper::getValue($post_model[0],'max_id' ,false);
+							
+							
+							if($updated_time->timestamp > $max_id){
+								// update max_id
+								$model = \app\models\AlertsMencions::find()->where(['alertId' => $this->alertId,'publication_id' => $publication_id])->one();
+								$model->max_id = strtotime("+5 seconds",$updated_time->timestamp);
+								// update shares
+								if(isset($feed['shares']['count'])){
+									$mention_data = [
+										'shares' => $feed['shares']['count'],
+									];
+								}
+								//update reations
+								if(isset($feed['insights']['data'])){
+									$mention_data = [
+										'reations' => $feed['insights']['data'][0]['values'][0]['value']
+									];
+								}
+								
+								$model->mention_data = $mention_data;
+								$model->save();
+								$responseData[$index] = $data;
+								$index++;
+							}
+						}
+						
+						
 					}
 					
 
@@ -218,6 +267,11 @@ class FacebookCommentsApi extends Model {
 		}
 	}
 
+	/**
+	 * [_getComments call comments if there and loop by paginations]
+	 * @param  [array] $feeds [all posts and comments]
+	 * @return [array] $feeds [ post/comments]
+	 */
 	private function _getComments($feeds){
 		$client = $this->_client;
 		 
@@ -236,7 +290,7 @@ class FacebookCommentsApi extends Model {
 
 		// for each pagination
 		for($p = 0; $p < sizeOf($feeds); $p++){
-			if(isset($feeds['data'])){
+			if(isset($feeds[$p]['data'])){
 				// for each feed is limit is one
 				for($d=0; $d < sizeOf($feeds[$p]['data']); $d++){
 					// take id post
@@ -280,7 +334,7 @@ class FacebookCommentsApi extends Model {
 	                            }
 	                            // get the after
 	                            if(\yii\helpers\ArrayHelper::getValue($comments,'paging.next' ,false)){ // if next
-	                                $next = \yii\helpers\ArrayHelper::getValue($comments,'paging.next' ,false);
+									$next = \yii\helpers\ArrayHelper::getValue($comments,'paging.next' ,false);
 	                                $is_next = true;
 	                            }else{
 	                                $is_next = false;
@@ -335,6 +389,11 @@ class FacebookCommentsApi extends Model {
 		
 	}
 
+	/**
+	 * [_isLastComments call check is last comment compair last record on db : depred]
+	 * @param  depred
+	 * @return depred
+	 */
 	private function _isLastComments($feeds,$params){
 		
 		// params to save in AlertMentionsHelper and get
@@ -384,7 +443,11 @@ class FacebookCommentsApi extends Model {
 		return $feeds;
 	}
 
-
+	/**
+	 * [_getSubComments call sub comments if there and loop by paginations]
+	 * @param  [array] $feeds_comments [all posts and comments]
+	 * @return [array] $feeds_comments [ post/comments]
+	 */
 	private function _getSubComments($feeds_comments){
 		$client = $this->_client;
 
@@ -412,9 +475,6 @@ class FacebookCommentsApi extends Model {
 					$lasted_update = $feeds_comments[$p]['data'][$d]['updated_time'];
 					$id_feed = $feeds_comments[$p]['data'][$d]['id'];
 
-
-					
-
 					// if there comments
 					if(isset($feeds_comments[$p]['data'][$d]['comments'])){
 
@@ -427,7 +487,6 @@ class FacebookCommentsApi extends Model {
 								for($s=0; $s < sizeOf($feeds_comments[$p]['data'][$d]['comments']['data'][$c]['comments']['data']); $s++){
 									
 									$id_message = $feeds_comments[$p]['data'][$d]['comments']['data'][$c]['comments']['data'][$s]['id'];
-
 									//echo $id_message. "\n";
 									
 									$commentsResponse = $client->get($id_message,[
@@ -436,19 +495,19 @@ class FacebookCommentsApi extends Model {
 									])->send();// more comments then
 									
 									// if get error data
-		                            if(\yii\helpers\ArrayHelper::getValue($commentsResponse->getData(),'error' ,false)){
-		                                // send email with data $responseData[$index]['error']['message']
-		                                break;
-		                            }
+									if(\yii\helpers\ArrayHelper::getValue($commentsResponse->getData(),'error' ,false)){
+										// send email with data $responseData[$index]['error']['message']
+										break;
+									}
 
-		                            $responseHeaders = $commentsResponse->headers->get('x-business-use-case-usage'); // get headers
-		                            // if over the limit
-		                            if(\app\helpers\FacebookHelper::isCaseUsage($responseHeaders)){
-		                            	break;
-		                            }
-
+									$responseHeaders = $commentsResponse->headers->get('x-business-use-case-usage'); // get headers
+									// if over the limit
+									if(\app\helpers\FacebookHelper::isCaseUsage($responseHeaders)){
+										break;
+									}
 
 									array_push($feeds_comments[$p]['data'][$d]['comments']['data'][$c]['comments']['data'][$s],$commentsResponse->getData());
+
 								}
 							}
 						}
@@ -467,10 +526,14 @@ class FacebookCommentsApi extends Model {
 
 		}
 
-
 		return $feeds_comments;
 	}
 
+	/**
+	 * [_orderFeedsComments return order post and his comments]
+	 * @param  [array] $feeds_reviews [all posts and comments]
+	 * @return [array] $model [ post/comments]
+	 */
 	private function _orderFeedsComments($feeds_reviews){
 
 		$model = [];
@@ -532,65 +595,71 @@ class FacebookCommentsApi extends Model {
 		return $model;
 	}
 
+	/**
+	 * [_orderComments return order comments data]
+	 * @param  [array] $comments [all comments]
+	 * @return [array] $data [ comments]
+	 */
 	private function _orderComments($comments){
 
 		$data = [];
 		$index = 0;
+		
 		for($c=0; $c < sizeOf($comments['data']); $c++){
 			if(!\app\helpers\StringHelper::isEmpty($comments['data'][$c]['message'])){
 
-				if(\app\helpers\DateHelper::isBetweenDate($comments['data'][$c]['created_time'],$this->start_date,$this->end_date)){
 
-					$data[$index]['id'] = $comments['data'][$c]['id'];
-					$data[$index]['created_time'] = $comments['data'][$c]['created_time'];
-					$data[$index]['like_count'] = $comments['data'][$c]['like_count'];
-					$data[$index]['permalink_url'] = $comments['data'][$c]['permalink_url'];
-					// remove emoji 
-					//$message = \app\helpers\StringHelper::remove_emoji($comments['data'][$c]['message']);
-					// remove accent
-					$message = \app\helpers\StringHelper::replaceAccents($comments['data'][$c]['message']);
+				$data[$index]['id'] = $comments['data'][$c]['id'];
+				$data[$index]['created_time'] = $comments['data'][$c]['created_time'];
+				$data[$index]['like_count'] = $comments['data'][$c]['like_count'];
+				$data[$index]['permalink_url'] = $comments['data'][$c]['permalink_url'];
+				
+				// remove accent
+				$is_emojis = \Emoji\detect_emoji($comments['data'][$c]['message']);
+				$message = (empty($is_emojis)) ? \app\helpers\StringHelper::replaceAccents($comments['data'][$c]['message']): $comments['data'][$c]['message'];
 
-					$data[$index]['message'] = $message;
-					$data[$index]['message_markup'] = $message;
+				$data[$index]['message'] = $message;
+				$data[$index]['message_markup'] = $message;
 
-					
-					if(isset($comments['data'][$c]['comments'])){
+				
+				if(isset($comments['data'][$c]['comments'])){
 
-						for($s= 0; $s < sizeOf($comments['data'][$c]['comments']['data']); $s++){
+					for($s= 0; $s < sizeOf($comments['data'][$c]['comments']['data']); $s++){
 
-							if (isset($comments['data'][$c]['comments']['data'][$s][0]['created_time'])) {
-								if(\app\helpers\DateHelper::isBetweenDate($comments['data'][$c]['comments']['data'][$s][0]['created_time'],$this->start_date,$this->end_date)){
-
-									$index ++;
-									$data[$index]['id'] = $comments['data'][$c]['comments']['data'][$s][0]['id'];
-									$data[$index]['created_time'] = $comments['data'][$c]['comments']['data'][$s][0]['created_time'];
-									if(isset($comments['data'][$c]['comments']['data'][$s][0]['permalink_url'])){
-										$data[$index]['permalink_url'] = $comments['data'][$c]['comments']['data'][$s][0]['permalink_url'];
-									}
-									if(isset($comments['data'][$c]['comments']['data'][$s][0]['like_count'])){
-										$data[$index]['like_count'] = $comments['data'][$c]['comments']['data'][$s][0]['like_count'];	
-									}
-									
-									// remove emoji
-									//$coment = \app\helpers\StringHelper::remove_emoji($comments['data'][$c]['comments']['data'][$s][0]['message']);
-									$coment = \app\helpers\StringHelper::replaceAccents($comments['data'][$c]['comments']['data'][$s][0]['message']);
-
-									$data[$index]['message'] = $coment;
-									$data[$index]['message_markup'] = $coment;
-
-								}
+						if (isset($comments['data'][$c]['comments']['data'][$s][0]['created_time'])) {
+							$index ++;
+							$data[$index]['id'] = $comments['data'][$c]['comments']['data'][$s][0]['id'];
+							$data[$index]['created_time'] = $comments['data'][$c]['comments']['data'][$s][0]['created_time'];
+							if(isset($comments['data'][$c]['comments']['data'][$s][0]['permalink_url'])){
+								$data[$index]['permalink_url'] = $comments['data'][$c]['comments']['data'][$s][0]['permalink_url'];
 							}
+							if(isset($comments['data'][$c]['comments']['data'][$s][0]['like_count'])){
+								$data[$index]['like_count'] = $comments['data'][$c]['comments']['data'][$s][0]['like_count'];	
+							}
+							
+							// remove accent if not emoji
+							$is_emojis = \Emoji\detect_emoji($comments['data'][$c]['message']);
+							$coment = (empty($is_emojis)) ? 
+							\app\helpers\StringHelper::replaceAccents($comments['data'][$c]['comments']['data'][$s][0]['message'])
+							: $comments['data'][$c]['comments']['data'][$s][0]['message'];
+
+							$data[$index]['message'] = $coment;
+							$data[$index]['message_markup'] = $coment;
 						}
 					}
-					$index ++;
-
 				}
+				$index ++;
 
 			}			
 		}
 		return $data;
 	}
 
+	/**
+	 * [_orderDataByProducts return only post when his title check with the term to search]
+	 * @param  [array] $data [all posts]
+	 * @return [array] $feeds_candidate [ post filter by term]
+	 */
 	private function _orderDataByProducts($data){
 		$model = [];
 		$feed_count = count($data);
@@ -656,7 +725,11 @@ class FacebookCommentsApi extends Model {
 
 	}
 
-
+	/**
+	 * [_setCandidate return only post when his title check with the term to search]
+	 * @param  [array] $feeds [all posts]
+	 * @return [array] $feeds_candidate [ post filter by term]
+	 */
 	private function _setCandidate($feeds){
 		$feeds_candidate = [];
 		
@@ -685,7 +758,10 @@ class FacebookCommentsApi extends Model {
 		
 		return $feeds_candidate;
 	}
-
+	/**
+	 * [saveJsonFile save the content on json file]
+	 * @return avoid
+	 */
 	public function saveJsonFile(){
 		$source = 'Facebook Comments';
 		if(!is_null($this->data)){
@@ -700,6 +776,10 @@ class FacebookCommentsApi extends Model {
 
 	}
 
+	/**
+	 * [searchFinish checks if this resources is finish]
+	 * @return avoid
+	 */
 	private function searchFinish()
 	{
 		$model = [
@@ -733,7 +813,6 @@ class FacebookCommentsApi extends Model {
 
 	}
 
-
 	/**
 	 * [_postCommentsSimpleQuery buidl a simple query post and their comments]
 	 * @param  [string] $access_token_page [access_token_page by page]
@@ -757,36 +836,14 @@ class FacebookCommentsApi extends Model {
 		return $this->_client;
 	}
 
-	/**
-	 * [_setResourceId return the id from resource]
-	 */
-	private function _setResourceId(){
-		
-		$socialId = (new \yii\db\Query())
-		    ->select('id')
-		    ->from('type_resources')
-		    ->where(['name' => 'Social media'])
-		    ->one();
-		
-		
-		$resourcesId = (new \yii\db\Query())
-		    ->select('id')
-		    ->from('resources')
-		    ->where(['name' => 'Facebook Comments','resourcesId' => $socialId['id']])
-		    ->all();
-		
-
-		$this->resourcesId = ArrayHelper::getColumn($resourcesId,'id')[0];    
-	}
-
 
 	function __construct(){
 		
 		// set resource 
-		$this->_setResourceId();
+		$this->resourcesId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Facebook Comments');
 		// get client
 		$this->_getClient();
-		
+		// call parent model
 		parent::__construct(); 
 	}
 }

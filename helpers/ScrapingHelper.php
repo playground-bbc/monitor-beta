@@ -313,7 +313,7 @@ class ScrapingHelper{
 				$word_remove = \app\helpers\StringHelper::replacingPeriodsCommasAndExclamationPoints($word);
 				$word_remove_emoji = \app\helpers\StringHelper::remove_emoji($word_remove);
 				$word_remove_tags = \app\helpers\StringHelper::stripTags($word_remove_emoji);
-				if(!\app\helpers\StringHelper::isEmpty($word_remove_tags) && !is_numeric($word_remove_tags)){
+				if(!\app\helpers\StringHelper::isEmpty($word_remove_tags) && !is_numeric($word_remove_tags) && \app\helpers\StringHelper::isAscii($word_remove_tags)){
 					$word_lower = \app\helpers\StringHelper::lowercase($word_remove_tags);
 					if(!is_null($stopWord_en->transform($word_lower)) && !is_null($stopWord_es->transform($word_lower)) && count($data) < $limit){
 						$word_encode = \yii\helpers\Html::encode($word_lower);

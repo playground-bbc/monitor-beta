@@ -99,7 +99,7 @@ class Scraping extends Model
 						$sentence = $nodes[$n];
 						for ($t=0; $t <sizeof($terms) ; $t++) { 
 							//$term = \app\helpers\StringHelper::lowercase($terms[$t]);
-							$product_data = \app\helpers\StringHelper::structure_product_to_search($terms[$t]);
+							$product_data = \app\helpers\StringHelper::structure_product_to_search_to_scraping($terms[$t]);
 							$isContains = \app\helpers\StringHelper::containsAny($sentence,$product_data);
 
 							if ($isContains) {

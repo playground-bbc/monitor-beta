@@ -63,31 +63,10 @@ class InstagramCommentsApi extends Model {
 			$this->start_date = $alert['config']['start_date'];
 			$this->end_date   = $alert['config']['end_date'];
 
-			//get from alermentios
-			$alertsMencions = \app\models\AlertsMencions::find()->where([
-	    		'alertId'       => $this->alertId,
-		        'resourcesId'   => $this->resourcesId,
-		        'type'        	=> 'comments Instagram',
-	    	])->all();
-
-	    	if (count($alertsMencions)) {
-	    		$products = [];
-	    		foreach ($alertsMencions as $alertsMencion) {
-	    			if(in_array($alertsMencion->term_searched, $alert['products'])){
-	    				$index = array_search($alertsMencion->term_searched, $alert['products']);
-	    				unset($alert['products'][$index]);
-	    			}
-	    		}
-
-	    		$alert['products'] = array_values($alert['products']);
-
-	    	}
-			////
 			
 			// order products by his  length
 			array_multisort(array_map('strlen', $alert['products']), $alert['products']);
 			$this->products   = $alert['products'];
-
 			if (count($this->products)) {
 				return $this->_setParams();
 			} else {
@@ -108,7 +87,7 @@ class InstagramCommentsApi extends Model {
 		//$this->data[] = $this->_getDataApi($query_params);
 		$data = $this->_getDataApi($query_params);
 		// set if search finish
-		$this->searchFinish();
+		//$this->searchFinish();
 
 		if($data){
 			$this->data[] = $data;
@@ -124,11 +103,11 @@ class InstagramCommentsApi extends Model {
 
 
 		$feeds = $this->_getPosts($query_params);
-
+		
 		// if there post
 		if(count($feeds)){
 			$filter_feeds = $this->_filterFeedsbyProducts($feeds);
-
+			
 			$feeds_comments = $this->_getComments($filter_feeds);
 			$feeds_comments_replies = $this->_getReplies($feeds_comments);
 			$model = $this->_orderFeedsComments($feeds_comments_replies);
@@ -283,17 +262,21 @@ class InstagramCommentsApi extends Model {
 								// if not value
 								if(!in_array($feeds[$f]['data'][$d],$posts[$this->products[$p]])){
 									$where['publication_id'] = $feedId;
+									$mention_data['like_count'] = $like_count;
 									if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExists($feedId,$this->alertId)){
 
-										$mention_data['like_count'] = $like_count;
+										
 									
 										\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['term_searched' => $this->products[$p],'date_searched' => $timestamp,'title' => $caption,'url' => $url,'mention_data' => $mention_data]);
 
-										$posts[$this->products[$p]][] = $feeds[$f]['data'][$d];
+										//$posts[$this->products[$p]][] = $feeds[$f]['data'][$d];
 										$feed_count--;
 										break;
 
+									}else{
+										\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['mention_data' => $mention_data]);
 									}
+									$posts[$this->products[$p]][] = $feeds[$f]['data'][$d];
 								} // end if !in_array
 							} // end feed_count
 						}// end if is_contains
@@ -331,115 +314,119 @@ class InstagramCommentsApi extends Model {
 			for($f =  0; $f < sizeof($feed); $f++){
 				
 				$id_feed = $feed[$f]['id'];
-				$timestamp = \app\helpers\DateHelper::asTimestamp($feed[$f]['timestamp']);
-				// if there next in the database
-				if(isset($params)){
-					if (ArrayHelper::keyExists($id_feed, $params['feeds'], false)) {
-						if($params['feeds'][$id_feed]['next'] != ''){
-							$next = $params['feeds'][$id_feed]['next'];
-							// clean next in the database
-							$where['publication_id'] = $id_feed;
-							\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['next' => null]);
+				$comments_count = (int) $feed[$f]['comments_count'];
+
+				$model_post = \app\models\AlertsMencions::find()->where($where)->andWhere(['publication_id' => $id_feed])->one();
+
+				if($comments_count > count($model_post->mentions)){
+					$timestamp = \app\helpers\DateHelper::asTimestamp($feed[$f]['timestamp']);
+					// if there next in the database
+					if(isset($params)){
+						if (ArrayHelper::keyExists($id_feed, $params['feeds'], false)) {
+							if($params['feeds'][$id_feed]['next'] != ''){
+								$next = $params['feeds'][$id_feed]['next'];
+								// clean next in the database
+								$where['publication_id'] = $id_feed;
+								\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['next' => null]);
+							}
+						} //end if keyExists
+					}// if isset params
+					
+					
+					$after = '';
+					$data = [];
+					$flag = false;
+
+					do{
+						$query = $this->_commentSimpleQuery($id_feed);
+
+						$comments = $client->createRequest()
+							->setMethod('GET')
+							->setUrl("{$this->_baseUrl}/{$query}")
+							->setData([
+								'after' => $after,
+								'appsecret_proof' => $this->_appsecret_proof
+							])
+							->setOptions([
+								'timeout' => 15, // set timeout to 5 seconds for the case server is not responding
+							])
+							->send();
+
+
+						$responseHeaders = $comments->headers->get('x-business-use-case-usage'); // get headers
+						// set comments
+						
+						
+
+						// if get  data
+						if(\yii\helpers\ArrayHelper::keyExists('data',$comments->getData() ,false)){
+							// get comments
+							$tmp = $comments->getData();
+							for($t = 0; $t < sizeof($tmp['data']); $t++){
+								$data[] = $tmp['data'][$t];
+							}
 						}
-					} //end if keyExists
-				}// if isset params
-				
-				
-				$after = '';
-				$data = [];
-				$flag = false;
 
-				do{
-					$query = $this->_commentSimpleQuery($id_feed);
-
-					$comments = $client->createRequest()
-					    ->setMethod('GET')
-					    ->setUrl("{$this->_baseUrl}/{$query}")
-					    ->setData([
-					    	'after' => $after,
-					    	'appsecret_proof' => $this->_appsecret_proof
-						])
-						->setOptions([
-							'timeout' => 15, // set timeout to 5 seconds for the case server is not responding
-						])
-					    ->send();
-
-
-			    	$responseHeaders = $comments->headers->get('x-business-use-case-usage'); // get headers
-			    	// set comments
-			    	
-			    	
-
-			    	// if get  data
-					if(\yii\helpers\ArrayHelper::keyExists('data',$comments->getData() ,false)){
-						// get comments
-						$tmp = $comments->getData();
-				    	for($t = 0; $t < sizeof($tmp['data']); $t++){
-				    		$data[] = $tmp['data'][$t];
-				    	}
-					}
-
-			    	// if get error data
-					if(\yii\helpers\ArrayHelper::keyExists('error',$comments->getData(),false)){
-						// send email with data $responseData[$index]['error']['message']
-						break;
-					}
-					
-					// get the after
-					if(\yii\helpers\ArrayHelper::getValue($comments->getData(),'paging.next' ,false)){ // if next
-						$after_url = \yii\helpers\ArrayHelper::getValue($comments->getData(),'paging.next' ,false);
-						$after = \app\helpers\StringHelper::parses_url($after_url,'after');
-						$is_next = true;
-					}else{
-						$after = '';
-						$is_next = false;
-
-					}
-					// is over the limit
-                    $is_usage_limit = \app\helpers\FacebookHelper::isCaseUsage($responseHeaders,$this->_business_account_id);
-					
-					if($is_usage_limit){
-						// save the next 
-						if($next){
-							$where['publication_id'] = $id_feed;
-					      //  Console::stdout("save one time {$next}.. \n", Console::BOLD);
-					        $model_alert = \app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['next' => $next]);
+						// if get error data
+						if(\yii\helpers\ArrayHelper::keyExists('error',$comments->getData(),false)){
+							// send email with data $responseData[$index]['error']['message']
+							break;
 						}
-					}
-					
+						
+						// get the after
+						if(\yii\helpers\ArrayHelper::getValue($comments->getData(),'paging.next' ,false)){ // if next
+							$after_url = \yii\helpers\ArrayHelper::getValue($comments->getData(),'paging.next' ,false);
+							$after = \app\helpers\StringHelper::parses_url($after_url,'after');
+							$is_next = true;
+						}else{
+							$after = '';
+							$is_next = false;
 
-				}while($is_next);
+						}
+						// is over the limit
+						$is_usage_limit = \app\helpers\FacebookHelper::isCaseUsage($responseHeaders,$this->_business_account_id);
+						
+						if($is_usage_limit){
+							// save the next 
+							if($next){
+								$where['publication_id'] = $id_feed;
+							//  Console::stdout("save one time {$next}.. \n", Console::BOLD);
+								$model_alert = \app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['next' => $next]);
+							}
+						}
+						
 
-				// looking new comments
-				if(\yii\helpers\ArrayHelper::keyExists($id_feed,$params['feeds'])){
+					}while($is_next);
 
-					$model = \app\models\AlertsMencions::findOne(['publication_id' => $id_feed]);
-					if(!$params['feeds'][$id_feed]['max_id']){
-						$firts_comment = reset($data);
-						if($firts_comment){
-							$model->max_id = \app\helpers\DateHelper::asTimestamp($firts_comment['timestamp']);
-							if($model->save()){
-								$feeds[$product][$f]['comments'] = $data;
-							} // if save and if not send email with fail
-						}// if there firts_comment
-					}else{// if not max_id records
-						$max_id = $params['feeds'][$id_feed]['max_id'];
+					// looking new comments
+					if(\yii\helpers\ArrayHelper::keyExists($id_feed,$params['feeds'])){
 
-						for($d = 0; $d < sizeof($data); $d++){
-							$unix_date = \app\helpers\DateHelper::asTimestamp($data[$d]['timestamp']);
-							$feeds[$product][$f]['comments'][] = $data[$d];
-							// coment by update likes in comments
-							/*if($unix_date > $max_id){
-								$model->max_id = $unix_date;
+						$model = \app\models\AlertsMencions::findOne(['publication_id' => $id_feed]);
+						if(!$params['feeds'][$id_feed]['max_id']){
+							$firts_comment = reset($data);
+							if($firts_comment){
+								$model->max_id = \app\helpers\DateHelper::asTimestamp($firts_comment['timestamp']);
 								if($model->save()){
-									$feeds[$product][$f]['comments'][] = $data[$d];
-								}
-							}*/
-						}
-					}// if max_id	
-				}// if old records
+									$feeds[$product][$f]['comments'] = $data;
+								} // if save and if not send email with fail
+							}// if there firts_comment
+						}else{// if not max_id records
+							$max_id = $params['feeds'][$id_feed]['max_id'];
 
-				
+							for($d = 0; $d < sizeof($data); $d++){
+								$unix_date = \app\helpers\DateHelper::asTimestamp($data[$d]['timestamp']);
+								$feeds[$product][$f]['comments'][] = $data[$d];
+								// coment by update likes in comments
+								/*if($unix_date > $max_id){
+									$model->max_id = $unix_date;
+									if($model->save()){
+										$feeds[$product][$f]['comments'][] = $data[$d];
+									}
+								}*/
+							}
+						}// if max_id	
+					}// if old records
+				}
 			}// end loop feed
 		}// end foreach feeds
 
@@ -521,23 +508,18 @@ class InstagramCommentsApi extends Model {
 						$model[$product][] = $posts[$p];
 						for($c = 0; $c <  sizeof($comments); $c++){
 
-							if(\app\helpers\DateHelper::isBetweenDate($comments[$c]['timestamp'],$this->start_date,$this->end_date)){
-								$tmp = $comments[$c];
-								$tmp['message_markup'] = $comments[$c]['text'];
-								if(ArrayHelper::keyExists('replies', $comments[$c], false)){
-									if(count($comments[$c]['replies']['data'])){
-										for($r = 0; $r < sizeof($comments[$c]['replies']['data']);$r++){
-											if(\app\helpers\DateHelper::isBetweenDate($tmp['replies']['data'][$r]['timestamp'],$this->start_date,$this->end_date)){
-												$tmp['replies']['data'][$r]['message_markup'] = $comments[$c]['replies']['data'][$r]['text'];
-											}
-										}//end for replies
-									}// end if !count
-								}// end if array keyExists
-								if(!in_array($comments[$c],$model[$product][$p]['comments'])){
-									$model[$product][$p]['comments'][] = $tmp;
-								}// end if in array
-
-							}
+							$tmp = $comments[$c];
+							$tmp['message_markup'] = $comments[$c]['text'];
+							if(ArrayHelper::keyExists('replies', $comments[$c], false)){
+								if(count($comments[$c]['replies']['data'])){
+									for($r = 0; $r < sizeof($comments[$c]['replies']['data']);$r++){
+										$tmp['replies']['data'][$r]['message_markup'] = $comments[$c]['replies']['data'][$r]['text'];
+									}//end for replies
+								}// end if !count
+							}// end if array keyExists
+							if(!in_array($comments[$c],$model[$product][$p]['comments'])){
+								$model[$product][$p]['comments'][] = $tmp;
+							}// end if in array
 						}
 					}// en if in array
 

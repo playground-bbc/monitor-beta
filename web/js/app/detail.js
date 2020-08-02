@@ -99,7 +99,7 @@ const detailComponent = Vue.component("detail", {
         } else {
           this.socialId = "";
         }
-        this.loading = true;
+        //this.loading = true;
       });
     },
     setCallSelectDepen() {
@@ -166,6 +166,11 @@ const boxComponent = Vue.component("box-detail", {
   watch: {
     isChange: function (val, oldVal) {
       if (val) {
+        this.fetchBoxInfo();
+      }
+    },
+    socialId: function (val, oldVal) {
+      if (val || val == "") {
         this.fetchBoxInfo();
       }
     },
@@ -261,6 +266,18 @@ const boxCommonWordsComponent = Vue.component("common-words-detail", {
   mounted() {
     this.fetchCommonWords();
   },
+  watch: {
+    isChange: function (val, oldVal) {
+      if (val) {
+        this.fetchCommonWords();
+      }
+    },
+    socialId: function (val, oldVal) {
+      if (val || val == "") {
+        this.fetchCommonWords();
+      }
+    },
+  },
   methods: {
     fetchCommonWords() {
       getBoxCommonWordsDetail(
@@ -272,7 +289,6 @@ const boxCommonWordsComponent = Vue.component("common-words-detail", {
         .then((response) => {
           if (response.status == 200 && response.statusText == "OK") {
             this.words = response.data.words;
-            console.log(this.words);
           }
         })
         .catch((error) => {
@@ -300,6 +316,10 @@ const gridMentions = Vue.component("grid-detail", {
       type: Number,
       required: true,
     },
+    // resourceName: {
+    //   type: String,
+    //   required: true,
+    // },
     term: {
       type: String,
       required: true,
@@ -316,12 +336,28 @@ const gridMentions = Vue.component("grid-detail", {
   mounted() {
     this.searchForm();
   },
+  watch: {
+    isChange: function (val, oldVal) {
+      if (val) {
+        this.searchForm();
+      }
+    },
+    socialId: function (val, oldVal) {
+      if (val) {
+        this.searchForm();
+      }
+    },
+  },
+
   methods: {
     searchForm() {
       // $('input[name="MentionSearch[message_markup]"]').attr("value", "");
       // $("#mentionsearch-message_markup").attr("value", "");
       $("#mentionsearch-id").attr("value", this.alertid);
-      console.log(this.resourceid);
+      // get resource name
+      var resourceName = document.querySelector(".resourceName");
+      $("#mentionsearch-resourcename").attr("value", resourceName.innerText);
+
       if (
         this.resourceid == 5 ||
         this.resourceid == 6 ||
@@ -332,6 +368,7 @@ const gridMentions = Vue.component("grid-detail", {
         $("#mentionsearch-social_id").attr("value", this.socialId);
       }
 
+      //$("#mentionsearch-termsearch").attr("value", "Facebook Messages");
       $("#mentionsearch-resourceid").attr("value", this.resourceid);
       $("#mentionsearch-termsearch").attr("value", this.term);
       $("#search").click();

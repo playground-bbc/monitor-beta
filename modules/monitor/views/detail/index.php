@@ -12,7 +12,7 @@ use yii\widgets\DetailView;
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-            <h1><?= Html::encode($resource->name) ?></h1>
+            <?= Html::tag('h1', Html::encode($resource->name), ['class' => 'resourceName']) ?>
             <?= Html::hiddenInput('alertId', $model->id,['id' => 'alertId']); ?>
 
             <p>
@@ -38,8 +38,8 @@ use yii\widgets\DetailView;
         </div>
         <div class="row">
             <detail 
-            :resourceid= <?= $resource->id ?>
             :alertid= <?= $model->id ?> 
+            :resourceid= <?= $resource->id ?>
             >
         </div>
     </div>

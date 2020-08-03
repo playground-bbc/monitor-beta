@@ -43,7 +43,6 @@ class LiveChatsApi extends Model {
 			$this->products   = $alert['products'];
 			// set if search finish
 			$this->searchFinish();
-			
 			return $this->_setParams();
 		}
 		return false;
@@ -82,7 +81,6 @@ class LiveChatsApi extends Model {
 				$this->_setAlertsMencionsByProduct($productName);
 				
 			}else{
-
 				// insert params to the products with condicion active
 				if($productMention->condition == \app\models\AlertsMencions::CONDITION_ACTIVE){
 					if($productMention->date_searched < $this->end_date)

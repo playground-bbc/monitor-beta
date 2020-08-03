@@ -103,7 +103,6 @@ class TwitterApi extends Model {
 		    $product = urlencode($products[$p]);
 		   // $product = $products[$p];
 		    $country = (!is_null($this->country)) ? $this->country : '';
-		    
 		    if($query){
 		    	// insert params to the products with condicion active
 		    	if($query['condition'] == AlertsMencions::CONDITION_ACTIVE){ 
@@ -111,11 +110,7 @@ class TwitterApi extends Model {
 		    		list('since_id' => $since_id,'max_id' => $max_id,'date_searched' => $date_searched) = $query;
 		    		
 					$date_searched_flag   = strtotime(DateHelper::add($this->end_date,'1 day'));
-					//echo $date_searched_flag."\n";
-					//echo $date_searched."\n";
-					
 
-		    		
 					if($date_searched >= $date_searched_flag){
 		    			
 		    			continue;
@@ -168,7 +163,6 @@ class TwitterApi extends Model {
 	 * @return [type]                  [data]
 	 */
 	public function call($products_params = []){
-
 		for($p = 0; $p < sizeOf($products_params); $p ++){
 			$product = $products_params[$p]['product'];
 			//Console::stdout("loop in call method {$product}.. \n", Console::BOLD);
@@ -483,11 +477,9 @@ class TwitterApi extends Model {
 	    	//$date_searched_flag   = $this->end_date;
 	      	foreach ($alertsMencions as $alert_mention) {
 	      		if($alert_mention->date_searched >= $date_searched_flag){
-      				if(!$alert_mention->since_id){
-	      				$alert_mention->condition = 'INACTIVE';
-	      				$alert_mention->save();
-      					$count++;
-      				}
+					$alert_mention->condition = 'INACTIVE';
+					$alert_mention->save();
+					$count++;
       			}
 	      	}
 	      	if($count >= count($alertsMencions)){

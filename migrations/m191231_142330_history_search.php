@@ -28,6 +28,25 @@ class m191231_142330_history_search extends Migration
 
         ],$tableOptions);
 
+        // creates index for column `alertId`
+        $this->createIndex(
+            'idx-history_search-alertId',
+            'history_search',
+            'alertId',
+            true // unique
+        );
+
+        // add foreign key for table `alerts`
+        $this->addForeignKey(
+            'fk-history_search-alertId',
+            'history_search',
+            'alertId',
+            'alerts',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+
     }
 
     /**

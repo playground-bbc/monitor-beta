@@ -3,6 +3,7 @@
 use yii\db\Migration;
 
 /**
+ * ./yii migrate --migrationPath=@app/modules/user/migrations  --interactive=0
  * Class m190813_195501_Users
  */
 class m190813_195501_Users extends Migration

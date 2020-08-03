@@ -42,6 +42,7 @@ class LiveTicketApi extends Model {
 			// order products by his  length
 			array_multisort(array_map('strlen', $alert['products']), $alert['products']);
 			$this->products   = $alert['products'];
+			
 			// set if search finish
 			$this->searchFinish();
 			// set products
@@ -176,7 +177,7 @@ class LiveTicketApi extends Model {
 				\Yii::warning("Erro Livechat ticket id: {$this->alertId}.");
 				var_dump($e->getMessage(),$this->alertId);
 			}
-			//echo "searching start date". $params['date_from']. " to  ". $params['date_to']. " in productName: ".$params['query']. "\n";
+		//	echo "searching start date". $params['date_from']. " to  ". $params['date_to']. " in productName: ".$params['query']. "\n";
 			
 
 			if(count($response->tickets)){

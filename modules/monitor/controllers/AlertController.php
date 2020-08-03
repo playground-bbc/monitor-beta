@@ -91,7 +91,41 @@ class AlertController extends Controller
 
         return ['status' => true];
     }
-
+    /**
+     * [actionUpdateHistorySearch update history search model from the alert]
+     * @param  [int] $alertId    [alertId from aler]
+     * @param  [string] $status [reosurce id]
+     * @param  [string] $resourceName [name of resource if is null update all resources]
+     * @return [boolean]
+     */
+    public function actionUpdateHistorySearch($alertId,$status,$resourceName = null){
+       
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $model = \app\models\HistorySearch::findOne(['alertId' => $alertId]);
+        
+        if(is_null($resourceName)){
+            $resources = [];
+            foreach($model->search_data as $resource => $data){
+                $data['status'] = $status;
+                $resources[$resource] = $data;
+                
+            }
+            $model->search_data = $resources;
+            $model->save();
+        }else{
+            $resourceId = \app\helpers\AlertMentionsHelper::getResourceIdByName($resourceName);
+            $model = [
+                $resourceName => [
+                    'resourceId' => $resourceId,
+                    'status' => $status
+                ]
+            ];
+            \app\helpers\HistorySearchHelper::createOrUpdate($alertId, $model);
+        }
+     
+        return ['status' => true];
+    }
     /**
      * [actionDeleteResourceAlert delete resource for alert]
      * @param  [type] $alertId    [alertId from aler]
@@ -198,7 +232,12 @@ class AlertController extends Controller
       $status = ($isDictionary) ? true: false;
       return ['status'=>$status];
     }
-
+    /**
+     * [actionDeleteUrlAlert delete url form the alert]
+     * @param  [type] $alertId        [id alert]
+     * @param  [type] $urlName [url to delete]
+     * @return [type]                
+     */
     public function actionDeleteUrlAlert($alertId,$urlName)
     {
       \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;

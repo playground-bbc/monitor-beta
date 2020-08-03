@@ -82,12 +82,9 @@ class InstagramCommentsApi extends Model {
 	 * @return [type]                  [data]
 	 */
 	public function call($query_params = []){
-
-		
-		//$this->data[] = $this->_getDataApi($query_params);
 		$data = $this->_getDataApi($query_params);
 		// set if search finish
-		//$this->searchFinish();
+		$this->searchFinish();
 
 		if($data){
 			$this->data[] = $data;

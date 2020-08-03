@@ -196,6 +196,11 @@ class ScrapingSearch
 			unset($mention_data);
 			if(!$mention->save()){ throw new \Exception('Error mentions Save');}
 			
+		}else{
+			$mention = \app\models\Mentions::find()->where([
+				'alert_mentionId' => $alertsMencionsId,
+				'message'         => $message,
+			])->one();
 		}
 		
 

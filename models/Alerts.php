@@ -236,8 +236,6 @@ class Alerts extends \yii\db\ActiveRecord
         return $words;     
     }
    
-
-
     /**
      * return  dictionaries name [form]
      * @return array

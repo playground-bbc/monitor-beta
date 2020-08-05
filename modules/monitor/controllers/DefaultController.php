@@ -15,12 +15,6 @@ class DefaultController extends Controller
      */
     public function actionIndex()
     {
-        \Yii::$app->mailer->compose()
-        ->setFrom('monitor@lg.montana-studio.com')
-        ->setTo('spiderbbc@gmail.com')
-        ->setSubject('Email sent from Yii2-Swiftmailer')
-        ->send();
-        die();
-        //return $this->render('index');
+        return $this->render('index');
     }
 }

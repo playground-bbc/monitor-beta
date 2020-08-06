@@ -34,7 +34,6 @@ class m190813_195501_Users extends Migration
         $this->insert('{{%users}}', [
             'username'      => 'admin',
             'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
-            // deathnote
             'password_hash' => '$2y$13$Xv3tYWezdvWV9GRUUv1/8.NEC8CX4fp2MRntK5L0EBJXgwy49IF.K',
             'email'         => 'spiderbbc@gmail.com',
             'status'        => 10,
@@ -45,9 +44,8 @@ class m190813_195501_Users extends Migration
         $this->insert('{{%users}}', [
             'username'      => 'mauro',
             'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
-            // mauro123
             'password_hash' => '$2y$13$J2tWG5KBTCC0aCx3EbT5XOjn2nGZ2qF/xCQNJ3UeIcHwHdfdV4QM6',
-            'email'         => 'user1@gmail.com',
+            'email'         => 'mauro@montana-studio.com',
             'status'        => 10,
             'created_at'    => 0,
             'updated_at'    => 0,
@@ -56,9 +54,8 @@ class m190813_195501_Users extends Migration
         $this->insert('{{%users}}', [
             'username'      => 'abraham',
             'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
-            // abraham123
             'password_hash' => '$2y$13$q9jvTqfk.qHr8HvNE3t4JOFgMTInkRxFv5oysDlaUNI6ETkY.df8W',
-            'email'         => 'user2@gmail.com',
+            'email'         => 'avalenzuela@mediatrendsgroup.com',
             'status'        => 10,
             'created_at'    => 0,
             'updated_at'    => 0,
@@ -67,9 +64,8 @@ class m190813_195501_Users extends Migration
         $this->insert('{{%users}}', [
             'username'      => 'johanna',
             'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
-            // johanna123
             'password_hash' => '$2y$13$N/ADNnVF8LIB9CnFPBNgle4c6u8pe7260npSOEVcZOsTuCgUmN8um',
-            'email'         => 'user3@gmail.com',
+            'email'         => 'johanna@mediatrendsgroup.com',
             'status'        => 10,
             'created_at'    => 0,
             'updated_at'    => 0,
@@ -79,9 +75,8 @@ class m190813_195501_Users extends Migration
         $this->insert('{{%users}}', [
             'username'      => 'dafne',
             'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
-            // dafne123
             'password_hash' => '$2y$13$8ffoD8gftx/eHWAUv0wAl.f7weVMfaO7GhKVH6PafsyC0ARbvrTme',
-            'email'         => 'user4@gmail.com',
+            'email'         => 'dafcorrea@gmail.com',
             'status'        => 10,
             'created_at'    => 0,
             'updated_at'    => 0,
@@ -90,9 +85,8 @@ class m190813_195501_Users extends Migration
         $this->insert('{{%users}}', [
             'username'      => 'david',
             'auth_key'      => 'tPwo4kDpN7JAz8Rrm9EwNAQ7q8F1p7FN',
-            // david123
             'password_hash' => '$2y$13$67Dq3ZJh5Yw6b8a6NyEWnOUtrBqN4E/4QopbBmcKtQOaX1Apjp.pa',
-            'email'         => 'user5@gmail.com',
+            'email'         => 'super_xz@hotmail.com',
             'status'        => 10,
             'created_at'    => 0,
             'updated_at'    => 0,

@@ -146,6 +146,10 @@ function swal_modal_info_resource(resource, id) {
               "La Alerta cambio sus Redes Sociales",
               "success"
             );
+            // delete all urls if Paginas Webs
+            if (resource.text === "Paginas Webs") {
+              $("#urls").val(null).trigger("change");
+            }
           } else {
             Swal.fire("Opss", "No se pudo realizar la operacion", "error");
             // $($this).val(value).trigger('change');

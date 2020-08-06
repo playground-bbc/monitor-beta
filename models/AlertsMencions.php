@@ -242,7 +242,7 @@ class AlertsMencions extends \yii\db\ActiveRecord
                 }
             }
         }
-        return ['Twitter',(string) $likes_count,(string) $retweets_count];
+        return ['Twitter',(string) $retweets_count,(string) $likes_count];
     }
     /**
      * [getTwitterTotal twitter total]

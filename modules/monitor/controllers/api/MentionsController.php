@@ -111,12 +111,99 @@ class MentionsController extends Controller
 
         if(in_array('Twitter',array_values($alertResources))){
           $twitterId = array_search('Twitter',$alertResources);
-          $values = \app\helpers\MentionsHelper::getDataMentionData($model->id,$twitterId,['retweet_count','favorite_count']);
-          foreach ($values as $key => $value) {
-            $data[$key] = $value;
+          $db = \Yii::$app->db;
+          $duration = 15; 
+          $where = ['alertId' => $model->id,'resourcesId' => $twitterId];
+
+          $alertMentions = $db->cache(function ($db) use ($where) {
+              return \app\models\AlertsMencions::find()->where($where)->all();
+          },$duration); 
+          
+          $data['total_tweets'] = 0;
+
+          foreach ($alertMentions as $alertMention) {
+              if($alertMention->mentions){
+                $data['total_tweets'] += $alertMention->mentionsCount;
+              }
           }
         }
-        $data['count'] = $count;
+
+        if(in_array('Live Chat',array_values($alertResources))){
+          $livechatTicketId = array_search('Live Chat',$alertResources);
+          $db = \Yii::$app->db;
+          $duration = 15; 
+          $where = ['alertId' => $model->id,'resourcesId' => $livechatTicketId];
+
+          $alertMentionsIds = $db->cache(function ($db) use ($where) {
+              $ids =\app\models\AlertsMencions::find()->select(['id','alertId'])->where($where)->asArray()->all();
+              return array_keys(\yii\helpers\ArrayHelper::map($ids,'id','alertId'));
+          },$duration); 
+
+          $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
+
+          $expression = new Expression("`mention_data`->'$.id' AS ticketId");
+          // count number tickets
+          // SELECT `mention_data`->'$.id' AS ticketId FROM `mentions` where alert_mentionId = 9 GROUP BY `ticketId` DESC
+          $ticketCount = (new \yii\db\Query())
+              ->cache($duration)
+              ->select($expression)
+              ->from('mentions')
+              ->where($mentionWhere)
+              ->groupBy(['ticketId'])
+              ->count();
+
+          $data['total_tickets'] = (int)$ticketCount;    
+        }
+
+        if(in_array('Live Chat Conversations',array_values($alertResources))){
+          $livechatId = array_search('Live Chat Conversations',$alertResources);
+          $db = \Yii::$app->db;
+          $duration = 15; 
+          $where = ['alertId' => $model->id,'resourcesId' => $livechatId];
+
+          $alertMentionsIds = $db->cache(function ($db) use ($where) {
+              $ids =\app\models\AlertsMencions::find()->select(['id','alertId'])->where($where)->asArray()->all();
+              return array_keys(\yii\helpers\ArrayHelper::map($ids,'id','alertId'));
+          },$duration); 
+
+          $expression = new Expression("`mention_data`->'$.event_id' AS eventId");
+      
+          $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
+          // count number tickets
+          // SELECT `mention_data`->'$.event_id' AS eventId FROM `mentions` where alert_mentionId = 9 GROUP BY `eventId` DESC
+          $chatsCount = (new \yii\db\Query())
+              ->cache($duration)
+              ->select($expression)
+              ->from('mentions')
+              ->where($mentionWhere)
+              ->groupBy(['eventId'])
+              ->count();
+      
+
+          $data['total_chats'] = (int)$chatsCount;
+        }
+
+        if(in_array('Paginas Webs',array_values($alertResources))){
+          $webPageId = array_search('Paginas Webs',$alertResources);
+          $db = \Yii::$app->db;
+          $duration = 15; 
+          $where = ['alertId' => $model->id,'resourcesId' => $webPageId];
+
+          $alertMentions = $db->cache(function ($db) use ($where) {
+              return \app\models\AlertsMencions::find()->where($where)->all();
+          },$duration); 
+          
+          $data['total_web_records_found'] = 0;
+
+          foreach ($alertMentions as $alertMention) {
+              if($alertMention->mentions){
+                $data['total_web_records_found'] += $alertMention->mentionsCount;
+              }
+          }
+        }
+        
+        // total register
+        $data['count'] = (int)$count;
       }
 
     }

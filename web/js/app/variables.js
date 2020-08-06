@@ -13,6 +13,7 @@ let columnsName = [
   "col-md-5",
   "col-md-2",
   "col-md-1",
+  "col-xs-4 col-sm-3 col-md-8r",
 ];
 
 let resourceIcons = {
@@ -41,40 +42,68 @@ let text_delete =
   "Se procedera a <b>borar</b> los datos obtenidos por la alerta.";
 // property for each box on resource social
 let smallboxProperties = {
-  count: {
-    title: "Total de Entradas",
+  // count: {
+  //   title: "Total de Entradas",
+  //   class: "small-box bg-info",
+  //   icon: "glyphicon glyphicon-hdd",
+  // },
+  // retweet_count: {
+  //   title: "Total Retweet",
+  //   class: "small-box bg-success",
+  //   icon: "socicon-twitter",
+  // },
+  // favorite_count: {
+  //   title: "Total Favoritos",
+  //   class: "small-box bg-danger",
+  //   icon: "socicon-twitter",
+  // },
+  total_web_records_found: {
+    title: "Total Coincidencias",
     class: "small-box bg-info",
-    icon: "glyphicon glyphicon-hdd",
+    icon: "socicon-internet",
+    name: "Paginas Webs",
   },
-  retweet_count: {
-    title: "Total Retweet",
-    class: "small-box bg-success",
-    icon: "socicon-twitter",
+  total_chats: {
+    title: "Total Chats Livechats",
+    class: "small-box bg-info",
+    icon: "socicon-twitch",
+    name: "Live Chat Conversations",
   },
-  favorite_count: {
-    title: "Total Favoritos",
-    class: "small-box bg-danger",
+  total_tickets: {
+    title: "Total Tickets Livechats",
+    class: "small-box bg-info",
+    icon: "socicon-googlegroups",
+    name: "Live Chat",
+  },
+  total_tweets: {
+    title: "Total Tweets",
+    class: "small-box bg-info",
     icon: "socicon-twitter",
+    name: "Twitter",
   },
   shares: {
-    title: "Total Post Facebook Share",
+    title: "Total Shares",
     class: "small-box bg-info",
     icon: "socicon-facebook",
+    name: "Facebook Comments",
   },
   like_count: {
-    title: "Total Likes Post Instagram",
+    title: "Total Instagram",
     class: "small-box bg-danger",
     icon: "socicon-instagram",
+    name: "Instagram Comments",
   },
   total_comments: {
     title: "Total Comentarios",
     class: "small-box bg-warning",
     icon: "glyphicon glyphicon-comment",
+    name: "Facebook Comments",
   },
   total_inbox: {
     title: "Total Inbox Facebook",
     class: "small-box bg-info",
     icon: "socicon-messenger",
+    name: "Facebook Messages",
   },
 };
 

@@ -20,7 +20,7 @@ use yii\widgets\ActiveForm;
      <div class="row seven-cols">
         <div v-for="(value,resource) in resourcescount" :class="calcColumns()">
           <!-- small box -->
-          <div :class="getClass(resource)">
+          <div v-if="getClass(resource)" :class="getClass(resource)">
             <div class="inner">
               <h3>{{value | formatNumber }}</h3>
 
@@ -29,7 +29,7 @@ use yii\widgets\ActiveForm;
             <div class="icon">
               <i :class="getIcon(resource)"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="glyphicon glyphicon-chevron-right"></i></a>
+            <a  :href="getLink(resource)" target="_blank" class="small-box-footer">More info <i class="glyphicon glyphicon-chevron-right"></i></a>
           </div>
         </div>
         

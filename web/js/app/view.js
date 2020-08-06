@@ -133,16 +133,27 @@ const count_mentions = Vue.component("total-mentions", {
   methods: {
     calcColumns() {
       var size = Object.keys(this.resourcescount).length;
-      return columnsName[size - 1];
+      return columnsName[size - 2];
     },
     getClass(resource) {
-      return smallboxProperties[resource].class;
+      var className;
+      if (smallboxProperties.hasOwnProperty(resource)) {
+        className = smallboxProperties[resource].class;
+      } else {
+        className = false;
+      }
+      return className;
     },
     getTitle(resource) {
       return smallboxProperties[resource].title;
     },
     getIcon(resource) {
       return smallboxProperties[resource].icon;
+    },
+    getLink(resource) {
+      name = smallboxProperties[resource].name;
+      hiperlink = document.getElementById(name);
+      return hiperlink;
     },
   },
 });

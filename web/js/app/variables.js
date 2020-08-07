@@ -42,21 +42,6 @@ let text_delete =
   "Se procedera a <b>borar</b> los datos obtenidos por la alerta.";
 // property for each box on resource social
 let smallboxProperties = {
-  // count: {
-  //   title: "Total de Entradas",
-  //   class: "small-box bg-info",
-  //   icon: "glyphicon glyphicon-hdd",
-  // },
-  // retweet_count: {
-  //   title: "Total Retweet",
-  //   class: "small-box bg-success",
-  //   icon: "socicon-twitter",
-  // },
-  // favorite_count: {
-  //   title: "Total Favoritos",
-  //   class: "small-box bg-danger",
-  //   icon: "socicon-twitter",
-  // },
   total_web_records_found: {
     title: "Total Coincidencias",
     class: "small-box bg-info",
@@ -71,7 +56,7 @@ let smallboxProperties = {
   },
   total_tickets: {
     title: "Total Tickets Livechats",
-    class: "small-box bg-info",
+    class: "small-box bg-warning",
     icon: "socicon-googlegroups",
     name: "Live Chat",
   },
@@ -81,25 +66,19 @@ let smallboxProperties = {
     icon: "socicon-twitter",
     name: "Twitter",
   },
-  shares: {
-    title: "Total Shares",
-    class: "small-box bg-info",
-    icon: "socicon-facebook",
-    name: "Facebook Comments",
-  },
-  like_count: {
-    title: "Total Instagram",
+  total_comments_instagram: {
+    title: "Total Comentarios",
     class: "small-box bg-danger",
     icon: "socicon-instagram",
     name: "Instagram Comments",
   },
-  total_comments: {
+  total_comments_facebook_comments: {
     title: "Total Comentarios",
-    class: "small-box bg-warning",
-    icon: "glyphicon glyphicon-comment",
+    class: "small-box bg-info",
+    icon: "socicon-facebook",
     name: "Facebook Comments",
   },
-  total_inbox: {
+  total_inbox_facebook: {
     title: "Total Inbox Facebook",
     class: "small-box bg-info",
     icon: "socicon-messenger",

@@ -197,20 +197,22 @@ class InsightsHelper
             if($data){
                 if($data['annotations']){
                     $anotations = \yii\helpers\ArrayHelper::map($data['annotations'],'spot','label','id');
+                    
                     // order data from api
                     $entyties = [];
                     foreach($anotations as $values){
                         if(!empty($values)){
                             foreach($values as $index => $value){
-                                if(!in_array($index,$entyties,true)){
+                                if(!in_array($index,$entyties,true) && $index != "LG Electronics" && $index != "LG"){
                                     $entyties[] = $index;
                                 }
-                                if(!in_array($value,$entyties,true)){
+                                if(!in_array($value,$entyties,true) && $value != "LG Electronics"  && $value != "LG"){
                                     $entyties[] = $value;
                                 }
                             }
                         }
                     }
+                    var_dump($entyties);
                     $series_products_count =  \app\models\ProductsSeries::getDb()->cache(function ($db) {
                         return  \app\models\ProductsSeries::find()->count();
                     },60);

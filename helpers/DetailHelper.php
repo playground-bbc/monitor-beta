@@ -214,7 +214,7 @@ class DetailHelper {
         for ($m=0; $m < sizeOf($alertMentions) ; $m++) { 
             if(count($alertMentions[$m]['mentions'])){
                 // get total messages
-                $properties['inbox_count']['total'] += count($alertMentions[$m]['mentions']);
+                $properties['inbox_count']['total'] += 1;
             }
         }
         return $properties; 

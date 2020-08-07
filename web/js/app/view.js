@@ -102,13 +102,18 @@ const statusAlert = Vue.component("status-alert", {
       if (this.response != undefined || this.response != null) {
         var search_data_response = this.response.search_data;
         for (let propeties in search_data_response) {
-          var span = document.getElementById(
-            search_data_response[propeties].resourceId
-          );
-          if (search_data_response[propeties].status == "Finish") {
-            span.className = "status-indicator status-indicator--red";
-          } else {
-            span.className = "status-indicator status-indicator--green";
+          // check if element is in the doom
+          if (
+            document.getElementById(search_data_response[propeties].resourceId)
+          ) {
+            var span = document.getElementById(
+              search_data_response[propeties].resourceId
+            );
+            if (search_data_response[propeties].status == "Finish") {
+              span.className = "status-indicator status-indicator--red";
+            } else {
+              span.className = "status-indicator status-indicator--green";
+            }
           }
         }
       }
@@ -136,11 +141,10 @@ const count_mentions = Vue.component("total-mentions", {
       return columnsName[size - 2];
     },
     getClass(resource) {
-      var className;
+      console.log(resource);
+      var className = false;
       if (smallboxProperties.hasOwnProperty(resource)) {
         className = smallboxProperties[resource].class;
-      } else {
-        className = false;
       }
       return className;
     },

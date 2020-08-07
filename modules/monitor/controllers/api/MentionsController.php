@@ -87,26 +87,20 @@ class MentionsController extends Controller
         }
         
         
-        $data = \app\helpers\AlertMentionsHelper::setMentionData($data_search);
+        //$data = \app\helpers\AlertMentionsHelper::setMentionData($data_search);
         
         if(in_array('Facebook Comments',array_values($alertResources))){
-          $data['total_comments'] = \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
-          if(isset($data['reations'])){
-            unset($data['reations']);
-          }
+          $data['total_comments_facebook_comments'] = (int) \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
+          
         }
         
         if(in_array('Facebook Messages',array_values($alertResources))){
-          $data['total_inbox'] = \app\helpers\AlertMentionsHelper::getCountAlertMentionsByResourceId($model->id,array_search('Facebook Messages',$alertResources));
+          $data['total_inbox_facebook'] = (int) \app\helpers\AlertMentionsHelper::getCountAlertMentionsByResourceId($model->id,array_search('Facebook Messages',$alertResources));
         }
 
         if(in_array('Instagram Comments',array_values($alertResources))){
           $instagramId = array_search('Instagram Comments',$alertResources);
-          if(isset($data['total_comments'])){
-            $data['total_comments'] += \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,$instagramId);
-          }else{
-            $data['total_comments'] = \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,$instagramId);
-          }
+          $data['total_comments_instagram'] =  (int)\app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,$instagramId);
         }
 
         if(in_array('Twitter',array_values($alertResources))){
@@ -123,7 +117,7 @@ class MentionsController extends Controller
 
           foreach ($alertMentions as $alertMention) {
               if($alertMention->mentions){
-                $data['total_tweets'] += $alertMention->mentionsCount;
+                $data['total_tweets'] += (int) $alertMention->mentionsCount;
               }
           }
         }

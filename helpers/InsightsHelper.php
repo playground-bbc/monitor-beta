@@ -197,7 +197,6 @@ class InsightsHelper
             if($data){
                 if($data['annotations']){
                     $anotations = \yii\helpers\ArrayHelper::map($data['annotations'],'spot','label','id');
-                    
                     // order data from api
                     $entyties = [];
                     foreach($anotations as $values){
@@ -212,7 +211,6 @@ class InsightsHelper
                             }
                         }
                     }
-                    var_dump($entyties);
                     $series_products_count =  \app\models\ProductsSeries::getDb()->cache(function ($db) {
                         return  \app\models\ProductsSeries::find()->count();
                     },60);

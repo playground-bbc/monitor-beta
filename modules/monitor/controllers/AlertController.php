@@ -80,7 +80,7 @@ class AlertController extends Controller
         return $out;
     }
     /**
-     * call Api drive: get products and save
+     * call Api drive: get products and save depred
      */
     public function actionReloadProducts()
     {
@@ -300,12 +300,13 @@ class AlertController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
         $searchModel = new \app\models\grid\MentionSearch();
         $dataProvider = $searchModel->search(\Yii::$app->request->queryParams,$id);
 
         return $this->render('view', [
-            'model' => $this->findModel($id),
-            'searchModel' => $searchModel,
+            'model'        => $model,
+            'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }

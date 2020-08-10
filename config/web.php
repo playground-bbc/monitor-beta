@@ -29,6 +29,9 @@ $config = [
         'products' => [
             'class' => 'app\modules\products\Module',
         ],
+        'wordlists' => [
+            'class' => 'app\modules\wordlists\Module',
+        ],
         // kartik
         'gridview' => [
             'class' => '\kartik\grid\Module',

@@ -3,7 +3,7 @@
 namespace app\modules\wordlists\controllers;
 
 use Yii;
-use app\models\Dictionaries;
+use app\modules\wordlists\models\Dictionaries;
 use app\modules\wordlists\models\DictionariesSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;

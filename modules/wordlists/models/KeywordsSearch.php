@@ -4,7 +4,7 @@ namespace app\modules\wordlists\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Keywords;
+use app\modules\wordlists\models\Keywords;
 
 /**
  * KeywordsSearch represents the model behind the search form of `app\models\Keywords`.

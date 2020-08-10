@@ -13,8 +13,6 @@ use kartik\date\DatePicker;
 use kartik\file\FileInput;
 use mludvik\tagsinput\TagsInputWidget;
 
-
-
 /* @var $this yii\web\View */
 /* @var $model app\models\form\AlertForm */
 /* @var $form ActiveForm */
@@ -146,14 +144,17 @@ if (!$alert->isNewRecord) {
             <div class="row">
                 <div class="col-md-4">
                     <?= $form->field($alert, 'dictionaryIds')->widget(Select2::classname(), [
-                            'data' => $drive->dictionaries,
+                            'data' => \yii\helpers\ArrayHelper::map(app\modules\wordlists\models\Dictionaries::find()
+                            ->where(['<>','name', 'Free Words'])
+                            ->andWhere(['<>','name', 'Product Competition'])
+                            ->all(),'id','name'),
                             'options' => [
                                 'id' => 'social_dictionaryId',
                                 'resourceName' => 'dictionaries',
                                 'placeholder' => 'Selecione Diccionarios de Palabras',
                                 'multiple' => true,
                                 'theme' => 'krajee',
-                                'value' => (isset($alert->dictionariesName)) ? $alert->dictionariesName : [],
+                                'value' => (isset($alert->dictionariesIdsByAlert)) ? $alert->dictionariesIdsByAlert : [],
                             ],
                             'pluginOptions' => [
                                 'allowClear' => false,

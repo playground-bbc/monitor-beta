@@ -20,7 +20,7 @@ class m190813_194401_Dictionaries extends Migration
 
         $this->createTable('{{%dictionaries}}', [
             'id'                    => $this->primaryKey(),
-            'name'                  => $this->string(45)->notNull(),
+            'name'                  => $this->string(45)->notNull()->unique(),
             'color'                 => $this->string(45)->notNull(),
             'createdAt'             => $this->integer(11),
             'updatedAt'             => $this->integer(11),

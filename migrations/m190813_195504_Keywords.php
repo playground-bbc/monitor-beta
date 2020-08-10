@@ -21,7 +21,7 @@ class m190813_195504_Keywords extends Migration
         $this->createTable('{{%keywords}}', [
             'id'                    => $this->primaryKey(),
             'dictionaryId'          => $this->integer(),
-            'name'                  => $this->string(),
+            'name'                  => $this->string()->notNull()->unique(),
             'createdAt'             => $this->integer(),
             'updatedAt'             => $this->integer(),
             'createdBy'             => $this->integer(),

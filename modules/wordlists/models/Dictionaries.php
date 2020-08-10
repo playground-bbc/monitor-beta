@@ -61,118 +61,105 @@ class Dictionaries extends \yii\db\ActiveRecord
 
     public static function  saveDictionaryDrive($dictionaryIds, $alertId){
         if($dictionaryIds){
-            $dictionaries = [];
-            foreach ($dictionaryIds as $name) {
-              $isDictionary = \app\models\Dictionaries::find()->where(['name' => $name])->exists();
-
-              if(!$isDictionary){
-                $color = substr(md5(time()), 0, 6);
-                $dictionary = new \app\models\Dictionaries();
-                $dictionary->name = $name;
-                $dictionary->color = '#' . $color;
-                $dictionary->save();
+           $keywordsIds = \app\modules\wordlists\models\Keywords::find()->select('id')->where(['dictionaryId' => $dictionaryIds])->asArray()->all(); 
+           $ids = \yii\helpers\ArrayHelper::getColumn($keywordsIds, 'id');
+            if(!empty($ids)){
+              $models = [];
+              for ($i=0; $i < sizeOf($ids) ; $i++) { 
+                $models[] = [$alertId,$ids[$i]];
               }
-              else{
-                $dictionary = \app\models\Dictionaries::find()->where(['name' => $name])->one();
+              if(count($models)){
+                Yii::$app->db->createCommand()->batchInsert('alerts_keywords', ['alertId','keywordId'],$models)
+                ->execute();
               }
-               
-              $dictionaries[$dictionary->id] = $dictionary->name;  
-            } 
-           
-            if($dictionaries){
-              $drive   = new \app\models\api\DriveApi();
-              foreach ($dictionaries as $dictionaryId => $dictionaryName){
-                $keywords_drive = $drive->getContentDictionaryByTitle([$dictionaryName]);
-                foreach ($keywords_drive[$dictionaryName] as $word) {
-                  if(!\app\models\Keywords::find()->where(['alertId' => $alertId,'dictionaryId'=> $dictionaryId,'name'=> $word])->exists()){
-                    $models[] = [$alertId,$dictionaryId,$word];
-                  }
-                }
-                  
-              }
-            
-            }
-            if(!empty($models)){
-             // \app\models\Keywords::deleteAll('alertId = '.$alertId);
-              Yii::$app->db->createCommand()->batchInsert('keywords', ['alertId','dictionaryId', 'name'],$models)
-                        ->execute();
             }
         }
     }
 
     public static function saveFreeWords($free_words,$alertId,$dictionaryName){
-      $model = [];
-      $isFreeWords = \app\models\Dictionaries::find()->where(['name' => $dictionaryName])->exists();
-      if(!$isFreeWords){
-        $color = substr(md5(time()), 0, 6);
-        $dictionary = new \app\models\Dictionaries();
-        $dictionary->name = $dictionaryName;
-        $dictionary->color = '#' . $color;
-        $dictionary->save();
-      }else{
-        $dictionary = \app\models\Dictionaries::find()->where(['name' => $dictionaryName])->one();
-      }
+        $models = [];
+        $dictionary =\app\modules\wordlists\models\Dictionaries::find()->where(['name' => $dictionaryName])->one();
 
-      foreach ($free_words as $word){
-        $models[] = [$alertId,$dictionary->id,$word];
-      }
-      // save free words 
-      Yii::$app->db->createCommand()->batchInsert('keywords', ['alertId','dictionaryId', 'name'],$models)
-      ->execute();
+        foreach ($free_words as $word){
+          $keyword = new \app\modules\wordlists\models\Keywords();
+          $keyword->name = $word;
+          $keyword->dictionaryId = $dictionary->id;
+          if($keyword->save()){
+            $models[] = [$alertId,$keyword->id];
+          }
+          
+        }
+        if(count($models)){
+          // save free words 
+          Yii::$app->db->createCommand()->batchInsert('alerts_keywords', ['alertId','keywordId'],$models)
+            ->execute();
+        }
     }
 
 
     public static function saveOrUpdateWords($free_words,$alertId,$dictionaryId){
 
-      $words = \app\models\Keywords::find()->where(['alertId' => $alertId,'dictionaryId' => $dictionaryId ])->select(['name','id'])->all();
+      $alertKeywords = \app\modules\wordlists\models\AlertsKeywords::find()->where(['alertId' => $alertId])->all();
 
       $words_delete = [];
-
-      foreach ($words as $word) {
-          if(!in_array($word->name,$free_words)){
-              $words_delete[] = $word->id;
+      
+      foreach ($alertKeywords as $alertKeyword) {
+          if(!in_array($alertKeyword->keyword->name,$free_words)){
+              $words_delete[] = $alertKeyword->keyword->id;
           }
       }
-      
+      $models = [];
       for($w = 0; $w < count($free_words); $w++){
-          $isExists = \app\models\Keywords::find()->where(['alertId' => $alertId,'dictionaryId' => $dictionaryId,'name' => $free_words[$w] ])->exists();
+          $isExists = \app\modules\wordlists\models\Keywords::find()->where(['dictionaryId' => $dictionaryId,'name' => $free_words[$w] ])->exists();
           if(!$isExists){
-              $model = new \app\models\Keywords();
-              $model->alertId = $alertId;
+              $model = new \app\modules\wordlists\models\Keywords();
               $model->dictionaryId = $dictionaryId;
               $model->name = $free_words[$w];
               $model->save();
+          }else{
+            $model = \app\modules\wordlists\models\Keywords::find()->where(['dictionaryId' => $dictionaryId,'name' => $free_words[$w] ])->one();
           }
+          $models[] = [$alertId,$model->id];
 
       }
 
-      \app\models\Keywords::deleteAll([
-        'id' => $words_delete,
-        'alertId' => $alertId,
-        'dictionaryId' => $dictionaryId
-      ]);
+      if(count($models)){
+        Yii::$app->db->createCommand()->batchInsert('alerts_keywords', ['alertId','keywordId'],$models)
+        ->execute();
+      }
+
+      if(count($words_delete)){
+        \app\modules\wordlists\models\AlertsKeywords::deleteAll([
+          'id' => $words_delete,
+          'alertId' => $alertId,
+        ]);
+
+        \app\modules\wordlists\models\Keywords::deleteAll([
+          'id' => $words_delete,
+          'dictionaryId' => $dictionaryId,
+        ]);
+      }
 
     }
 
-    public static function saveOrUpdateDictionaries($dictionariesNames,$alertId){
+    public static function updateDictionaries($dictionariesIds,$alertId){
 
-      $dictionaries = \app\models\Dictionaries::find()->select(['name','id'])->all();
+      if(!empty($dictionariesIds)){
+        $keywordsIds = \app\modules\wordlists\models\Keywords::find()->select('id')->where(['dictionaryId' => $dictionariesIds])->all();
+        $ids = \yii\helpers\ArrayHelper::getColumn($keywordsIds, 'id');
+        // delete olds
+        \app\modules\wordlists\models\AlertsKeywords::deleteAll([
+          'alertId' => $alertId,
+        ]);
 
-      $dictionaries_delete = [];
-
-      foreach ($dictionaries as $dictionarie) {
-          if(!in_array($dictionarie->name,$dictionariesNames)){
-              $dictionaries_delete[] = $dictionarie->id;
-          }
+        self::saveDictionaryDrive($dictionariesIds,$alertId);
+        
+      }else{
+        // delete olds
+        \app\modules\wordlists\models\AlertsKeywords::deleteAll([
+          'alertId' => $alertId,
+        ]);
       }
-      
-      self::saveDictionaryDrive($dictionariesNames,$alertId);
-
-      \app\models\Keywords::deleteAll([
-        'alertId' => $alertId,
-        'dictionaryId' => $dictionaries_delete
-      ]);
-
     }
     /**
      * @return \yii\db\ActiveQuery

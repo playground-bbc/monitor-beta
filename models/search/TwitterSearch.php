@@ -24,7 +24,7 @@ class TwitterSearch
         if(empty($data)){
            return false;     
         }
-        $this->isDictionaries = $this->_isDictionaries();
+        $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
         $this->resourceId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Twitter');
         
         $this->data = current($data);
@@ -88,11 +88,9 @@ class TwitterSearch
      * @return boolean [description]
      */
     private function _isDictionaries(){
-        if(!is_null($this->alertId)){
-            $keywords = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->exists();
-            return $keywords;
-        }
-        return false;
+        $model = \app\models\Alerts::findOne($this->alertId);
+        $this->words = $model->getKeywords()->select(['name','id'])->asArray()->all();
+        return (count($this->words)) ? true : false;
     }
     /**
      * [saveMentions save  mentions or update]
@@ -271,7 +269,7 @@ class TwitterSearch
      * @return [array] [$mentions]
      */
     private function searchDataByDictionary($mentions){
-        $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+        $words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
 
         $data = [];
 

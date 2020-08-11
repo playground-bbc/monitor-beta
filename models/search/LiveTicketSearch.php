@@ -26,8 +26,8 @@ class LiveTicketSearch {
         if(empty($data)){
            return false;     
         }
-        $this->resourcesId    = $this->_setResourceId();
-        $this->isDictionaries = $this->_isDictionaries();
+        $this->resourcesId    = \app\helpers\AlertMentionsHelper::getResourceIdByName('Live Chat');
+        $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
         $this->data = current($data);
         unset($data);
         return (count($this->data)) ? true : false;
@@ -315,7 +315,7 @@ class LiveTicketSearch {
      * @return [array]       [description]
      */
     private function searchDataByDictionary($data){
-        $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+        $words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
 
         foreach($data as $term => $tickets){
             for ($t=0; $t < sizeOf($tickets) ; $t++) { 
@@ -393,17 +393,6 @@ class LiveTicketSearch {
 
     }
 
-    /**
-     * [_isDictionaries is the alert hace dictionaries]
-     * @return boolean [description]
-     */
-    private function _isDictionaries(){
-        if(!is_null($this->alertId)){
-            $keywords = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->exists();
-            return $keywords;
-        }
-        return false;
-    }
 
 
 

@@ -108,7 +108,6 @@ class InstagramCommentsApi extends Model {
 			$feeds_comments = $this->_getComments($filter_feeds);
 			$feeds_comments_replies = $this->_getReplies($feeds_comments);
 			$model = $this->_orderFeedsComments($feeds_comments_replies);
-			
 			return $model;
 
 		}
@@ -230,7 +229,7 @@ class InstagramCommentsApi extends Model {
 			'alertId'     => $this->alertId,
 			'resourcesId' => $this->resourcesId,
 		];
-		
+		$tmp = [];
 
 		for($f = 0; $f < count($feeds);$f++){
 			if(isset($feeds[$f]['data'])){
@@ -249,7 +248,7 @@ class InstagramCommentsApi extends Model {
 						$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p]);
 						// $is_contains = (count($product_data) > 3) ? \app\helpers\StringHelper::containsAny($caption,$product_data) : \app\helpers\StringHelper::containsAll($caption,$product_data);
 						$is_contains =  \app\helpers\StringHelper::containsAny($caption,$product_data);
-						if($is_contains){
+						if($is_contains && !in_array($caption,$tmp)){
 							if($feed_count){
 								// if a not key
 								if(!ArrayHelper::keyExists($this->products[$p], $posts, false)){
@@ -276,6 +275,7 @@ class InstagramCommentsApi extends Model {
 									$posts[$this->products[$p]][] = $feeds[$f]['data'][$d];
 								} // end if !in_array
 							} // end feed_count
+							$tmp[] = $caption;
 						}// end if is_contains
 					}// end loop products
 				}// end loop data
@@ -584,10 +584,12 @@ class InstagramCommentsApi extends Model {
 	 */
 	public function saveJsonFile(){
 		$source = 'Instagram Comments';
+		//$this->data = current($this->data);
+		
 		if(!is_null($this->data)){
+			$jsonfile = new JsonFile($this->alertId,$source);
 			foreach ($this->data as $data){
 				foreach($data as $product => $feed){
-					$jsonfile = new JsonFile($this->alertId,$source);
 					$jsonfile->load($data);
 				}
 				$jsonfile->save();

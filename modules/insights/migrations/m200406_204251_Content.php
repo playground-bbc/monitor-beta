@@ -12,7 +12,7 @@ class m200406_204251_Content extends Migration
     // Use up()/down() to run migration code without a transaction.
     public function up()
     {
-        $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_bin ENGINE=InnoDB';
+        //$tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_bin ENGINE=InnoDB';
         if ($this->db->driverName === 'mysql') {
             $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_bin ENGINE=InnoDB';
         }

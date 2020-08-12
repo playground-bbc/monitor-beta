@@ -48,7 +48,7 @@ class m200423_143348_mTopics extends Migration
          // creates index for column `userId`
         $this->createIndex(
             'idx-usertopic_userId_topic',
-            'alerts',
+            'm_topics',
             'userId'
         );
 

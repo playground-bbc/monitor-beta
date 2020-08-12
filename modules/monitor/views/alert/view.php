@@ -5,7 +5,6 @@ use yii\helpers\Html;
 use macgyer\yii2materializecss\widgets\data\DetailView;
 use kartik\select2\Select2;
 
-
 \app\assets\SweetAlertAsset::register($this);
 \app\assets\AxiosAsset::register($this);
 \app\assets\VueAsset::register($this);
@@ -48,7 +47,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
         'model' => $model,
         'attributes' => \app\helpers\AlertMentionsHelper::getAttributesForDetailView($model)
     ]) ?>
-
+    
     <modal-alert :count="count"></modal-alert>
     
     <div v-if="isData">
@@ -73,14 +72,6 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
                 <products-interations-chart :is_change="is_change"> 
             </div>
         </div>
-
-
-        <!-- <div class="row">
-            <div class="col-md-12">
-                <count-date-resources-chart :is_change="is_change">
-            </div>
-        </div> -->
-
 
         <div class="row">
             <div class="col-md-12">

@@ -3,6 +3,7 @@ use yii\helpers\Html;
 use kartik\grid\GridView;
 use yii\widgets\Pjax;
 use kartik\select2\Select2;
+use kartik\export\ExportMenu;
 use yii\widgets\ActiveForm;
 ?>
 <!-- template que muestra el boton para solicitar el pdf -->
@@ -129,141 +130,203 @@ use yii\widgets\ActiveForm;
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
   <div>
-    <!-- <button v-on:click="reload">Reload</button> -->
-    <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
-        <?=   $this->render('_search-word', ['model' => $searchModel]); ?>
-        <?= GridView::widget([
-          'dataProvider' => $dataProvider,
-          'filterModel' => $searchModel,
-          'autoXlFormat'=>true,
-          'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
-          'toggleDataContainer' => ['class' => 'btn-group mr-2'],
-          'export'=>[
-              'showConfirmAlert'=>false,
-              'target'=>GridView::TARGET_BLANK
-          ],
-          'exportConfig' => [
-              GridView::TEXT => ['label' => 'Guardar como Texto'],
-              GridView::EXCEL => ['label' => 'Guardar como Excel'],
-              GridView::PDF => ['label' => 'Guardar como Pdf'],
-              GridView::JSON => ['label' => 'Guardar como JSON'],
-          ],
-          'columns' => [
-            [
-                  'label' => Yii::t('app','Recurso Social'),
-                  'attribute' => 'resourceName',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['recurso'];
-                  },
-                  'filter' => Select2::widget([
-                      'data' => \yii\helpers\ArrayHelper::map($model->config->sources,'name','name'),
-                      'name' => 'MentionSearch[resourceName]',
-                      'value' => $searchModel['resourceName'],
-                      'attribute' => 'resourceName',
-                      'options' => ['placeholder' => 'Select resources...','multiple' => false],
-                      'theme' => 'krajee',
-                      'hideSearch' => true,
-                      'pluginOptions' => [
-                            'allowClear' => true,
-                        ],
-                  ]),
+    <div class="row">
+      <div class="col-md-12">
+        <div class="pull-right">
+        <?php 
+          $columns = [
+              [
+                'attribute'=>'recurso',
+                'label'=>'Recurso Social',
               ],
               [
-                  'label' => Yii::t('app','Término buscado'),
-                  'headerOptions' => ['style' => 'width:12%'],
-                  'attribute' => 'termSearch',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['term_searched'];
-                  },
-                  'filter' => Select2::widget([
-                      'data' => $model->termsFind,
-                      'name' => 'MentionSearch[termSearch]',
-                      'value' => $searchModel['termSearch'],
-                      'attribute' => 'termSearch',
-                      'options' => ['placeholder' => 'Select term...','multiple' => false],
-                      'theme' => 'krajee',
-                      'hideSearch' => true,
-                      'pluginOptions' => [
-                            'allowClear' => true,
-                        ],
-                  ]),
+                'attribute'=>'term_searched',
+                'label'=>'Término buscado',
               ],
               [
-                  'label' => Yii::t('app','Fecha'),
-                  'headerOptions' => ['style' => 'width:25%'],
-                  'attribute' => 'created_time',
-                  'format' => 'raw',
-                  'value' => function($model){
+                  'attribute'=>'create_time',
+                  'label'=>'Date created',
+                  'value'=>function ($model) { 
                       return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
                   },
-                  'filter' => \kartik\date\DatePicker::widget([
-                      'name' => 'MentionSearch[created_time]',
-                      'type' => \kartik\date\DatePicker::TYPE_COMPONENT_APPEND,
-                      'value' => $searchModel['created_time'],
-                    // 'layout' => $layout2,
-                      'pluginOptions' => [
-                          'autoclose' => true,
-                          'format' => 'yyyy/mm/dd',
-                      ]
-                  ]),
+                  'format'=>'raw'
               ],
               [
-                  'label' => Yii::t('app','Nombre'),
-                  'attribute' => 'name',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['name'];
-                  }
+                'attribute'=>'name',
+                'label'=>'Nombre',
               ],
               [
-                  'label' => Yii::t('app','Username'),
-                  'attribute' => 'screen_name',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['screen_name'];
-                  }
+                'attribute'=>'screen_name',
+                'label'=>'Username',
               ],
               [
-                  'label' => Yii::t('app','Titulo'),
-                  'attribute' => 'subject',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['subject'];
-                  }
+                'attribute'=>'subject',
+                'label'=>'Titulo',
               ],
               [
-                  'label' => Yii::t('app','Mencion'),
-                  'attribute' => 'message_markup',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return $model['message_markup'];
-                  }
+                'attribute'=>'message_markup',
+                'label'=>'Mencion',
               ],
-              [
-                  'label' => Yii::t('app','Url'),
-                  //'attribute' => 'userId',
-                  'format' => 'raw',
-                  'value' => function($model){
-                      return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
-                  }
+              'url',
+          ];
+          echo ExportMenu::widget([
+              'dataProvider' => $dataProvider,
+              'columns' => $columns,
+              'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
+              'batchSize' => 20, 
+              'target' => kartik\grid\GridView::TARGET_BLANK, 
+              'exportConfig' => [
+                  ExportMenu::FORMAT_HTML => false,
+                  ExportMenu::FORMAT_PDF => false,
+                  ExportMenu::FORMAT_CSV => false,
+                  ExportMenu::FORMAT_EXCEL => false,
               ],
-          ],
-          'class' => 'yii\grid\Column',
-          'pjax'=>false,
-          'pjaxSettings'=>[
-            'options'=>[
-              'id'=> 'mentions'
-            ]
-          ],
-          'showPageSummary'=>true,
-          'panel'=>[
-              'type'=>'primary',
-              'heading'=>'Menciones'
-          ],
-        ]); ?>
-    <?php Pjax::end() ?>
+              'dropdownOptions' => [
+                  'label' => 'Export All',
+                  'class' => 'btn btn-outline-secondary'
+              ]
+          ]) 
+          
+        ?>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-md-12">
+        <!-- <button v-on:click="reload">Reload</button> -->
+        <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
+            <?=   $this->render('_search-word', ['model' => $searchModel]); ?>
+            <?= GridView::widget([
+              'dataProvider' => $dataProvider,
+              'filterModel' => $searchModel,
+              'export' => false,
+              'toggleDataOptions' =>[
+                'all' => [
+                    'icon' => '',
+                    'label' => '',
+                    'class' => '',
+                    'title' => ''
+                ],
+              ],
+              'columns' => [
+                [
+                      'label' => Yii::t('app','Recurso Social'),
+                      'attribute' => 'resourceName',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['recurso'];
+                      },
+                      'filter' => Select2::widget([
+                          'data' => \yii\helpers\ArrayHelper::map($model->config->sources,'name','name'),
+                          'name' => 'MentionSearch[resourceName]',
+                          'value' => $searchModel['resourceName'],
+                          'attribute' => 'resourceName',
+                          'options' => ['placeholder' => 'Select resources...','multiple' => false],
+                          'theme' => 'krajee',
+                          'hideSearch' => true,
+                          'pluginOptions' => [
+                                'allowClear' => true,
+                            ],
+                      ]),
+                  ],
+                  [
+                      'label' => Yii::t('app','Término buscado'),
+                      'headerOptions' => ['style' => 'width:12%'],
+                      'attribute' => 'termSearch',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['term_searched'];
+                      },
+                      'filter' => Select2::widget([
+                          'data' => $model->termsFind,
+                          'name' => 'MentionSearch[termSearch]',
+                          'value' => $searchModel['termSearch'],
+                          'attribute' => 'termSearch',
+                          'options' => ['placeholder' => 'Select term...','multiple' => false],
+                          'theme' => 'krajee',
+                          'hideSearch' => true,
+                          'pluginOptions' => [
+                                'allowClear' => true,
+                            ],
+                      ]),
+                  ],
+                  [
+                      'label' => Yii::t('app','Fecha'),
+                      'headerOptions' => ['style' => 'width:25%'],
+                      'attribute' => 'created_time',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                      },
+                      'filter' => \kartik\date\DatePicker::widget([
+                          'name' => 'MentionSearch[created_time]',
+                          'type' => \kartik\date\DatePicker::TYPE_COMPONENT_APPEND,
+                          'value' => $searchModel['created_time'],
+                        // 'layout' => $layout2,
+                          'pluginOptions' => [
+                              'autoclose' => true,
+                              'format' => 'yyyy/mm/dd',
+                          ]
+                      ]),
+                  ],
+                  [
+                      'label' => Yii::t('app','Nombre'),
+                      'attribute' => 'name',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['name'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','Username'),
+                      'attribute' => 'screen_name',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['screen_name'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','Titulo'),
+                      'attribute' => 'subject',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['subject'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','Mencion'),
+                      'attribute' => 'message_markup',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return $model['message_markup'];
+                      }
+                  ],
+                  [
+                      'label' => Yii::t('app','Url'),
+                      //'attribute' => 'userId',
+                      'format' => 'raw',
+                      'value' => function($model){
+                          return \yii\helpers\Html::a('link',$model['url'],['target'=>'_blank', 'data-pjax'=>"0"]);
+                      }
+                  ],
+              ],
+              'class' => 'yii\grid\Column',
+              'pjax'=>false,
+              'pjaxSettings'=>[
+                'options'=>[
+                  'id'=> 'mentions'
+                ]
+              ],
+              'showPageSummary'=>true,
+              'panel'=>[
+                  'type'=>'primary',
+                  'heading'=>'Menciones'
+              ],
+            ]); ?>
+        <?php Pjax::end() ?>
+      </div>
+    </div>
   </div>
 </script>
 

@@ -51,9 +51,10 @@
         "fabpot/goutte": "^3.2",
         "cbschuld/browser.php": "^1.9",
         "kartik-v/yii2-grid": "@dev",
-        "kartik-v/yii2-export": "@dev",
         "yooper/php-text-analysis": "^1.5",
-        "kartik-v/yii2-tabs-x": "dev-master"
+        "kartik-v/yii2-tabs-x": "dev-master",
+        "kartik-v/yii2-export": "*",
+        "kartik-v/yii2-mpdf": "*"
 
     },
     "require-dev": {

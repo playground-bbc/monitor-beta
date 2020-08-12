@@ -3,17 +3,18 @@
 namespace app\modules\wordlists\controllers;
 
 use Yii;
-use app\modules\wordlists\models\Keywords;
-use app\modules\wordlists\models\KeywordsSearch;
 use yii\web\Controller;
+use app\modules\wordlists\models\Dictionaries;
+use app\modules\wordlists\models\DictionariesSearch;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * KeywordsController implements the CRUD actions for Keywords model.
+ * Default controller for the `wordlists` module
  */
-class KeywordsController extends Controller
+class DefaultController extends Controller
 {
+
     /**
      * {@inheritdoc}
      */
@@ -28,14 +29,13 @@ class KeywordsController extends Controller
             ],
         ];
     }
-
     /**
-     * Lists all Keywords models.
-     * @return mixed
+     * Renders the index view for the module
+     * @return string
      */
     public function actionIndex()
     {
-        $searchModel = new KeywordsSearch();
+        $searchModel = new DictionariesSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,7 +45,7 @@ class KeywordsController extends Controller
     }
 
     /**
-     * Displays a single Keywords model.
+     * Displays a single Dictionaries model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -58,17 +58,16 @@ class KeywordsController extends Controller
     }
 
     /**
-     * Creates a new Keywords model.
+     * Creates a new Dictionaries model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Keywords();
-        $model->dictionaryId = Yii::$app->request->get('dictionaryId');
+        $model = new Dictionaries();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['/wordlists/view', 'id' => $model->dictionaryId]);
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('create', [
@@ -77,7 +76,7 @@ class KeywordsController extends Controller
     }
 
     /**
-     * Updates an existing Keywords model.
+     * Updates an existing Dictionaries model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -88,7 +87,7 @@ class KeywordsController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['/wordlists/view', 'id' => $model->dictionaryId]);
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('update', [
@@ -97,7 +96,7 @@ class KeywordsController extends Controller
     }
 
     /**
-     * Deletes an existing Keywords model.
+     * Deletes an existing Dictionaries model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -105,22 +104,21 @@ class KeywordsController extends Controller
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
-        $model->delete();
+        $this->findModel($id)->delete();
 
-        return $this->redirect(['/wordlists/view', 'id' => $model->dictionaryId]);
+        return $this->redirect(['index']);
     }
 
     /**
-     * Finds the Keywords model based on its primary key value.
+     * Finds the Dictionaries model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Keywords the loaded model
+     * @return Dictionaries the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Keywords::findOne($id)) !== null) {
+        if (($model = Dictionaries::findOne($id)) !== null) {
             return $model;
         }
 

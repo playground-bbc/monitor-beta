@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $model app\models\Keywords */
 
 $this->title = Yii::t('app', 'Create Keywords');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Keywords'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', $model->dictionary->name), 'url' => ['/wordlists/view','id' => $model->dictionary->id]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="keywords-create">

@@ -38,14 +38,19 @@ class KeywordsSearch extends Keywords
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params,$id)
     {
-        $query = Keywords::find();
+        $query = Keywords::find()->where(['dictionaryId' => $id]);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+        ]);
+        $dataProvider->setSort([
+            'defaultOrder' => [
+                'createdAt' => SORT_DESC
+            ]
         ]);
 
         $this->load($params);

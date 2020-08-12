@@ -17,8 +17,8 @@ class DictionariesSearch extends Dictionaries
     public function rules()
     {
         return [
-            [['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
-            [['name', 'color'], 'safe'],
+          //  [['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
+            [['name'], 'safe'],
         ];
     }
 

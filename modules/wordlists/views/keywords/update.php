@@ -8,8 +8,7 @@ use yii\helpers\Html;
 $this->title = Yii::t('app', 'Update Keywords: {name}', [
     'name' => $model->name,
 ]);
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Keywords'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app', $model->dictionary->name), 'url' => ['/wordlists/view','id' => $model->dictionary->id]];
 $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
 ?>
 <div class="keywords-update">

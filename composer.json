@@ -53,7 +53,8 @@
         "kartik-v/yii2-grid": "@dev",
         "kartik-v/yii2-export": "@dev",
         "yooper/php-text-analysis": "^1.5",
-        "kartik-v/yii2-tabs-x": "dev-master"
+        "kartik-v/yii2-tabs-x": "dev-master",
+        "kartik-v/yii2-widget-colorinput": "dev-master"
 
     },
     "require-dev": {

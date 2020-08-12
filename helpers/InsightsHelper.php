@@ -211,9 +211,6 @@ class InsightsHelper
                             }
                         }
                     }
-                    $series_products_count =  \app\models\ProductsSeries::getDb()->cache(function ($db) {
-                        return  \app\models\ProductsSeries::find()->count();
-                    },60);
     
                     $products_family =  \app\models\ProductsFamily::getDb()->cache(function ($db) {
                         return  \app\models\ProductsFamily::find()->all();
@@ -224,10 +221,12 @@ class InsightsHelper
                     },60);
     
                     $ids_series = [];
+                    // names allowed What does the LG family represent
+                    $names_allowed = ['HA','HE','MC','Monitores'];
                     // family firts 
                     foreach($products_family as $product_family){
                         if(\app\helpers\StringHelper::containsAny($product_family->name,$entyties)){
-                            if(!in_array($product_family->series->id,$ids_series)){
+                            if(!in_array($product_family->series->id,$ids_series) && in_array($product_family->series->name,$names_allowed)){
                                 $ids_series[] = $product_family->series->id;
                             }
                             
@@ -236,7 +235,7 @@ class InsightsHelper
                     // categories
                     foreach($products_categories as $product_categories){
                         if(\app\helpers\StringHelper::containsAny($product_categories->name,$entyties)){
-                            if(!in_array($product_categories->productsFamily->series->id,$ids_series)){
+                            if(!in_array($product_categories->productsFamily->series->id,$ids_series) && in_array($product_family->series->name,$names_allowed)){
                                 $ids_series[] = $product_categories->productsFamily->series->id;
                             }
                             

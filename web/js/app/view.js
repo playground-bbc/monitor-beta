@@ -1042,7 +1042,14 @@ const vm = new Vue({
     is_change: false,
   },
   mounted() {
-    //this.fetchIsData();
+    // cheks if localStorage
+    if (localStorage.getItem("alert_count_" + id)) {
+      var count_storage = +localStorage.getItem("alert_count_" + id);
+      if (count_storage > 0) {
+        this.fetchIsData();
+      }
+    }
+
     setInterval(
       function () {
         this.fetchIsData();
@@ -1057,9 +1064,12 @@ const vm = new Vue({
           if (response.status == 200 && response.statusText == "OK") {
             this.count = response.data.data.count;
             this.resourcescount = response.data.data;
+            this.getOrSetStorage();
           }
         })
         .catch((error) => console.log(error));
+    },
+    getOrSetStorage() {
       if (this.count > 0) {
         this.isData = true;
         if (localStorage.getItem("alert_count_" + id)) {
@@ -1067,13 +1077,11 @@ const vm = new Vue({
           if (count_storage != this.count) {
             localStorage.setItem("alert_count_" + id, this.count);
             this.is_change = true;
-            console.info("Hubo un cambio en el count");
           } else {
             this.is_change = false;
           }
         } else {
           localStorage.setItem("alert_count_" + id, this.count);
-          console.info("set storage ...");
         }
       }
     },

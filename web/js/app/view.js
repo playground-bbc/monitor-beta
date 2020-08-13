@@ -141,7 +141,6 @@ const count_mentions = Vue.component("total-mentions", {
       return columnsName[size - 2];
     },
     getClass(resource) {
-      console.log(resource);
       var className = false;
       if (smallboxProperties.hasOwnProperty(resource)) {
         className = smallboxProperties[resource].class;

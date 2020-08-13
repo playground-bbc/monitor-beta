@@ -127,80 +127,34 @@ use yii\widgets\ActiveForm;
     </div>
 </script>
 
+
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
   <div>
     <div class="row">
-      <div class="col-md-12">
-        <div class="pull-right">
-        <?php 
-          $columns = [
-              [
-                'attribute'=>'recurso',
-                'label'=>'Recurso Social',
-              ],
-              [
-                'attribute'=>'term_searched',
-                'label'=>'Término buscado',
-              ],
-              [
-                  'attribute'=>'create_time',
-                  'label'=>'Date created',
-                  'value'=>function ($model) { 
-                      return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                  },
-                  'format'=>'raw'
-              ],
-              [
-                'attribute'=>'name',
-                'label'=>'Nombre',
-              ],
-              [
-                'attribute'=>'screen_name',
-                'label'=>'Username',
-              ],
-              [
-                'attribute'=>'subject',
-                'label'=>'Titulo',
-              ],
-              [
-                'attribute'=>'message_markup',
-                'label'=>'Mencion',
-              ],
-              'url',
-          ];
-          echo ExportMenu::widget([
-              'dataProvider' => $dataProvider,
-              'columns' => $columns,
-              'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
-              'batchSize' => 20, 
-              'target' => kartik\grid\GridView::TARGET_BLANK, 
-              'exportConfig' => [
-                  ExportMenu::FORMAT_HTML => false,
-                  ExportMenu::FORMAT_PDF => false,
-                  ExportMenu::FORMAT_CSV => false,
-                  ExportMenu::FORMAT_EXCEL => false,
-              ],
-              'dropdownOptions' => [
-                  'label' => 'Export All',
-                  'class' => 'btn btn-outline-secondary'
-              ]
-          ]) 
-          
-        ?>
-        </div>
-      </div>
-    </div>
-    <hr>
-    <div class="row">
+     
       <div class="col-md-12">
         <!-- <button v-on:click="reload">Reload</button> -->
         <?php Pjax::begin(['id' => 'mentions', 'timeout' => 10000, 'enablePushState' => false]) ?>
-            <?=   $this->render('_search-word', ['model' => $searchModel]); ?>
+        
+            <?=  $this->render('_search-word', ['model' => $searchModel]); ?>
             <?= GridView::widget([
               'dataProvider' => $dataProvider,
               'filterModel' => $searchModel,
-              'export' => false,
+              'export' => true,
+              'autoXlFormat'=>true,
+              'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
+              'toggleDataContainer' => ['class' => 'btn-group mr-2'],
+              'export'=>[
+                'showConfirmAlert'=>false,
+                'target'=>GridView::TARGET_BLANK
+              ],
+              'exportConfig' => [
+                GridView::TEXT => ['label' => 'Guardar como Texto'],
+                GridView::EXCEL => ['label' => 'Guardar como Excel'],
+                GridView::PDF => ['label' => 'Guardar como Pdf'],
+                GridView::JSON => ['label' => 'Guardar como JSON'],
+              ],
               'toggleDataOptions' =>[
                 'all' => [
                     'icon' => '',
@@ -208,6 +162,64 @@ use yii\widgets\ActiveForm;
                     'class' => '',
                     'title' => ''
                 ],
+              ],
+              'toolbar' => [
+                '{export}',
+                \kartik\export\ExportMenu::widget([
+                  'clearBuffers' => true,
+                  'showConfirmAlert' => false,
+                  'dataProvider' => $dataProvider,
+                  'columns' => [
+                    [
+                      'attribute'=>'recurso',
+                      'label'=>'Recurso Social',
+                    ],
+                    [
+                      'attribute'=>'term_searched',
+                      'label'=>'Término buscado',
+                    ],
+                    [
+                        'attribute'=>'create_time',
+                        'label'=>'Date created',
+                        'value'=>function ($model) { 
+                            return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
+                        },
+                        'format'=>'raw'
+                    ],
+                    [
+                      'attribute'=>'name',
+                      'label'=>'Nombre',
+                    ],
+                    [
+                      'attribute'=>'screen_name',
+                      'label'=>'Username',
+                    ],
+                    [
+                      'attribute'=>'subject',
+                      'label'=>'Titulo',
+                    ],
+                    [
+                      'attribute'=>'message_markup',
+                      'label'=>'Mencion',
+                    ],
+                    'url',
+                  ],
+                  'triggerDownload' => false,
+                  'pjaxContainerId' => 'mentions',
+                  'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
+                  'batchSize' => 20, 
+                  'target' => kartik\grid\GridView::TARGET_POPUP, 
+                  'exportConfig' => [
+                      ExportMenu::FORMAT_HTML => false,
+                      ExportMenu::FORMAT_PDF => false,
+                      ExportMenu::FORMAT_CSV => false,
+                      ExportMenu::FORMAT_EXCEL => false,
+                  ],
+                  'dropdownOptions' => [
+                      'label' => 'Exportar todas las Menciones',
+                      'class' => 'btn btn-outline-secondary'
+                  ]
+              ])
               ],
               'columns' => [
                 [

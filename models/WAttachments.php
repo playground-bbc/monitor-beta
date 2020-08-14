@@ -37,7 +37,7 @@ class WAttachments extends \yii\db\ActiveRecord
         return [
             [['content_id'], 'required'],
             [['content_id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
-            [['title', 'type', 'src_url'], 'string', 'max' => 255],
+            [['title', 'type'], 'string', 'max' => 255],
             [['content_id'], 'exist', 'skipOnError' => true, 'targetClass' => WContent::className(), 'targetAttribute' => ['content_id' => 'id']],
         ];
     }

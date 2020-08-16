@@ -106,8 +106,10 @@ class InstagramCommentsApi extends Model {
 			$filter_feeds = $this->_filterFeedsbyProducts($feeds);
 			
 			$feeds_comments = $this->_getComments($filter_feeds);
+			
 			$feeds_comments_replies = $this->_getReplies($feeds_comments);
 			$model = $this->_orderFeedsComments($feeds_comments_replies);
+			
 			return $model;
 
 		}
@@ -187,7 +189,7 @@ class InstagramCommentsApi extends Model {
 						}
 
 					}else{
-						echo "is break";
+						//echo "is break";
 						break;
 					}
 					
@@ -221,6 +223,7 @@ class InstagramCommentsApi extends Model {
 	private function _filterFeedsbyProducts($feeds){
 		$posts = [];
 		$feed_count = count($feeds);
+		
 
 		// params to save in AlertMentionsHelper and get
 		$where = [
@@ -233,55 +236,60 @@ class InstagramCommentsApi extends Model {
 
 		for($f = 0; $f < count($feeds);$f++){
 			if(isset($feeds[$f]['data'])){
+				$feed_properties = [];
 				for($d = 0; $d < count($feeds[$f]['data']); $d++){
-					
-					$feedId       = $feeds[$f]['data'][$d]['id'];
-					$caption      = $feeds[$f]['data'][$d]['caption'];
-					$url          = $feeds[$f]['data'][$d]['permalink'];
-					$like_count   = $feeds[$f]['data'][$d]['like_count'];
+					$feed_properties = [
+						'feedId'  => $feeds[$f]['data'][$d]['id'],
+						'caption' => $feeds[$f]['data'][$d]['caption'],
+						'url'     => $feeds[$f]['data'][$d]['permalink'],
+						'like_count'  => $feeds[$f]['data'][$d]['like_count'],
+						'timestamp' => \app\helpers\DateHelper::asTimestamp($feeds[$f]['data'][$d]['timestamp']),
+					];
 
-
-					$timestamp = \app\helpers\DateHelper::asTimestamp($feeds[$f]['data'][$d]['timestamp']);
-					
 					for($p = 0; $p < sizeof($this->products); $p++){
 						// destrutura el product
-						$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p]);
-						// $is_contains = (count($product_data) > 3) ? \app\helpers\StringHelper::containsAny($caption,$product_data) : \app\helpers\StringHelper::containsAll($caption,$product_data);
-						$is_contains =  \app\helpers\StringHelper::containsAny($caption,$product_data);
-						if($is_contains && !in_array($caption,$tmp)){
-							if($feed_count){
-								// if a not key
-								if(!ArrayHelper::keyExists($this->products[$p], $posts, false)){
-									$posts [$this->products[$p]] = [] ;
+						$product_data = \app\helpers\StringHelper::structure_product_to_search_to_scraping($this->products[$p],false);
+						$is_contains =  \app\helpers\StringHelper::containsAny($feed_properties['caption'],$product_data);
 
+						// avoiding not assigning a post to a term more than once
+						if($is_contains && !in_array($feed_properties['caption'],$tmp)){
+							// if a not key
+							if(!ArrayHelper::keyExists($this->products[$p], $posts, false)){
+								$posts [$this->products[$p]] = [] ;
+
+							}// end if keyExits
+							if(!in_array($feeds[$f]['data'][$d],$posts[$this->products[$p]])){
+								$where['publication_id'] = $feed_properties['feedId'];
+								$mention_data['like_count'] = $feed_properties['like_count'];
+								if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExists($feed_properties['feedId'],$this->alertId)){
+								
+									\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,
+										[
+											'term_searched' => $this->products[$p],
+											'date_searched' => $feed_properties['timestamp'],
+											'title' => $feed_properties['caption'],
+											'url' => $feed_properties['url'],
+											'mention_data' => $mention_data
+										]);
+
+								}else{
+									\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['mention_data' => $mention_data]);
 								}
-								// if not value
-								if(!in_array($feeds[$f]['data'][$d],$posts[$this->products[$p]])){
-									$where['publication_id'] = $feedId;
-									$mention_data['like_count'] = $like_count;
-									if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExists($feedId,$this->alertId)){
+								
+								$posts[$this->products[$p]][] = $feeds[$f]['data'][$d];
+							}
+							$tmp[] = $feed_properties['caption'];
+						}// end if contains && !in_array
 
-										
-									
-										\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['term_searched' => $this->products[$p],'date_searched' => $timestamp,'title' => $caption,'url' => $url,'mention_data' => $mention_data]);
-
-										//$posts[$this->products[$p]][] = $feeds[$f]['data'][$d];
-										$feed_count--;
-										break;
-
-									}else{
-										\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,['mention_data' => $mention_data]);
-									}
-									$posts[$this->products[$p]][] = $feeds[$f]['data'][$d];
-								} // end if !in_array
-							} // end feed_count
-							$tmp[] = $caption;
-						}// end if is_contains
-					}// end loop products
+					}// end loop terms
+					
 				}// end loop data
+				
 			}//end if isset()
 		}// end loop
 
+		unset($feed_properties); // clean properties
+		unset($tmp); // clean tmp
 		return $posts;
 
 	}
@@ -291,7 +299,7 @@ class InstagramCommentsApi extends Model {
 	 * @return [array]        [description]
 	 */
 	private function _getComments($feeds){
-
+		
 		$client = $this->_client;
 
 		// params to save in AlertMentionsHelper and get
@@ -314,8 +322,9 @@ class InstagramCommentsApi extends Model {
 				$comments_count = (int) $feed[$f]['comments_count'];
 
 				$model_post = \app\models\AlertsMencions::find()->where($where)->andWhere(['publication_id' => $id_feed])->one();
-
-				if($comments_count > count($model_post->mentions)){
+				$count_comments_db = (isset($model_post->mentions)) ? count($model_post->mentions): 0;
+				
+				if($comments_count > $count_comments_db){
 					$timestamp = \app\helpers\DateHelper::asTimestamp($feed[$f]['timestamp']);
 					// if there next in the database
 					if(isset($params)){
@@ -361,6 +370,7 @@ class InstagramCommentsApi extends Model {
 							$tmp = $comments->getData();
 							for($t = 0; $t < sizeof($tmp['data']); $t++){
 								$data[] = $tmp['data'][$t];
+								
 							}
 						}
 
@@ -395,38 +405,12 @@ class InstagramCommentsApi extends Model {
 
 					}while($is_next);
 
-					// looking new comments
-					if(\yii\helpers\ArrayHelper::keyExists($id_feed,$params['feeds'])){
-
-						$model = \app\models\AlertsMencions::findOne(['publication_id' => $id_feed]);
-						if(!$params['feeds'][$id_feed]['max_id']){
-							$firts_comment = reset($data);
-							if($firts_comment){
-								$model->max_id = \app\helpers\DateHelper::asTimestamp($firts_comment['timestamp']);
-								if($model->save()){
-									$feeds[$product][$f]['comments'] = $data;
-								} // if save and if not send email with fail
-							}// if there firts_comment
-						}else{// if not max_id records
-							$max_id = $params['feeds'][$id_feed]['max_id'];
-
-							for($d = 0; $d < sizeof($data); $d++){
-								$unix_date = \app\helpers\DateHelper::asTimestamp($data[$d]['timestamp']);
-								$feeds[$product][$f]['comments'][] = $data[$d];
-								// coment by update likes in comments
-								/*if($unix_date > $max_id){
-									$model->max_id = $unix_date;
-									if($model->save()){
-										$feeds[$product][$f]['comments'][] = $data[$d];
-									}
-								}*/
-							}
-						}// if max_id	
-					}// if old records
+					$feeds[$product][$f]['comments'] = $data;
 				}
 			}// end loop feed
 		}// end foreach feeds
-
+		
+		
 		return $feeds;
 
 	}
@@ -484,7 +468,11 @@ class InstagramCommentsApi extends Model {
 
 		return $feeds;	
 	}
-
+	/**
+	 * [_orderFeedsComments order data feeds and coments]
+	 * @param  [array] $feeds [description]
+	 * @return [array]        [feeds with comments and replies]
+	 */
 	private function _orderFeedsComments($feeds){
 		$model = [];
 
@@ -547,8 +535,8 @@ class InstagramCommentsApi extends Model {
 	}
 
 	/**
-	 * [_postSimpleQuery description]
-	 * @return [type] [description]
+	 * [_postSimpleQuery query to api Instagram]
+	 * @return [string] [description]
 	 */
 	private function _postSimpleQuery(){		
 
@@ -557,11 +545,9 @@ class InstagramCommentsApi extends Model {
 		return $post_query;
 
 	}
-
-
 	/**
-	 * [_postSimpleQuery description]
-	 * @return [type] [description]
+	 * [_commentSimpleQuery query to api Instagram]]
+	 * @return [string] [description]
 	 */
 	private function _commentSimpleQuery($feedId){
 
@@ -571,33 +557,31 @@ class InstagramCommentsApi extends Model {
 		return $comments_query;
 
 	}
-
+	/**
+	 * [_repliesSimpleQuery query to api Instagram]]
+	 * @return [string] [description]
+	 */
 	private function _repliesSimpleQuery($commentId){
 		return "{$commentId}/replies?fields=username,timestamp,text,id,like_count&access_token={$this->_page_access_token}";
 	}
-
-
-
 	/**
 	 * [saveJsonFile save a json file]
 	 * @return [none] [description]
 	 */
 	public function saveJsonFile(){
-		$source = 'Instagram Comments';
-		//$this->data = current($this->data);
 		
 		if(!is_null($this->data)){
-			$jsonfile = new JsonFile($this->alertId,$source);
-			foreach ($this->data as $data){
-				foreach($data as $product => $feed){
-					$jsonfile->load($data);
-				}
-				$jsonfile->save();
-			}
+			$jsonfile = new JsonFile($this->alertId,'Instagram Comments');
+			$data = current($this->data);
+			$jsonfile->load($data);
+			$jsonfile->save();
 		}
 
 	}
-
+	/**
+	 * [searchFinish look up if the search are finish]
+	 * @return [none] [description]
+	 */
 	private function searchFinish()
 	{
 		$model = [
@@ -676,12 +660,6 @@ class InstagramCommentsApi extends Model {
 	 */
 	private function _getClient(){
 		$this->_client = new Client(['baseUrl' => $this->_baseUrl]);
-		// $this->_client = new Client([
-		//     // Base URI is used with relative requests
-		//     'base_uri' => $this->_baseUrl,
-		//     // You can set any number of default request options.
-		//     'timeout'  => 2.0,
-		// ]);
 		return $this->_client;
 	}
 

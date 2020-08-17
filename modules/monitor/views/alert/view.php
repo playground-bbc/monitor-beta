@@ -52,18 +52,18 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
             <total-mentions :count="count" :resourcescount="resourcescount">
         </div>
         
-        <!-- <div class="row">
+        <div class="row">
             <div class="col-md-12">
                 <total-resources-chart :is_change="is_change" >
             </div>
-        </div> -->
+        </div>
 
         <div class="row">
             <div class="col-md-12">
                 <post-interation-chart :is_change="is_change">
             </div>
         </div>
-        <!-- <div class="row">
+        <div class="row">
             <div class="col-md-12">
                 <products-interations-chart :is_change="is_change"> 
             </div>
@@ -80,7 +80,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
 
         <div class="row">
             <cloud-words :is_change="is_change">
-        </div> -->
+        </div>
     </div>
     <div v-else>
         <div class="loader">

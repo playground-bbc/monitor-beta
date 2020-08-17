@@ -215,8 +215,8 @@ const count_resources_chat = Vue.component("total-resources-chart", {
         focusTarget: "category",
         title: "Gráfico de número de interacciones por red social",
         vAxis: { format: "decimal" },
-        width: "100%",
-        height: "400",
+        width: 1200,
+        height: 400,
         colors: [],
         animation: {
           startup: true,
@@ -230,18 +230,6 @@ const count_resources_chat = Vue.component("total-resources-chart", {
     this.response = [this.dataTable];
     // get firts data
     this.fetchResourceCount();
-    //window.onresize = this.drawColumnChart;
-    // setInterval(
-    //   function () {
-    //     if (this.loaded) {
-    //       google.charts.setOnLoadCallback(this.drawColumnChart);
-    //     }
-    //     if (this.is_change) {
-    //       this.fetchResourceCount();
-    //     }
-    //   }.bind(this),
-    //   refreshTime
-    // );
   },
   watch: {
     is_change: function (val, oldVal) {
@@ -354,26 +342,15 @@ const post_interations_chart = Vue.component("post-interation-chart", {
   },
   mounted() {
     this.response = [this.dataTable];
-    // Load the Visualization API and the corechart package.
-    //google.charts.load("current", { packages: ["corechart"] });
     // get firts data
     this.fetchResourceCount();
-    // load chart
-    if (this.loaded) {
-      google.charts.setOnLoadCallback(this.drawColumnChart);
-    }
-
-    setInterval(
-      function () {
-        if (this.loaded) {
-          google.charts.setOnLoadCallback(this.drawColumnChart);
-        }
-        if (this.is_change) {
-          this.fetchResourceCount();
-        }
-      }.bind(this),
-      refreshTime
-    );
+  },
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.fetchResourceCount();
+      }
+    },
   },
   methods: {
     fetchResourceCount() {
@@ -385,6 +362,8 @@ const post_interations_chart = Vue.component("post-interation-chart", {
               for (let index in response.data.data) {
                 this.response.push(response.data.data[index]);
               }
+              // load chart
+              google.charts.setOnLoadCallback(this.drawColumnChart);
               this.render = true;
               this.loaded = true;
             }
@@ -406,6 +385,9 @@ const post_interations_chart = Vue.component("post-interation-chart", {
 
       chart.draw(view, this.options);
       addLink(data, "post_mentions");
+    },
+    setOnLoadCallback() {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
     },
   },
 });

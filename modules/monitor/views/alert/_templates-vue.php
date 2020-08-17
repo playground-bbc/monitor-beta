@@ -62,15 +62,17 @@ use yii\widgets\ActiveForm;
 
 <!-- template chart google -->
 <script type="tex/x-template" id="view-total-resources-chart">
-  <div v-if="loaded">
-    <div id="resources_chart_count"></div>
-    <hr>
-  </div>
-  <div v-else>
-    <div class="loader">
-      <div class="spinner"></div>
+  <div>
+    <div v-show="loaded">
+      <div id="resources_chart_count"></div>
+      <hr>
     </div>
-  </div>  
+    <div v-show="!loaded">
+      <div class="loader">
+        <div class="spinner"></div>
+      </div>
+    </div> 
+  </div> 
 </script>
 
 <script type="text/x-template" id="view-post-mentions-chart">
@@ -89,17 +91,19 @@ use yii\widgets\ActiveForm;
 
 <!-- chart products interations -->
 <script type="tex/x-template" id="view-products-interations-chart">
-  <div v-if="loaded">
-    <div id="products-interation-chart">
-      
+  <div>
+    <div v-show="loaded">
+      <div id="products-interation-chart">
+        
+      </div>
+      <hr>
     </div>
-    <hr>
-  </div>
-  <div v-else>
-        <div class="loader">
-          <div class="spinner"></div>
-        </div>
-    </div>  
+    <div v-show="!loaded">
+          <div class="loader">
+            <div class="spinner"></div>
+          </div>
+      </div> 
+  </div> 
 </script>
 
 <!-- template chart by date google chart -->

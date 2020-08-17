@@ -178,43 +178,90 @@ class InsightsHelper
      * @param  obj  $model      [model content]
      */
     public static function setRelationPostWithFamilyProducts($model){
-        $base_url = "https://api.dandelion.eu/";
-        $end_point = "datatxt/nex/v1";
-        $params = [
-            'text' => $model->message,
-            'lang' => 'es',
-            'token' => 'c29bd9219aa746198de326f0243de397'
-        ];
 
-        
+        $relation_set = false;
+        //validate if there is already a post from another social network that has the same title to take its relationship with products / terms
+        $is_post_with_same_message_another_resource =  \app\models\WContent::find()->where([
+            'like', 'message', substr($model->message,0,10) . '%', false,
+            
+        ])
+        ->andWhere(['<>', 'resource_id', $model->resource_id])
+        ->exists();
+
+        if ($is_post_with_same_message_another_resource) {
+            $model_another_resource =  \app\models\WContent::find()->where([
+                'like', 'message', substr($model->message,0,10) . '%', false,
+                
+            ])
+            ->andWhere(['<>', 'resource_id', $model->resource_id])
+            ->one();
+            //var_dump($model->wProductsFamilyContent);
+            if(!count($model->wProductsFamilyContent)){
+                // if has relation
+                if($model_another_resource->wProductsFamilyContent){
+                    foreach($model_another_resource->wProductsFamilyContent as $family){
+                        $product_family_content = new \app\models\WProductsFamilyContent();
+                        $product_family_content->contentId = $model->id;
+                        $product_family_content->serieId = $family->serieId;
+                        if($product_family_content->save()){
+                            $relation_set = true;
+                        }else{
+                            var_dump($product_family_content->errors);
+                        }
+                    }
+                    
+                }
+            }
+        } 
+        // var relation_set is false and not recors in WProductsFamilyContent: call api to set realation
         $is_w_products_family_content = \app\models\WProductsFamilyContent::find()->where(
             [
                 'contentId' => $model->id,
             ]
         )->exists();
-        if(!$is_w_products_family_content){
+        
+        
+        if(!$is_w_products_family_content && !$relation_set){
+            $base_url = "https://api.dandelion.eu/";
+            $end_point = "datatxt/nex/v1";
+            $params = [
+                'text' => $model->message,
+                'lang' => 'es',
+                'token' => 'c29bd9219aa746198de326f0243de397'
+            ];
+
             $data = \app\helpers\InsightsHelper::getData($end_point,$params,$base_url);
             if($data){
                 if($data['annotations']){
+                    $strict_search = (count($data['annotations']) > 1) ? true : false;
                     $anotations = \yii\helpers\ArrayHelper::map($data['annotations'],'spot','label','id');
+                    
                     // order data from api
                     $entyties = [];
+                    
                     foreach($anotations as $values){
                         if(!empty($values)){
                             foreach($values as $index => $value){
-                                if(!in_array($index,$entyties,true) && $index != "LG Electronics" && $index != "LG"){
-                                    $entyties[] = $index;
+                                if ($strict_search) {
+                                    if(!in_array($index,$entyties,true) && $index != "LG Electronics" && $index != "LG"){
+                                        $entyties[] = $index;
+                                    }
+                                    if(!in_array($value,$entyties,true) && $value != "LG Electronics"  && $value != "LG"){
+                                        $entyties[] = $value;
+                                    }
+                                } else {
+                                    if(!in_array($index,$entyties,true)){
+                                        $entyties[] = $index;
+                                    }
+                                    if(!in_array($value,$entyties,true)){
+                                        $entyties[] = $value;
+                                    }
                                 }
-                                if(!in_array($value,$entyties,true) && $value != "LG Electronics"  && $value != "LG"){
-                                    $entyties[] = $value;
-                                }
+                                
                             }
                         }
                     }
-                    $series_products_count =  \app\models\ProductsSeries::getDb()->cache(function ($db) {
-                        return  \app\models\ProductsSeries::find()->count();
-                    },60);
-    
+                    
                     $products_family =  \app\models\ProductsFamily::getDb()->cache(function ($db) {
                         return  \app\models\ProductsFamily::find()->all();
                     },60);
@@ -224,10 +271,12 @@ class InsightsHelper
                     },60);
     
                     $ids_series = [];
+                    // names allowed What does the LG family represent
+                    $names_allowed = ['HA','HE','MC','Monitores'];
                     // family firts 
                     foreach($products_family as $product_family){
                         if(\app\helpers\StringHelper::containsAny($product_family->name,$entyties)){
-                            if(!in_array($product_family->series->id,$ids_series)){
+                            if(!in_array($product_family->series->id,$ids_series) && in_array($product_family->series->abbreviation_name,$names_allowed)){
                                 $ids_series[] = $product_family->series->id;
                             }
                             
@@ -236,12 +285,33 @@ class InsightsHelper
                     // categories
                     foreach($products_categories as $product_categories){
                         if(\app\helpers\StringHelper::containsAny($product_categories->name,$entyties)){
-                            if(!in_array($product_categories->productsFamily->series->id,$ids_series)){
+                            if(!in_array($product_categories->productsFamily->series->id,$ids_series) && in_array($product_family->series->abbreviation_name,$names_allowed)){
                                 $ids_series[] = $product_categories->productsFamily->series->id;
                             }
                             
                         }
                     }
+                    
+                    if(empty($ids_series)){
+                        foreach($products_categories as $product_categories){
+                            if(\app\helpers\StringHelper::containsCountIncaseSensitive($model->message,$product_categories->name)){
+                                $ids_series[] = $product_categories->productsFamily->series->id;
+                                break;
+                                
+                            }
+                        }
+                    }
+
+                    if(empty($ids_series)){
+                        foreach($products_family as $product_family){
+                            if(\app\helpers\StringHelper::containsCountIncaseSensitive($model->message,$product_family->name)){
+                                $ids_series[] = $product_family->series->id;
+                                break;
+                                
+                            }
+                        }
+                    }
+
                     if(!empty($ids_series)){
                         for ($i=0; $i < sizeOf($ids_series) ; $i++) { 
                             $is_model = \app\models\WProductsFamilyContent::find()->where(

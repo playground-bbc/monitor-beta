@@ -3,6 +3,7 @@
 use yii\db\Migration;
 
 /**
+ * ./yii migrate --migrationPath=@app/modules/insights/migrations  --interactive=0
  * Class m200406_204231_type_content
  */
 class m200406_204231_Type_content extends Migration

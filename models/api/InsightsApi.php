@@ -143,6 +143,7 @@ class InsightsApi extends Model
 						'image_url' => $data[$d]['picture'],
 						'timespan'  => \app\helpers\DateHelper::asTimestamp($data[$d]['updated_time']),
 					];
+					$where['permalink'] = $data[$d]['permalink_url'];
 					$content = \app\helpers\InsightsHelper::saveContent($where,$properties);
 					if (isset($content->id)) {
 						
@@ -257,7 +258,7 @@ class InsightsApi extends Model
 						'image_url' => (isset($data[$d]['media_url'])) ? $data[$d]['media_url'] : $data[$d]['thumbnail_url'],
 						'timespan'  => \app\helpers\DateHelper::asTimestamp($data[$d]['timestamp']),
 					];
-
+					$where['permalink'] = $data[$d]['permalink'];
 					$content = \app\helpers\InsightsHelper::saveContent($where,$properties);
 
 					if ($content) {
@@ -316,7 +317,7 @@ class InsightsApi extends Model
 						'image_url' => $data[$d]['media_url'],
 						'timespan'  => \app\helpers\DateHelper::asTimestamp($data[$d]['timestamp']),
 					];
-
+					$where['permalink'] = $data[$d]['permalink'];
 					$content = \app\helpers\InsightsHelper::saveContent($where,$properties);
 
 					if ($content) {
@@ -401,6 +402,7 @@ class InsightsApi extends Model
 			
 				for ($p=0; $p < sizeof($posts) ; $p++) { 
 					$where['content_id'] = \app\helpers\FacebookHelper::getIdPostFacebook($posts[$p]['id']);
+					$where['permalink'] = $posts[$p]['permalink_url'];
 					$properties = [
 						'message'   => (isset($posts[$p]['message'])) ? $posts[$p]['message'] : '',
 						'permalink' => $posts[$p]['permalink_url'],
@@ -452,6 +454,7 @@ class InsightsApi extends Model
 			for ($p=0; $p < sizeof($posts); $p++) { 
 
 				$where['content_id'] = $posts[$p]['ig_id'];
+				$where['permalink'] = $posts[$p]['permalink'];
 				$properties = [
 					'message'   => (isset($posts[$p]['caption'])) ? $posts[$p]['caption'] : '-',
 					'permalink' => $posts[$p]['permalink'],

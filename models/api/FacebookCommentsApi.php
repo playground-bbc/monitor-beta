@@ -121,19 +121,12 @@ class FacebookCommentsApi extends Model {
 	 */
 	public function call($query_params = []){
 
-		
-		//$this->data[] = $this->_getDataApi($query_params);
-
 		$data = $this->_getDataApi($query_params);
 
 		if($data){
 			$this->data[] = $this->_orderDataByProducts($data);
-
-			
 		}
 		$this->searchFinish();
-		//return $this->data;
-		
 	}
 
 	/**
@@ -678,8 +671,8 @@ class FacebookCommentsApi extends Model {
 			
 			for($p = 0; $p < sizeof($this->products); $p++){
 				// destrutura el product
-				$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p]);
-				
+				//$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$p]);
+				$product_data = \app\helpers\StringHelper::structure_product_to_search_to_scraping($this->products[$p]);
 				// get message
 				$sentence = $data[$d]['message'];
 				// get url

@@ -127,7 +127,12 @@ class ProductsSeriesController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        // delete relation with insights table
+        \app\models\WProductsFamilyContent::deleteAll([
+            'serieId' => $model->id
+        ]);
+        $model->delete();
 
         return $this->redirect(['/products/default','itemId' => $this->itemId]);
     }

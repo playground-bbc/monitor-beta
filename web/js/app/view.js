@@ -1,6 +1,9 @@
 // flag to chart line
 let loadedChart = false;
 
+// Load the Visualization API and the corechart package.
+google.charts.load("current", { packages: ["corechart", "line"] });
+
 Vue.filter("formatNumber", function (value) {
   return value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
 });
@@ -141,7 +144,6 @@ const count_mentions = Vue.component("total-mentions", {
       return columnsName[size - 2];
     },
     getClass(resource) {
-      console.log(resource);
       var className = false;
       if (smallboxProperties.hasOwnProperty(resource)) {
         className = smallboxProperties[resource].class;
@@ -226,41 +228,35 @@ const count_resources_chat = Vue.component("total-resources-chart", {
   },
   mounted() {
     this.response = [this.dataTable];
-    // Load the Visualization API and the corechart package.
-    google.charts.load("current", { packages: ["corechart"] });
     // get firts data
     this.fetchResourceCount();
-    // load chart
-    if (this.loaded) {
-      google.charts.setOnLoadCallback(this.drawColumnChart);
-    }
-
-    setInterval(
-      function () {
-        if (this.loaded) {
-          google.charts.setOnLoadCallback(this.drawColumnChart);
-        }
-        if (this.is_change) {
-          this.fetchResourceCount();
-        }
-      }.bind(this),
-      refreshTime
-    );
+  },
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.fetchResourceCount();
+      }
+    },
   },
   methods: {
     fetchResourceCount() {
       getTotalResource(this.alertId)
         .then((response) => {
           if (typeof this.response === "object") {
+            this.loaded = true;
             this.options.colors = response.data.colors;
             this.response.splice(1, response.data.data.length);
             for (let index in response.data.data) {
               this.response.push(response.data.data[index]);
             }
-            this.loaded = true;
+
+            this.setOnLoadCallback();
           }
         })
         .catch((error) => console.log(error));
+    },
+    setOnLoadCallback() {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
     },
     drawColumnChart() {
       var data = google.visualization.arrayToDataTable(this.response);
@@ -346,26 +342,15 @@ const post_interations_chart = Vue.component("post-interation-chart", {
   },
   mounted() {
     this.response = [this.dataTable];
-    // Load the Visualization API and the corechart package.
-    google.charts.load("current", { packages: ["corechart"] });
     // get firts data
     this.fetchResourceCount();
-    // load chart
-    if (this.loaded) {
-      google.charts.setOnLoadCallback(this.drawColumnChart);
-    }
-
-    setInterval(
-      function () {
-        if (this.loaded) {
-          google.charts.setOnLoadCallback(this.drawColumnChart);
-        }
-        if (this.is_change) {
-          this.fetchResourceCount();
-        }
-      }.bind(this),
-      refreshTime
-    );
+  },
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.fetchResourceCount();
+      }
+    },
   },
   methods: {
     fetchResourceCount() {
@@ -377,6 +362,8 @@ const post_interations_chart = Vue.component("post-interation-chart", {
               for (let index in response.data.data) {
                 this.response.push(response.data.data[index]);
               }
+              // load chart
+              google.charts.setOnLoadCallback(this.drawColumnChart);
               this.render = true;
               this.loaded = true;
             }
@@ -398,6 +385,9 @@ const post_interations_chart = Vue.component("post-interation-chart", {
 
       chart.draw(view, this.options);
       addLink(data, "post_mentions");
+    },
+    setOnLoadCallback() {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
     },
   },
 });
@@ -481,26 +471,34 @@ const products_interations_chart = Vue.component("products-interations-chart", {
   mounted() {
     this.response = [this.dataTable];
     // Load the Visualization API and the corechart package.
-    google.charts.load("current", { packages: ["corechart"] });
+    //google.charts.load("current", { packages: ["corechart"] });
     // get firts data
     this.fetchResourceCount();
+    //window.onresize = this.drawColumnChart;
     // load chart
-    if (this.loaded) {
-      //console.log(this.response);
-      google.charts.setOnLoadCallback(this.drawColumnChart);
-    }
+    // if (this.loaded) {
+    //   //console.log(this.response);
+    //   google.charts.setOnLoadCallback(this.drawColumnChart);
+    // }
 
-    setInterval(
-      function () {
-        if (this.loaded) {
-          google.charts.setOnLoadCallback(this.drawColumnChart);
-        }
-        if (this.is_change) {
-          this.fetchResourceCount();
-        }
-      }.bind(this),
-      refreshTime
-    );
+    // setInterval(
+    //   function () {
+    //     if (this.loaded) {
+    //       google.charts.setOnLoadCallback(this.drawColumnChart);
+    //     }
+    //     if (this.is_change) {
+    //       this.fetchResourceCount();
+    //     }
+    //   }.bind(this),
+    //   refreshTime
+    // );
+  },
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.fetchResourceCount();
+      }
+    },
   },
   methods: {
     fetchResourceCount() {
@@ -512,11 +510,14 @@ const products_interations_chart = Vue.component("products-interations-chart", {
             for (let index in response.data.data) {
               this.response.push(response.data.data[index]);
             }
-            //console.log(this.response);
             this.loaded = true;
+            this.setOnLoadCallback();
           }
         })
         .catch((error) => console.log(error));
+    },
+    setOnLoadCallback() {
+      google.charts.setOnLoadCallback(this.drawColumnChart);
     },
     drawColumnChart() {
       var data = google.visualization.arrayToDataTable(this.response);
@@ -555,8 +556,6 @@ const count_resources_date_chat = Vue.component("count-date-resources-chart", {
     };
   },
   mounted() {
-    // Load the Visualization API and the corechart package.
-    google.charts.load("current", { packages: ["corechart", "line"] });
     // get firts data
     this.fetchResourceCount();
     // load chart
@@ -1043,7 +1042,14 @@ const vm = new Vue({
     is_change: false,
   },
   mounted() {
-    //this.fetchIsData();
+    // cheks if localStorage
+    if (localStorage.getItem("alert_count_" + id)) {
+      var count_storage = +localStorage.getItem("alert_count_" + id);
+      if (count_storage > 0) {
+        this.fetchIsData();
+      }
+    }
+
     setInterval(
       function () {
         this.fetchIsData();
@@ -1058,9 +1064,12 @@ const vm = new Vue({
           if (response.status == 200 && response.statusText == "OK") {
             this.count = response.data.data.count;
             this.resourcescount = response.data.data;
+            this.getOrSetStorage();
           }
         })
         .catch((error) => console.log(error));
+    },
+    getOrSetStorage() {
       if (this.count > 0) {
         this.isData = true;
         if (localStorage.getItem("alert_count_" + id)) {
@@ -1068,30 +1077,28 @@ const vm = new Vue({
           if (count_storage != this.count) {
             localStorage.setItem("alert_count_" + id, this.count);
             this.is_change = true;
-            console.info("Hubo un cambio en el count");
           } else {
             this.is_change = false;
           }
         } else {
           localStorage.setItem("alert_count_" + id, this.count);
-          console.info("set storage ...");
         }
       }
     },
   },
-  components: {
-    report_button,
-    count_mentions,
-    //box_sources,
-    count_resources_chat,
-    post_interations_chart,
-    products_interations_chart,
-    count_resources_date_chat,
-    //count_resources,
-    listMentions,
-    cloudWords,
-    //tableDate,
-    //listEmojis,
-    sweetAlert,
-  },
+  // components: {
+  //   report_button,
+  //   count_mentions,
+  //   //box_sources,
+  //   count_resources_chat,
+  //   post_interations_chart,
+  //   products_interations_chart,
+  //   count_resources_date_chat,
+  //   //count_resources,
+  //   listMentions,
+  //   cloudWords,
+  //   //tableDate,
+  //   //listEmojis,
+  //   sweetAlert,
+  // },
 });

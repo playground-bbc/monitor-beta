@@ -10,6 +10,9 @@ use function Stringy\create as s;
 
 use Stringizer\Stringizer;
 
+use TextAnalysis\Filters\StopWordsFilter;
+use StopWordFactory;
+
 /**
  *
  * @author Eduardo Morales <eduardo@montana-studio.com>
@@ -55,7 +58,6 @@ class StringHelper
         return $data;
 
     }
-	
     /**
      * [convert a product string in to array ,delete / and () if exclude words less to 3]
      * @param  [string] $product   [product to convert]

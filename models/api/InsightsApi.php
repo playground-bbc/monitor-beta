@@ -416,8 +416,10 @@ class InsightsApi extends Model
 						\app\helpers\InsightsHelper::saveInsightsFacebookPost($model,$content->id);
 
 
-						$attachments = $posts[$p]['attachments']['data'];
-						\app\helpers\InsightsHelper::saveAttachments($attachments,$content->id);
+						if(isset($posts[$p]['attachments']['data'])){
+							$attachments = $posts[$p]['attachments']['data'];
+							\app\helpers\InsightsHelper::saveAttachments($attachments,$content->id);
+						}
 					}// end if isset
 					//delete to use var where on query instagram
 					unset($where['content_id']);

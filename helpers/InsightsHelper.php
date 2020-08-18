@@ -195,7 +195,7 @@ class InsightsHelper
             ])
             ->andWhere(['<>', 'resource_id', $model->resource_id])
             ->one();
-            //var_dump($model->wProductsFamilyContent);
+            
             if(!count($model->wProductsFamilyContent)){
                 // if has relation
                 if($model_another_resource->wProductsFamilyContent){
@@ -262,56 +262,7 @@ class InsightsHelper
                         }
                     }
                     
-                    $products_family =  \app\models\ProductsFamily::getDb()->cache(function ($db) {
-                        return  \app\models\ProductsFamily::find()->all();
-                    },60);
-    
-                    $products_categories =  \app\models\ProductCategories::getDb()->cache(function ($db) {
-                        return  \app\models\ProductCategories::find()->all();
-                    },60);
-    
-                    $ids_series = [];
-                    // names allowed What does the LG family represent
-                    $names_allowed = ['HA','HE','MC','Monitores'];
-                    // family firts 
-                    foreach($products_family as $product_family){
-                        if(\app\helpers\StringHelper::containsAny($product_family->name,$entyties)){
-                            if(!in_array($product_family->series->id,$ids_series) && in_array($product_family->series->abbreviation_name,$names_allowed)){
-                                $ids_series[] = $product_family->series->id;
-                            }
-                            
-                        }
-                    }
-                    // categories
-                    foreach($products_categories as $product_categories){
-                        if(\app\helpers\StringHelper::containsAny($product_categories->name,$entyties)){
-                            if(!in_array($product_categories->productsFamily->series->id,$ids_series) && in_array($product_family->series->abbreviation_name,$names_allowed)){
-                                $ids_series[] = $product_categories->productsFamily->series->id;
-                            }
-                            
-                        }
-                    }
-                    
-                    if(empty($ids_series)){
-                        foreach($products_categories as $product_categories){
-                            if(\app\helpers\StringHelper::containsCountIncaseSensitive($model->message,$product_categories->name)){
-                                $ids_series[] = $product_categories->productsFamily->series->id;
-                                break;
-                                
-                            }
-                        }
-                    }
-
-                    if(empty($ids_series)){
-                        foreach($products_family as $product_family){
-                            if(\app\helpers\StringHelper::containsCountIncaseSensitive($model->message,$product_family->name)){
-                                $ids_series[] = $product_family->series->id;
-                                break;
-                                
-                            }
-                        }
-                    }
-
+                    $ids_series = self::_searchIdSeriesInEntyties($entyties,$model->message);
                     if(!empty($ids_series)){
                         for ($i=0; $i < sizeOf($ids_series) ; $i++) { 
                             $is_model = \app\models\WProductsFamilyContent::find()->where(
@@ -334,6 +285,74 @@ class InsightsHelper
             }
         }
         
+    }
+    /** 
+     * _searchIdSeriesInEntyties private helpers look up id series on entityies if not search, look in the message 
+    */
+    public static function _searchIdSeriesInEntyties($entyties,$message){
+        $ids_series = [];
+        // names allowed What does the LG family represent
+        $names_allowed = ['HA','HE','MC','Monitores'];
+
+        $products_family =  \app\models\ProductsFamily::getDb()->cache(function ($db) {
+            return  \app\models\ProductsFamily::find()->all();
+        },60);
+
+        $products_categories =  \app\models\ProductCategories::getDb()->cache(function ($db) {
+            return  \app\models\ProductCategories::find()->all();
+        },60);
+        // family firts 
+        foreach($products_family as $product_family){
+            if(\app\helpers\StringHelper::containsAny($product_family->name,$entyties)){
+                if(!in_array($product_family->series->id,$ids_series) && in_array($product_family->series->abbreviation_name,$names_allowed)){
+                    $ids_series[] = $product_family->series->id;
+                }
+                
+            }
+        }
+        // categories
+        foreach($products_categories as $product_categories){
+            if(\app\helpers\StringHelper::containsAny($product_categories->name,$entyties)){
+                if(!in_array($product_categories->productsFamily->series->id,$ids_series) && in_array($product_family->series->abbreviation_name,$names_allowed)){
+                    $ids_series[] = $product_categories->productsFamily->series->id;
+                }
+                
+            }
+        }
+       
+        if(empty($ids_series)){
+            foreach($products_categories as $product_categories){
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product_categories->name)){
+                    $ids_series[] = $product_categories->productsFamily->series->id;
+                    break;
+                    
+                }
+            }
+        }
+
+        if(empty($ids_series)){
+            foreach($products_family as $product_family){
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product_family->name)){
+                    $ids_series[] = $product_family->series->id;
+                    break;
+                    
+                }
+            }
+        }
+
+        if(empty($ids_series)){
+            $products = \app\models\Products::find()->all();
+            foreach($products as $product){
+                var_dump($product->name);
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name)){
+                    $ids_series[] = $product->category->productsFamily->series->id;
+                    break;
+                    
+                }
+            }
+        }
+
+        return $ids_series;
     }
 
     /**

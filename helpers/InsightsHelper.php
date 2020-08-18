@@ -343,7 +343,6 @@ class InsightsHelper
         if(empty($ids_series)){
             $products = \app\models\Products::find()->all();
             foreach($products as $product){
-                var_dump($product->name);
                 if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name)){
                     $ids_series[] = $product->category->productsFamily->series->id;
                     break;

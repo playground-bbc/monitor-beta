@@ -22,6 +22,7 @@ class AppAsset extends AssetBundle
     public $css = [
        'css/site.css',
        'css/view.css',
+       'css/form.css',
        'css/Socicon/style.css',
        
     ];

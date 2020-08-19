@@ -178,6 +178,12 @@ class StringHelper
 
         ];
     }
+
+    public static function sanitizePrayerForSearch($sentence){
+        $sentence_lowercase = self::lowercase($sentence);
+        $sentence_clean = self::stripPunctuation($sentence_lowercase);
+        return $sentence_clean;
+    }
     /**
      * https://github.com/danielstjules/Stringy#containsanyarray-needles--boolean-casesensitive--true-
      */
@@ -253,6 +259,12 @@ class StringHelper
         $s = new Stringizer($sentence);
         $s->removeNonAscii(); 
         return $s->getString();
+    }
+
+    public static function stripPunctuation($sentence){
+        $s = new Stringizer($sentence);
+        $s->stripPunctuation();
+        return $s->getString(); 
     }
     /**
      * https://github.com/jasonlam604/Stringizer#isascii

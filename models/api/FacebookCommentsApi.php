@@ -60,38 +60,16 @@ class FacebookCommentsApi extends Model {
 			$this->userId     = $alert['userId'];
 			$this->start_date = $alert['config']['start_date'];
 			$this->end_date   = $alert['config']['end_date'];
-
-			//get from alermentios
-			$alertsMencions = \app\models\AlertsMencions::find()->where([
-	    		'alertId'       => $this->alertId,
-				'resourcesId'   => $this->resourcesId,
-				'condition'     => 'ACTIVE',
-		        'type'        	=> 'comments',
-	    	])->all();
-
-	    	if (count($alertsMencions)) {
-	    		$products = [];
-	    		foreach ($alertsMencions as $alertsMencion) {
-	    			if(in_array($alertsMencion->term_searched, $alert['products'])){
-	    				$index = array_search($alertsMencion->term_searched, $alert['products']);
-	    				unset($alert['products'][$index]);
-	    			}
-	    		}
-
-	    		$alert['products'] = array_values($alert['products']);
-
-	    	}
-			////
 			// order products by his  length
 			array_multisort(array_map('strlen', $alert['products']), $alert['products']);
 			$this->products   = $alert['products'];
-
 			if (count($this->products)) {
 				return $this->_setParams();
 			} else {
 				return false;
 			}
 		}
+		
 		return false;
 	}
 
@@ -126,7 +104,7 @@ class FacebookCommentsApi extends Model {
 		if($data){
 			$this->data[] = $this->_orderDataByProducts($data);
 		}
-		$this->searchFinish();
+		//$this->searchFinish();
 	}
 
 	/**
@@ -199,6 +177,7 @@ class FacebookCommentsApi extends Model {
 
 					$data =  $posts->getData(); // get all post and comments
 					
+					
 					$is_next = (empty($data['data'])) ? false : true;
 
 					// if there comments, check if post is register - check the time his update 	
@@ -255,9 +234,45 @@ class FacebookCommentsApi extends Model {
 			
 			}while($is_next);
 		
-			
 			return $responseData;
 		}
+	}
+
+	/**
+	 * [_setCandidate return only post when his title check with the term to search]
+	 * @param  [array] $feeds [all posts]
+	 * @return [array] $feeds_candidate [ post filter by term]
+	 */
+	private function _setCandidate($feeds){
+		$feeds_candidate = [];
+		
+		// for each pagination
+		for($p = 0; $p < sizeOf($feeds); $p++){
+			// for each feed is limit is one
+			$feeds_candidate[$p] =[];
+			for($d=0; $d < sizeOf($feeds[$p]['data']); $d++){
+				if(isset($feeds[$p]['data'][$d]['message'])){
+					$feeds_candidate[$p]['data'] =[];
+					for($i = 0; $i < sizeof($this->products); $i++){
+						// take sentence post
+						$sentence = $feeds[$p]['data'][$d]['message'];
+						// destrutura el product
+						//$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$i]);
+						//$is_contains = (count($product_data) > 3) ? \app\helpers\StringHelper::containsAny($sentence,$product_data) : \app\helpers\StringHelper::containsAll($sentence,$product_data);
+						$product_data = \app\helpers\StringHelper::structure_product_to_search_to_scraping($this->products[$i],false);
+						$sentence_clean = \app\helpers\StringHelper::sanitizePrayerForSearch($sentence);
+						$is_contains =  \app\helpers\StringHelper::containsAll($sentence_clean,$product_data);
+						if($is_contains){
+							if(!in_array($feeds[$p]['data'][$d],$feeds_candidate[$p]['data'])){
+								$feeds_candidate[$p]['data'][] = $feeds[$p]['data'][$d];
+							}
+						}
+					}// end loop products
+				}
+			}// end loop data
+		}// end loop pagination	
+		
+		return $feeds_candidate;
 	}
 
 	/**
@@ -518,7 +533,6 @@ class FacebookCommentsApi extends Model {
 			}
 
 		}
-
 		return $feeds_comments;
 	}
 
@@ -599,8 +613,10 @@ class FacebookCommentsApi extends Model {
 		$index = 0;
 		
 		for($c=0; $c < sizeOf($comments['data']); $c++){
-			if(!\app\helpers\StringHelper::isEmpty($comments['data'][$c]['message'])){
 
+			// get comment if is not empty or comments has subcomments
+			if(!\app\helpers\StringHelper::isEmpty($comments['data'][$c]['message']) || isset($comments['data'][$c]['comments']['data'])){
+				
 
 				$data[$index]['id'] = $comments['data'][$c]['id'];
 				$data[$index]['created_time'] = $comments['data'][$c]['created_time'];
@@ -718,39 +734,6 @@ class FacebookCommentsApi extends Model {
 
 	}
 
-	/**
-	 * [_setCandidate return only post when his title check with the term to search]
-	 * @param  [array] $feeds [all posts]
-	 * @return [array] $feeds_candidate [ post filter by term]
-	 */
-	private function _setCandidate($feeds){
-		$feeds_candidate = [];
-		
-		// for each pagination
-		for($p = 0; $p < sizeOf($feeds); $p++){
-			// for each feed is limit is one
-			$feeds_candidate[$p] =[];
-			for($d=0; $d < sizeOf($feeds[$p]['data']); $d++){
-				if(isset($feeds[$p]['data'][$d]['message'])){
-					$feeds_candidate[$p]['data'] =[];
-					for($i = 0; $i < sizeof($this->products); $i++){
-						// take sentence post
-						$sentence = $feeds[$p]['data'][$d]['message'];
-						// destrutura el product
-						$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$i]);
-						$is_contains = (count($product_data) > 3) ? \app\helpers\StringHelper::containsAny($sentence,$product_data) : \app\helpers\StringHelper::containsAll($sentence,$product_data);
-						if($is_contains){
-							if(!in_array($feeds[$p]['data'][$d],$feeds_candidate[$p]['data'])){
-								$feeds_candidate[$p]['data'][] = $feeds[$p]['data'][$d];
-							}
-						}
-					}// end loop products
-				}
-			}// end loop data
-		}// end loop pagination	
-		
-		return $feeds_candidate;
-	}
 	/**
 	 * [saveJsonFile save the content on json file]
 	 * @return avoid

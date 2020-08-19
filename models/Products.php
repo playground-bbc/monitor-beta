@@ -97,34 +97,21 @@ class Products extends \yii\db\ActiveRecord
         $modelsHeader = Yii::t('app', 'Modelos de producto');
         
 
-        $series[$seriesHeader] = ArrayHelper::map(ProductsSeries::find()
-                                                ->where(['status' => 1])
-                                                ->all(),
-                                            'name','name');
+        $series[$seriesHeader] = ArrayHelper::map(ProductsSeries::find()->where(['status' => 1])->all(),'name','name');
         
-        $family[$familyHeader] = ArrayHelper::map(ProductsFamily::find()->andFilterCompare('seriesId','null','<>')
-                                                ->where(['status' => 1])
-                                                ->all(),
-                                            'name','name');
+        $family[$familyHeader] = ArrayHelper::map(
+            ProductsFamily::find()->andFilterCompare('seriesId','null','<>')->where(['status' => 1])->all(),'name','name');
+
         
-        $categories[$categoriesHeader] = ArrayHelper::map(ProductCategories::find()
-                                                ->andFilterCompare('familyId','null','<>')
-                                                ->where(['status' => 1])
-                                                ->all(),
-                                            'name','name');
+        $categories[$categoriesHeader] = ArrayHelper::map(
+            ProductCategories::find()->andFilterCompare('familyId','null','<>')->where(['status' => 1])->all(),'name','name');
         
-        $products[$productsHeader] = ArrayHelper::map(Products::find()
-                                                ->andFilterCompare('categoryId','null','<>')
-                                                ->where(['status' => 1])
-                                                ->all(),
-                                            'name','name');
+        $products[$productsHeader] = ArrayHelper::map(
+            Products::find()->andFilterCompare('categoryId','null','<>')->where(['status' => 1])->all(),'name','name');
        
 
-        $products_models[$modelsHeader] = ArrayHelper::map(ProductsModels::find()
-                                                ->andFilterCompare('productId','null','<>')
-                                                ->where(['status' => 1])
-                                                ->all(),
-                                            'name','name');
+        $products_models[$modelsHeader] = ArrayHelper::map(
+            ProductsModels::find()->andFilterCompare('productId','null','<>')->where(['status' => 1])->all(),'name','name');
 
         $data = ArrayHelper::merge($series,$family);
         $data = ArrayHelper::merge($categories,$data);
@@ -223,6 +210,7 @@ class Products extends \yii\db\ActiveRecord
 
     public static function saveProductsModelAlerts($products_models = [],$alertId){
         $productsIds = self::getModelsIdByName($products_models);
+        
         
         foreach ($productsIds as $productId => $name) {
             $model = new \app\models\ProductsModelsAlerts();

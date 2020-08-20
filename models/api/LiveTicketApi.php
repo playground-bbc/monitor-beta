@@ -34,9 +34,11 @@ class LiveTicketApi extends Model {
 	 * @return [array]        [params for call LiveTicketApi]
 	 */
 	public function prepare($alert = []){
+		
 		if(!empty($alert)){
 			
 			$this->alertId        = $alert['id'];
+			$this->updatedAt      = $alert['updatedAt'];
 			$this->start_date     = $alert['config']['start_date'];
 			$this->end_date       = $alert['config']['end_date'];
 			// order products by his  length
@@ -60,39 +62,93 @@ class LiveTicketApi extends Model {
 
 		$params = [];
 
+		// set term on cache
+		$cache = \Yii::$app->cache;
+		$key = "Live Chat";
+		//$cache->delete("{$key}_{$this->alertId}");
+		$data = $cache->get("{$key}_{$this->alertId}");
+        $time_expired = (($this->end_date - $this->start_date)) ? $this->end_date - $this->start_date : 86400;
+
+        if ($data === false) {
+            // $data is not found in cache, calculate it from scratch
+            foreach($this->products as $index => $product){
+                $data[$product] = $this->start_date;
+            }
+            $cache->set("{$key}_{$this->alertId}", $data, $time_expired);
+        } else {
+           // $data is found with data
+           // if a new terms
+           foreach($this->products as $index => $product){
+                if(!isset($data[$product])){
+                    $data[$product] = $this->start_date;
+                }
+            }
+
+		}
+
 		
 		for($p = 0; $p < sizeof($this->products); $p++){
 			$productName = $this->products[$p];
-			$productMention = $this->_getAlertsMencionsByProduct($productName);
 			
+			$productMention = \app\helpers\AlertMentionsHelper::getAlersMentions([
+				'type'          => 'ticket',
+				'term_searched' => $productName,
+				'alertId'       => $this->alertId,
+				'resourcesId'   => $this->resourcesId
+			]);
 			
-			if(!$productMention){
+			if(empty($productMention)){
 				
-				$date_from = Yii::$app->formatter->asDate($this->start_date,'yyyy-MM-dd');
-				$date_to = \app\helpers\DateHelper::add($this->start_date,'+1 day');
-
-
+				$product_date_cache = $data[$productName];
+				
+				$date_from = Yii::$app->formatter->asDate($product_date_cache,'yyyy-MM-dd');
+				$date_to = \app\helpers\DateHelper::add($product_date_cache,'+1 day');
 
 				$params[$productName] = [
 					'query'     => $productName,
-					'date_from' => $date_from,
-					'date_to'   => $date_to,
 					'page'      => 1
 				];
 				
-				// set AlertsMencions
-				$this->_setAlertsMencionsByProduct($productName);
-				
-			}else{
-				// insert params to the products with condicion active
-				if($productMention->condition == \app\models\AlertsMencions::CONDITION_ACTIVE){
+				if($product_date_cache < $this->end_date){
+					if(!\app\helpers\DateHelper::isToday((int)$product_date_cache)){
+						$date_from = Yii::$app->formatter->asDate($product_date_cache,'yyyy-MM-dd');
+						$date_to = \app\helpers\DateHelper::add($product_date_cache,'+1 day');
 
-					if($productMention->date_searched < $this->end_date)
+
+						$params[$productName]['date_from'] = $date_from;
+						$params[$productName]['date_to'] = $date_to;
+
+						$newDateSearch = \app\helpers\DateHelper::add($data[$productName],'+1 day');
+						$data[$productName] = strtotime($newDateSearch);
+						$cache->set("{$key}_{$this->alertId}", $data, $time_expired);
+					}else{
+						$date_from = Yii::$app->formatter->asDate($data[$productName],'yyyy-MM-dd');
+						$date_to = \app\helpers\DateHelper::add($data[$productName],'+1 day');
+
+						$params[$productName]['date_from'] = $date_from;
+						$params[$productName]['date_to'] = $date_to;
+					}
+				}else{
+					
+					//$params[$productName]['date_from'] = \app\helpers\DateHelper::add($data[$productName],'-1 day');
+					$params[$productName]['date_from'] = Yii::$app->formatter->asDate($data[$productName],'yyyy-MM-dd');
+					$params[$productName]['date_to'] = $date_to;
+				}
+				//$cache->set("{$key}_{$this->alertId}", $data, $time_expired);
+				
+			
+			
+			}else{
+				$productMention = reset($productMention);
+				// insert params to the products with condicion active
+				if($productMention['condition'] == \app\models\AlertsMencions::CONDITION_ACTIVE){
+
+					if($productMention['date_searched'] < $this->end_date)
 					{
 
-						if(!\app\helpers\DateHelper::isToday(intval($productMention->date_searched))){
-							$date_from = Yii::$app->formatter->asDate($productMention->date_searched,'yyyy-MM-dd');
-							$date_to = \app\helpers\DateHelper::add($productMention->date_searched,'+1 day');
+						if(!\app\helpers\DateHelper::isToday(intval($productMention['date_searched']))){
+							$date_from = Yii::$app->formatter->asDate($productMention['date_searched'],'yyyy-MM-dd');
+							$date_to = \app\helpers\DateHelper::add($productMention['date_searched'],'+1 day');
 
 
 							$params[$productName] = [
@@ -101,13 +157,14 @@ class LiveTicketApi extends Model {
 								'date_to'   => $date_to,
 							];
 
-							$newDateSearch = \app\helpers\DateHelper::add($productMention->date_searched,'+1 day');
-							$productMention->date_searched = strtotime($newDateSearch);
-							$productMention->save();
+							$newDateSearch = \app\helpers\DateHelper::add($productMention['date_searched'],'+1 day');
+							$model = \app\models\AlertsMencions::findOne($productMention['id']);
+							$model->date_searched = strtotime($newDateSearch);
+							$model->save();
 						}else{
 
-							$date_from = Yii::$app->formatter->asDate($productMention->date_searched,'yyyy-MM-dd');
-							$date_to = \app\helpers\DateHelper::add($productMention->date_searched,'+1 day');
+							$date_from = Yii::$app->formatter->asDate($productMention['date_searched'],'yyyy-MM-dd');
+							$date_to = \app\helpers\DateHelper::add($productMention['date_searched'],'+1 day');
 
 
 							$params[$productName] = [
@@ -119,7 +176,7 @@ class LiveTicketApi extends Model {
 						}
 
 					}else{
-						$date_from = \app\helpers\DateHelper::add($productMention->date_searched,'-1 day');
+						$date_from = \app\helpers\DateHelper::add($productMention['date_searched'],'-1 day');
 
 
 						$params[$productName] = [
@@ -130,13 +187,14 @@ class LiveTicketApi extends Model {
 
 					}
 
-					if (\app\helpers\DateHelper::isToday($productMention->date_searched)) {
+					if (\app\helpers\DateHelper::isToday((int)$productMention['date_searched'])) {
 						// set filename
-						$this->filename = $productMention->date_searched;
+						$this->filename = $productMention['date_searched'];
 					}
 
 				}
 			}
+		
 
 		} // end for products
 		return $params; 
@@ -163,13 +221,9 @@ class LiveTicketApi extends Model {
 		$page = 1;
 
 		$client = $this->_getClient();
-		//$productsNames = ArrayHelper::remove($params, 'products');
-		
-
+		var_dump($params);
 		do{
-			// set page 
 			$params['page'] = $page;
-			//echo "page : {$params['page']} ". "\n";
 			try {
 				sleep(1);
 				$response = $client->tickets->get($params);
@@ -177,8 +231,6 @@ class LiveTicketApi extends Model {
 				\Yii::warning("Erro Livechat ticket id: {$this->alertId}.");
 				var_dump($e->getMessage(),$this->alertId);
 			}
-		//	echo "searching start date". $params['date_from']. " to  ". $params['date_to']. " in productName: ".$params['query']. "\n";
-			
 
 			if(count($response->tickets)){
 				// get the data
@@ -188,11 +240,9 @@ class LiveTicketApi extends Model {
 			
 			$pageresponse = $response->pages;
 			$page++;
-			// echo "page response: {$pageresponse} ". "\n";
-			// echo "page : {$page} ". "\n";
 
 		}while($pageresponse >= $page);
-
+		
 		return $data;
 
 	}
@@ -203,6 +253,7 @@ class LiveTicketApi extends Model {
 		$tmp = [];
 		foreach($data as $productName => $groupTickets){
 			if(count($data[$productName])){
+				$this->_setAlertsMencionsByProduct($productName);
 				//$model [$productName] = [];
 				foreach($groupTickets as $group => $tickets){
 					for($t = 0; $t < sizeof($tickets); $t++){
@@ -241,33 +292,6 @@ class LiveTicketApi extends Model {
 	}
 
 
-	/**
-	 * [_getAlertsMencionsByProduct get model by product name]
-	 * @param  [type] $productName [name product]
-	 * @return [obj / boolean]     [a model if exits or false if not]
-	 */
-	private function _getAlertsMencionsByProduct($productName){
-
-		$where = [
-			//'condition'     => 'ACTIVE',
-			'type'          => 'ticket',
-			'term_searched' => $productName,
-			'alertId'       => $this->alertId,
-			'resourcesId'   => $this->resourcesId
-		];
-
-		$is_exits = \app\models\AlertsMencions::find()->where($where)->exists();
-		
-		$model = false;
-		
-		if($is_exits){
-			$model = \app\models\AlertsMencions::find()->where($where)->one();
-		}
-
-		return $model;
-	
-	}
-
 
 	private function _setAlertsMencionsByProduct($productName){
 		
@@ -278,16 +302,20 @@ class LiveTicketApi extends Model {
 			$date_searched = strtotime($newDateSearch);
 
 		}
+		$where = [
+			'alertId' => $this->alertId,
+			'resourcesId' => $this->resourcesId,
+			'term_searched' => $productName,
+		];
+		$properties = [
+			'condition' => 'ACTIVE',
+			'type' => 'ticket',
+			'date_searched' => $date_searched,
+		];
+		if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExistsByProperties($where)){
+			\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,$properties);
+		}
 		
-
-		$model  =  new \app\models\AlertsMencions();
-		$model->alertId = $this->alertId;
-		$model->resourcesId = $this->resourcesId;
-		$model->condition = 'ACTIVE';
-		$model->type = 'ticket';
-		$model->term_searched = $productName;
-		$model->date_searched = $date_searched;
-		$model->save();
 	}
 
 	/**
@@ -389,29 +417,6 @@ class LiveTicketApi extends Model {
 		$this->_client = new LiveChat($this->_api_login, $this->_access_secret_token);
 		return $this->_client;
 	}
-
-	/**
-	 * [_setResourceId return the id from resource]
-	 */
-	private function _setResourceId(){
-		
-		$socialId = (new \yii\db\Query())
-		    ->select('id')
-		    ->from('type_resources')
-		    ->where(['name' => 'Social media'])
-		    ->one();
-		
-		
-		$resourcesId = (new \yii\db\Query())
-		    ->select('id')
-		    ->from('resources')
-		    ->where(['name' => 'Live Chat','resourcesId' => $socialId['id']])
-		    ->all();
-		
-
-		$this->resourcesId = ArrayHelper::getColumn($resourcesId,'id')[0];    
-	}
-
 	
 	private function _setCredentials(){
 
@@ -430,12 +435,10 @@ class LiveTicketApi extends Model {
 	}
 
 
-	
-
 	function __construct(){
 		
 		// set resource 
-		$this->_setResourceId();
+		$this->resourcesId = \app\helpers\AlertMentionsHelper::getResourceIdByName("Live Chat");
 		// set credencials
 		$this->_setCredentials();
 		// get client

@@ -357,6 +357,8 @@ const post_interations_chart = Vue.component("post-interation-chart", {
       getPostInterations(this.alertId)
         .then((response) => {
           if (typeof this.response === "object") {
+            this.render = true;
+            this.loaded = true;
             if (response.data.status) {
               this.response.splice(1, response.data.data.length);
               for (let index in response.data.data) {
@@ -364,8 +366,6 @@ const post_interations_chart = Vue.component("post-interation-chart", {
               }
               // load chart
               google.charts.setOnLoadCallback(this.drawColumnChart);
-              this.render = true;
-              this.loaded = true;
             }
           }
         })

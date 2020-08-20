@@ -104,7 +104,7 @@ class FacebookCommentsApi extends Model {
 		if($data){
 			$this->data[] = $this->_orderDataByProducts($data);
 		}
-		//$this->searchFinish();
+		$this->searchFinish();
 	}
 
 	/**

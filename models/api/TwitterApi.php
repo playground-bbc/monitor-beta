@@ -80,6 +80,29 @@ class TwitterApi extends Model {
 	public function setProductsParams($products = []){
 		
 		$products_to_searched = [];
+		// set term on cache
+		$cache = \Yii::$app->cache;
+		$key = "Twitter";
+		//$cache->delete("{$key}_{$this->alertId}");
+		$data = $cache->get("{$key}_{$this->alertId}");
+        $time_expired = (($this->end_date - $this->start_date)) ? $this->end_date - $this->start_date : 86400;
+
+        if ($data === false) {
+            // $data is not found in cache, calculate it from scratch
+            foreach($products as $index => $product){
+                $data[$product] = $this->start_date;
+            }
+            $cache->set("{$key}_{$this->alertId}", $data, $time_expired);
+        } else {
+           // $data is found with data
+           // if a new terms
+           foreach($products as $index => $product){
+                if(!isset($data[$product])){
+                    $data[$product] = $this->start_date;
+                }
+            }
+
+		}
 		// forming the array params
 		$params = [
 			'lang' => 'es',
@@ -139,8 +162,11 @@ class TwitterApi extends Model {
 					array_push($products_to_searched,$params);
 		    	} 
 		    }else{
-				$since_date = Yii::$app->formatter->asDatetime($this->start_date,'yyyy-MM-dd');
-				$until_date = DateHelper::add($this->start_date,'1 day');
+
+				$productName = $products[$p];
+
+				$since_date = Yii::$app->formatter->asDatetime($data[$productName],'yyyy-MM-dd');
+				$until_date = DateHelper::add($data[$productName],'1 day');
 		    	//$query_search = "".$product." since:{$since_date} until:{$until_date}";
 		    	$query_search = '"'.$product.'" since:'.$since_date.' until:'.$until_date.'';
 		    	
@@ -154,6 +180,7 @@ class TwitterApi extends Model {
 		    }
 
 		}
+	
 		return $products_to_searched;
 		
 	}	
@@ -188,13 +215,15 @@ class TwitterApi extends Model {
 		$until_date = null;
 		$max_id = null;
 
-      
+		//var_dump($params);
       	$product = ArrayHelper::remove($params, 'product');
       	$since_date = ArrayHelper::remove($params, 'since');
       	$until_date =  ArrayHelper::remove($params, 'until');
-
+		
 
       	$properties = [
+		  'alertId' => $this->alertId,
+		  'resourcesId' => $this->resourcesId,		  
 	      'term_searched' => $product,
 	      'type' => 'tweet',
 		];
@@ -225,7 +254,21 @@ class TwitterApi extends Model {
 					}
 					// if there sinceId
 					if(is_null($sinceId)){
-					  $sinceId = $data[$index]['statuses'][0]['id'] + 1;
+						$sinceId = $data[$index]['statuses'][0]['id'] + 1;
+
+						$since_date = Yii::$app->formatter->asTimestamp($since_date);
+						$since_date = intval($since_date);
+						if(DateHelper::isToday($since_date)){
+							$properties['since_id'] = $sinceId;
+							$date_searched = $since_date;
+							$this->filename = $since_date;
+						}else{
+							$date_searched = DateHelper::add($since_date,'1 day');
+							$date_searched = Yii::$app->formatter->asTimestamp($date_searched);
+						}
+						$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
+						$this->_saveAlertsMencions($properties);
+					  
 					  //Console::stdout("save one time {$sinceId}.. \n", Console::BOLD);
 					}
 					// if there next result
@@ -242,10 +285,9 @@ class TwitterApi extends Model {
 							$date_searched = $since_date;
 							$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
 							//Console::stdout(" limit en minimum: {$this->limit} save properties \n", Console::BOLD);
-							  $this->_saveAlertsMencions($properties);
+							$this->_saveAlertsMencions($properties);
 						}
 					}
-					
 					
 					// echo "====================". "\n";
 					// Console::stdout(" get in array {$this->limit} con params: {$params['q']} \n", Console::BOLD);
@@ -265,7 +307,23 @@ class TwitterApi extends Model {
 						$date_searched = Yii::$app->formatter->asTimestamp($date_searched);
 					}
 					$properties['date_searched'] = Yii::$app->formatter->asTimestamp($date_searched);
-					$this->_saveAlertsMencions($properties);
+					
+					$cache = \Yii::$app->cache;
+					$key = "Twitter";
+					$time_expired = (($this->end_date - $this->start_date)) ? $this->end_date - $this->start_date : 86400;
+					$product_cache = $cache->get("{$key}_{$this->alertId}");
+					$product_cache[$product] = $properties['date_searched'];
+					$cache->set("{$key}_{$this->alertId}", $product_cache, $time_expired);
+					if(AlertsMencions::find()->where([
+						'alertId' => $this->alertId,
+						'resourcesId' => $this->resourcesId,		  
+						'term_searched' => $product,
+						'type' => 'tweet',
+					])->exists()){
+						$this->_saveAlertsMencions($properties);
+					}
+
+					
 					break;
 
 				}
@@ -284,9 +342,6 @@ class TwitterApi extends Model {
 			$this->limit --;
 
 		}while($this->limit);
-
-		
-
         return $data;
 
 	}
@@ -423,6 +478,7 @@ class TwitterApi extends Model {
 
 		$this->data = $tweets;
 	}
+
 	/**
 	 * [_getUserData get data user from the json]
 	 * @param  [type] $tweet [tweet obejct]
@@ -513,17 +569,6 @@ class TwitterApi extends Model {
 
 	}
 	/**
-	 * [_setResourceId return the id from resource]
-	 */
-	private function _setResourceId(){
-		$resourcesId = (new \yii\db\Query())
-		    ->select('id')
-		    ->from('resources')
-		    ->where(['name' => 'Twitter'])
-		    ->all();
-		$this->resourcesId = ArrayHelper::getColumn($resourcesId,'id')[0];
-	}
-	/**
 	 * [_getTwitterLogin login to twitter]
 	 * @return [type] [description]
 	 */
@@ -596,7 +641,7 @@ class TwitterApi extends Model {
 
 	function __construct($products_count = 0){
 		// set resource 
-		$this->_setResourceId();
+		$this->resourcesId = \app\helpers\AlertMentionsHelper::getResourceIdByName("Twitter");
 		// get twitter login api
 		$this->_getTwitterLogin();
 		// set limit

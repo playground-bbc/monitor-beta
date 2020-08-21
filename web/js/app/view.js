@@ -972,7 +972,7 @@ const listEmojis = Vue.component("list-emojis", {
  */
 
 const sweetAlert = Vue.component("modal-alert", {
-  props: ["count"],
+  props: ["count", "is_change"],
   template: "#modal-alert",
   data: function () {
     return {
@@ -983,17 +983,20 @@ const sweetAlert = Vue.component("modal-alert", {
     };
   },
   mounted() {
-    setInterval(
-      function () {
-        if (this.count) {
-          this.fetchStatus();
-          if (this.isShowModal && !this.flag) {
-            this.modal();
-          }
+    this.fetchStatus();
+    if (this.isShowModal && !this.flag) {
+      this.modal();
+    }
+  },
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.fetchStatus();
+        if (this.isShowModal && !this.flag) {
+          this.modal();
         }
-      }.bind(this),
-      refreshTime
-    );
+      }
+    },
   },
   methods: {
     fetchStatus() {

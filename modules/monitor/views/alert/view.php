@@ -39,7 +39,6 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
             ],
         ]) ?>
         <button-report :count="count">
-        
     </p>
 
     <?= DetailView::widget([
@@ -48,6 +47,7 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
     ]) ?>
     
     <div v-if="isData">
+        <modal-alert :count="count" :is_change="is_change"></modal-alert>
         <div class="row">
             <total-mentions :count="count" :resourcescount="resourcescount">
         </div>

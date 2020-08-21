@@ -216,7 +216,6 @@ class LiveTicketApi extends Model {
 		$page = 1;
 
 		$client = $this->_getClient();
-		var_dump($params);
 		do{
 			$params['page'] = $page;
 			try {

@@ -48,7 +48,6 @@ class LiveChatsApi extends Model {
 		return false;
 	}
 
-
 	/**
 	 * [_setParams set params to build the call]
 	 */
@@ -214,7 +213,6 @@ class LiveChatsApi extends Model {
 		$page = 1;
 
 		$client = $this->_getClient();
-		var_dump($params);
 
 		do{
 			// set page 
@@ -240,8 +238,6 @@ class LiveChatsApi extends Model {
 		return $data;
 
 	}
-
-
 
 	/**
 	 * [_setAlertsMencionsByProduct save alerts by prodcuts]
@@ -336,7 +332,6 @@ class LiveChatsApi extends Model {
         return $ticket;
     }
 
-
 	/**
 	 * [saveJsonFile save a json file]
 	 * @return [none] [description]
@@ -354,7 +349,10 @@ class LiveChatsApi extends Model {
 		}
 
 	}
-
+	/**
+	 * [searchFinish change the status if finish alert resources]
+	 * @return [none] [description]
+	 */
 	private function searchFinish()
 	{
 		$alertsMencions = \app\models\AlertsMencions::find()->where([

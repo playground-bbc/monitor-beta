@@ -257,8 +257,6 @@ class FacebookCommentsApi extends Model {
 						// take sentence post
 						$sentence = $feeds[$p]['data'][$d]['message'];
 						// destrutura el product
-						//$product_data = \app\helpers\StringHelper::structure_product_to_search($this->products[$i]);
-						//$is_contains = (count($product_data) > 3) ? \app\helpers\StringHelper::containsAny($sentence,$product_data) : \app\helpers\StringHelper::containsAll($sentence,$product_data);
 						$product_data = \app\helpers\StringHelper::structure_product_to_search_to_scraping($this->products[$i],false);
 						$sentence_clean = \app\helpers\StringHelper::sanitizePrayerForSearch($sentence);
 						$is_contains =  \app\helpers\StringHelper::containsAll($sentence_clean,$product_data);
@@ -271,6 +269,7 @@ class FacebookCommentsApi extends Model {
 				}
 			}// end loop data
 		}// end loop pagination	
+		//var_dump($feeds);
 		
 		return $feeds_candidate;
 	}

@@ -135,6 +135,7 @@ class StringHelper
     public static function blacklistTermsProductsLG(){
         return [
                 'en',
+                'in',
                 'con',
                 'por',
                 'casa',

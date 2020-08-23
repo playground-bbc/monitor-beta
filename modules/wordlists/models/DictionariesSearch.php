@@ -40,7 +40,7 @@ class DictionariesSearch extends Dictionaries
      */
     public function search($params)
     {
-        $query = Dictionaries::find();
+        $query = Dictionaries::find()->where(['<>','name','Free Words']);
 
         // add conditions that should always apply here
 

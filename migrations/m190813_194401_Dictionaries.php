@@ -31,7 +31,7 @@ class m190813_194401_Dictionaries extends Migration
 
         $this->insert('{{%dictionaries}}', [
             'name'                  => 'Free Words',
-            'color'                 => '#55e6c9',
+            'color'                 => '#f5ebeb',
             'createdAt'             => '1488153462',
             'updatedAt'             => '1488153462',
             'createdBy'             => '1',
@@ -39,8 +39,8 @@ class m190813_194401_Dictionaries extends Migration
         ]);
 
         $this->insert('{{%dictionaries}}', [
-            'name'                  => 'Product description',
-            'color'                 => '#f7978f',
+            'name'                  => 'diccionario Positivos MH Series',
+            'color'                 => '#0e6ae1',
             'createdAt'             => '1488153462',
             'updatedAt'             => '1488153462',
             'createdBy'             => '1',
@@ -48,8 +48,8 @@ class m190813_194401_Dictionaries extends Migration
         ]);
 
         $this->insert('{{%dictionaries}}', [
-            'name'                  => 'Product Competition',
-            'color'                 => '#f27979',
+            'name'                  => 'diccionario MH Series',
+            'color'                 => '#14d299',
             'createdAt'             => '1488153462',
             'updatedAt'             => '1488153462',
             'createdBy'             => '1',
@@ -57,13 +57,76 @@ class m190813_194401_Dictionaries extends Migration
         ]);
 
         $this->insert('{{%dictionaries}}', [
-            'name'                  => 'Neutral Words',
-            'color'                 => '#f27980',
+            'name'                  => 'diccionario Kws Positivos',
+            'color'                 => '#96b011',
             'createdAt'             => '1488153462',
             'updatedAt'             => '1488153462',
             'createdBy'             => '1',
             'updatedBy'             => '1',
         ]);
+
+        $this->insert('{{%dictionaries}}', [
+            'name'                  => 'diccionario Frases Negativas',
+            'color'                 => '#e82626',
+            'createdAt'             => '1488153462',
+            'updatedAt'             => '1488153462',
+            'createdBy'             => '1',
+            'updatedBy'             => '1',
+        ]);
+
+        $this->insert('{{%dictionaries}}', [
+            'name'                  => 'diccionario Kws Negativos',
+            'color'                 => '#c7871a',
+            'createdAt'             => '1488153462',
+            'updatedAt'             => '1488153462',
+            'createdBy'             => '1',
+            'updatedBy'             => '1',
+        ]);
+
+        $this->insert('{{%dictionaries}}', [
+            'name'                  => 'diccionario Negativos MH Series',
+            'color'                 => '#ae540a',
+            'createdAt'             => '1488153462',
+            'updatedAt'             => '1488153462',
+            'createdBy'             => '1',
+            'updatedBy'             => '1',
+        ]);
+
+        $this->insert('{{%dictionaries}}', [
+            'name'                  => 'diccionario Frases Positivas',
+            'color'                 => '#321863',
+            'createdAt'             => '1488153462',
+            'updatedAt'             => '1488153462',
+            'createdBy'             => '1',
+            'updatedBy'             => '1',
+        ]);
+
+        // $this->insert('{{%dictionaries}}', [
+        //     'name'                  => 'Product description',
+        //     'color'                 => '#f7978f',
+        //     'createdAt'             => '1488153462',
+        //     'updatedAt'             => '1488153462',
+        //     'createdBy'             => '1',
+        //     'updatedBy'             => '1',
+        // ]);
+
+        // $this->insert('{{%dictionaries}}', [
+        //     'name'                  => 'Product Competition',
+        //     'color'                 => '#f27979',
+        //     'createdAt'             => '1488153462',
+        //     'updatedAt'             => '1488153462',
+        //     'createdBy'             => '1',
+        //     'updatedBy'             => '1',
+        // ]);
+
+        // $this->insert('{{%dictionaries}}', [
+        //     'name'                  => 'Neutral Words',
+        //     'color'                 => '#f27980',
+        //     'createdAt'             => '1488153462',
+        //     'updatedAt'             => '1488153462',
+        //     'createdBy'             => '1',
+        //     'updatedBy'             => '1',
+        // ]);
 
     }
 

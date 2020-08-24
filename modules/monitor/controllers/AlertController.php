@@ -154,6 +154,9 @@ class AlertController extends Controller
             'alertId = :alertId AND resourcesId = :resourcesId',
             [':alertId' => $alertId, ':resourcesId' => $resourceId]
         );
+        // clean cache
+        $cache = \Yii::$app->cache;
+        $cache->delete("{$configSource->alertResource->name}_{$alertId}");
         return ['status' => true];
     }
 

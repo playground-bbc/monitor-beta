@@ -260,7 +260,7 @@ class FacebookCommentsApi extends Model {
 						$product_data = \app\helpers\StringHelper::structure_product_to_search_to_scraping($this->products[$i],false);
 						$sentence_clean = \app\helpers\StringHelper::sanitizePrayerForSearch($sentence);
 						
-						$is_contains =  \app\helpers\StringHelper::containsAny($sentence_clean,$product_data);
+						$is_contains =  \app\helpers\StringHelper::containsAll($sentence_clean,$product_data);
 						if($is_contains){
 							if(!in_array($feeds[$p]['data'][$d],$feeds_candidate[$p]['data'])){
 								$feeds_candidate[$p]['data'][] = $feeds[$p]['data'][$d];

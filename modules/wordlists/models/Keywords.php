@@ -85,7 +85,7 @@ class Keywords extends \yii\db\ActiveRecord
      */
     public function getKeywordsMentions()
     {
-        return $this->hasMany(KeywordsMentions::className(), ['keywordId' => 'id']);
+        return $this->hasMany(\app\models\KeywordsMentions::className(), ['keywordId' => 'id']);
     }
 
     /**

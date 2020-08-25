@@ -82,7 +82,7 @@ class InsightsApi extends Model
 			$properties = [
 				'message'   => $page['about'],
 				'permalink' => $page['link'],
-				'image_url' => $page['cover']['source'],
+				'image_url' => (isset($page['cover']['source'])) ? $page['cover']['source'] : '-',
 				'timespan'  => \app\helpers\DateHelper::getToday(),
 			];
 
@@ -140,7 +140,7 @@ class InsightsApi extends Model
 					$properties = [
 						'message'   => (isset($data[$d]['message'])) ? $data[$d]['message'] : '-',
 						'permalink' => $data[$d]['permalink_url'],
-						'image_url' => $data[$d]['picture'],
+						'image_url' => (isset($data[$d]['picture'])) ? $data[$d]['picture']: '-' ,
 						'timespan'  => \app\helpers\DateHelper::asTimestamp($data[$d]['updated_time']),
 					];
 					$where['permalink'] = $data[$d]['permalink_url'];
@@ -200,7 +200,7 @@ class InsightsApi extends Model
 			$properties = [
 				'message'   => $page['biography'],
 				'permalink' => "https://www.instagram.com/{$page['username']}/",
-				'image_url' => $page['profile_picture_url'],
+				'image_url' => (isset($page['profile_picture_url'])) ? $page['profile_picture_url'] : '-',
 				'timespan'  => \app\helpers\DateHelper::getToday(),
 			];
 
@@ -314,7 +314,7 @@ class InsightsApi extends Model
 					$where['content_id'] = $data[$d]['id'];
 					$properties = [
 						'permalink' => $data[$d]['permalink'],
-						'image_url' => $data[$d]['media_url'],
+						'image_url' => (isset($data[$d]['media_url'])) ? $data[$d]['media_url'] : '-',
 						'timespan'  => \app\helpers\DateHelper::asTimestamp($data[$d]['timestamp']),
 					];
 					$where['permalink'] = $data[$d]['permalink'];
@@ -406,7 +406,7 @@ class InsightsApi extends Model
 					$properties = [
 						'message'   => (isset($posts[$p]['message'])) ? $posts[$p]['message'] : '',
 						'permalink' => $posts[$p]['permalink_url'],
-						'image_url' => $posts[$p]['picture'],
+						'image_url' => (isset($posts[$p]['picture'])) ? $posts[$p]['picture'] : '',
 						'timespan'  => \app\helpers\DateHelper::asTimestamp($posts[$p]['updated_time']),
 					];
 					$content = \app\helpers\InsightsHelper::saveContent($where,$properties);
@@ -460,7 +460,7 @@ class InsightsApi extends Model
 				$properties = [
 					'message'   => (isset($posts[$p]['caption'])) ? $posts[$p]['caption'] : '-',
 					'permalink' => $posts[$p]['permalink'],
-					'image_url' => $posts[$p]['media_url'],
+					'image_url' => (isset($posts[$p]['media_url'])) ? $posts[$p]['media_url'] : '-',
 					'timespan'  => \app\helpers\DateHelper::asTimestamp($posts[$p]['timestamp']),
 				];
 

@@ -1,15 +1,15 @@
-.field-productsIds select,
+.overflow select,
 .select2 {
   width: 90%;
   margin: 0 auto;
   border-radius: 0 !important;
   display: block;
 }
-.field-productsIds .select2-container .select2-selection {
+.overflow .select2-container .select2-selection {
   height: 100px;
   overflow: scroll;
 }
-.field-productsIds .select2-container--default .select2-selection--multiple {
+.overflow .select2-container--default .select2-selection--multiple {
   border-radius: 0;
   line-height: 30px;
   font-size: 14p;

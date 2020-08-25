@@ -23,18 +23,7 @@ use app\models\file\JsonFile;
  */
 class DaemonController extends Controller
 {
-    /**
-     * This command echoes what you have entered as the message.
-     * @param string $message the message to be echoed.
-     * @return int Exit code
-     */
-    public function actionIndex($message = 'hello world')
-    {
-        echo $message . "\n";
-
-        return ExitCode::OK;
-    }
-    /**
+    /** run terminal ./yii daemon/alerts-run
      * [actionAlertsRun runs all alerts]
      * @return [type] [description]
      */
@@ -50,7 +39,7 @@ class DaemonController extends Controller
         return ExitCode::OK;
     }
 
-    /**
+    /** run terminal ./yii daemon/alerts-run-web
      * [actionAlertsRun runs all alerts when its resource are equal to web page]
      * @return [type] [description]
      */
@@ -70,7 +59,7 @@ class DaemonController extends Controller
        // echo "Elapsed time finis : actionAlertsRunWeb ". (microtime(true) - $startTime) ." seconds \n";
         return ExitCode::OK;
     }
-    /**
+    /** run terminal ./yii daemon/data-search
      * [actionDataSearch get json in transformed the data to db [Not finish]]
      * @return [type] [description]
      */
@@ -83,10 +72,10 @@ class DaemonController extends Controller
             $api = $baseApi->readDataResource($alertsConfig);
             // send email
             \app\helpers\EmailHelper::sendCommonWords($alertsConfig);
-            //\app\helpers\AlertMentionsHelper::deleteAlertsMentionsThatHaveNoMentions();
         }
     }
     /**
+     *  run terminal ./yii daemon/sync-products
      * [actionSyncProducts sync products to drive documents]
      * @return [type] [description]
      */
@@ -95,7 +84,37 @@ class DaemonController extends Controller
         $drive->getContentDocument();
         return ExitCode::OK;
     }
+
     /**
+     *  run terminal ./yii daemon/sync-dictionaries
+     * [actionSyncProducts sync products to drive documents]
+     * @return [type] [description]
+     */
+    public function actionSyncDictionaries(){
+        $drive = new DriveApi();
+        $dictionariesNames = $drive->getDictionaries();
+        $Dictionarieskeywords = $drive->getContentDictionaryByTitle($dictionariesNames);
+        foreach($Dictionarieskeywords as $dictionariesName => $keywords){
+            $dictionaryModel = \app\modules\wordlists\models\Dictionaries::findOne(['name' => $dictionariesName]);
+            if(!is_null($dictionaryModel)){
+                
+                for ($k=0; $k < sizeOf($keywords) ; $k++) { 
+                    $isKeywordExists = \app\modules\wordlists\models\Keywords::find()->where(['name' => $keywords[$k]])->exists();
+                    if(!$isKeywordExists){
+                        $keywordModel = new \app\modules\wordlists\models\Keywords();
+                        $keywordModel->dictionaryId = $dictionaryModel->id;
+                        $keywordModel->name = $keywords[$k];
+                        if(!$keywordModel->save()){
+                            var_dump($keywordModel->errors);
+                        }
+                    }
+                }
+            }
+        }
+        return ExitCode::OK;
+    }
+    /**
+     * run terminal ./yii daemon/insights-run
      * [actionInsightsRun call api to get insights]
      * @return [type] [description]
      */
@@ -108,6 +127,7 @@ class DaemonController extends Controller
         return ExitCode::OK;
     }
     /**
+     * run terminal ./yii daemon/topic-run
      * [actionTopicRun console method to topic  search]
      * @param  string $resourceName [description]
      * @return [type]               [description]
@@ -123,6 +143,7 @@ class DaemonController extends Controller
         return ExitCode::OK;
     }
     /**
+     * run terminal ./yii daemon/truncate-prodcuts
      * [only development function]
      * @return [type] [description]
      */

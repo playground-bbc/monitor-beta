@@ -374,8 +374,7 @@ class InsightsHelper
 
     			if (is_null($is_attachment)) {
     				$model = new \app\models\WAttachments();
-
-    				if ($attachments[$a]['media_type'] != 'album') {
+    				if ($attachments[$a]['media_type'] != 'album' && isset($attachments[$a]['media'])) {
     					$model->content_id = $contentId;
     					$model->title = $attachment_title;
     					$model->type = $attachments[$a]['media_type'];

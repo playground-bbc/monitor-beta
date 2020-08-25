@@ -28,7 +28,7 @@ if (!$alert->isNewRecord) {
         <div class="row">
             <div class="row">
                 <div class="col-md-12">
-                    <?= $form->field($alert, 'name') ?>  
+                    <?= $form->field($alert, 'name')->textInput()->input('name', ['placeholder' => "Ingrese el nombre de la Alerta"]) ?>  
                 </div>
             </div>
             <!-- dates -->
@@ -36,7 +36,7 @@ if (!$alert->isNewRecord) {
                 <div class="col-md-6">
                     <?= $form->field($config, 'start_date')->widget(DatePicker::classname(), [
                             'type' => DatePicker::TYPE_INPUT,
-                            'options' => ['id' => 'start_date','name' => 'start_date','placeholder' => 'Enter start date ...'],
+                            'options' => ['id' => 'start_date','name' => 'start_date','placeholder' => 'Ingrese la fecha de inicio'],
                             'pluginOptions' => [
                                 'orientation' => 'down left',
                                 'format' => 'dd/mm/yyyy',
@@ -53,7 +53,7 @@ if (!$alert->isNewRecord) {
                 <div class="col-md-6">
                     <?= $form->field($config, 'end_date')->widget(DatePicker::classname(), [
                         'type' => DatePicker::TYPE_INPUT,
-                            'options' => ['id' => 'end_date','name' => 'end_date','placeholder' => 'Enter end date ...'],
+                            'options' => ['id' => 'end_date','name' => 'end_date','placeholder' => 'Ingrese la fecha de finalización'],
                             'pluginOptions' => [
                                 'orientation' => 'down left',
                                 'format' => 'dd/mm/yyyy',
@@ -65,13 +65,13 @@ if (!$alert->isNewRecord) {
                 </div>
             </div>
             <!-- dictionaries and social -->
-            <div class="row">
+            <div class="row overflow">
                 <div class="col-md-4">
                     <?= $form->field($alert, 'alertResourceId')->widget(Select2::classname(), [
                             'data' => $alert->social,
                             'options' => [
                                 'id' => 'social_resourcesId',
-                                'placeholder' => 'Select a resources...',
+                                'placeholder' => 'Seleccione un recurso Social',
                                 'multiple' => true,
                                 'theme' => 'krajee',
                                 'debug' => false,
@@ -102,7 +102,7 @@ if (!$alert->isNewRecord) {
                         'options' => [
                             'id' => 'urls',
                             //'resourceName' => 'Product Competition',
-                            'placeholder' => 'Ingrese url a Buscar', 
+                            'placeholder' => 'Ingrese las Urls', 
                             'multiple' => true,
                         ],
                             'pluginOptions' => [
@@ -120,7 +120,7 @@ if (!$alert->isNewRecord) {
                             'changeOnReset' => true,
                             'options' => [
                                 'id' => 'productsIds',
-                                'placeholder' => 'Select a products...',
+                                'placeholder' => 'Seleccione los productos',
                                 'multiple' => true,
                                 'theme' => 'krajee',
                                // 'debug' => true,
@@ -142,7 +142,7 @@ if (!$alert->isNewRecord) {
             </div>
             <!-- config properties-->
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <?= $form->field($alert, 'dictionaryIds')->widget(Select2::classname(), [
                             'data' => \yii\helpers\ArrayHelper::map(app\modules\wordlists\models\Dictionaries::find()
                             ->where(['<>','name', 'Free Words'])
@@ -173,14 +173,14 @@ if (!$alert->isNewRecord) {
                         ]);
                     ?>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <?= $form->field($alert, 'free_words')->widget(Select2::classname(), [
                    // 'data' => $alert->freeKeywords,
                     'changeOnReset' => false,
                     'options' => [
                             'id' => 'free_words',
                             'resourceName' => 'Free Words',
-                            'placeholder' => 'write a tags free words ...', 
+                            'placeholder' => 'Indique palabras libres', 
                             'multiple' => true,
                           //  'value' => (isset($alert->freeKeywords)) ? $alert->freeKeywords : [],
                         ],
@@ -189,73 +189,8 @@ if (!$alert->isNewRecord) {
                             'tokenSeparators' => [','],
                             'minimumInputLength' => 2
                         ],
-                    ])->label('Tag free words'); 
+                    ])->label('Palabras libres'); 
                     ?>   
-                </div>
-                <div class="col-md-4">
-                    <?= $form->field($config, 'competitors')->widget(Select2::classname(), [
-                    //'data' => $data,
-                    'options' => [
-                        'id' => 'competitors',
-                        'resourceName' => 'Product Competition',
-                        'placeholder' => 'write a tags competitors ...', 
-                        'multiple' => true,
-                    ],
-                        'pluginOptions' => [
-                            'tags' => true,
-                            'tokenSeparators' => [',', ' '],
-                            'minimumInputLength' => 2
-                        ],
-                    ])->label('Tag competitors'); 
-                    ?> 
-                </div>
-            </div>
-            <!-- files -->
-            <div class="row">
-                <div class="col-md-12">
-                    <?= $form->field($alert, 'files')->widget(FileInput::classname(), [
-                        'name' => 'files',
-                        'pluginOptions' => [
-                            'showCaption' => false,
-                            'showRemove' => true,
-                            'showUpload' => false,
-                            'browseClass' => 'btn btn-primary btn-block',
-                            'browseIcon' => '<i class="glyphicon glyphicon-file"></i> ',
-                            'browseLabel' =>  'Select File'
-                        ],
-                        'options' => ['accept' => 'text/xlsx'],
-                        'pluginEvents' => [
-                               "fileselect" => "function(e) { 
-                                    var social = $('#social_resourcesId');
-                                    var current_values = social.val();
-                                    var data = {
-                                        id: '8',
-                                        text: 'Excel Document'
-                                    };
-
-                                    // Set the value, creating a new option if necessary
-                                    if (social.find('option[value=' + data.id +']').length) {
-                                        current_values.push(data.id);
-                                        social.val(current_values).trigger('change');
-                                    } else { 
-                                        // Create a DOM Option and pre-select by default
-                                        var newOption = new Option(data.text, data.id, true, true);
-                                        // Append it to the select
-                                        social.append(newOption).trigger('change');
-                                    }
-                               }",
-                               "fileclear" => " function(e){ 
-                                    var social = $('#social_resourcesId');
-                                    var current_values = social.val();
-                                    var index = current_values.indexOf(8);
-                                    if(index === -1){
-                                        current_values.splice(index, 1);
-                                    }
-                                    social.val(current_values).trigger('change');
-                                }"
-                        ]
-                    ]); 
-                    ?>
                 </div>
             </div>
                      

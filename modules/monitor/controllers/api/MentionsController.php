@@ -441,16 +441,18 @@ class MentionsController extends Controller
   public function actionListWords($alertId){
   
 
-    $keywords = \app\models\Keywords::find()->where(['alertId' => $alertId])->all();
+    $alertsKeywords = \app\modules\wordlists\models\AlertsKeywords::find()->where(['alertId' => $alertId])->all();
 
     $wordsModel = [];
     $index = 0;
-    foreach ($keywords as $keyword){
-      if($keyword->keywordsMentions){
-        $wordsModel[$index]['text']      = $keyword->name;
-        $wordsModel[$index]['weight']    = (int)$keyword->getKeywordsMentions()->count();
-        $index++; 
+    
+    foreach($alertsKeywords as $alertKeyword){
+      if($alertKeyword->keyword->keywordsMentions){
+          $wordsModel[$index]['text']      = $alertKeyword->keyword->name;
+          $wordsModel[$index]['weight']    = (int)$alertKeyword->keyword->getKeywordsMentions()->count();
+          $index++; 
       }
+     
     }
 
     return array('status'=>true,'wordsModel' => $wordsModel);

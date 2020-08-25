@@ -60,6 +60,7 @@ class Keywords extends \yii\db\ActiveRecord
         return [
             [['dictionaryId', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name'], 'string', 'max' => 255],
+            ['name', 'unique'],
             [['dictionaryId'], 'exist', 'skipOnError' => true, 'targetClass' => Dictionaries::className(), 'targetAttribute' => ['dictionaryId' => 'id']],
         ];
     }

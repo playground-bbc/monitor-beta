@@ -28,10 +28,8 @@ class FacebookMessagesSearch {
            return false;     
         }
 
-        // is isDictionaries
-        $this->isDictionaries = $this->_isDictionaries();
-        // set resourcesId
-        $this->resourcesId    = $this->_setResourceId();
+        $this->resourcesId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Facebook Messages');
+        $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
 
         $this->data = current($data);
         unset($data);
@@ -92,7 +90,11 @@ class FacebookMessagesSearch {
 
     }
 
-
+    /**
+     * [saveMentions save  mentions or update]
+     * @param  [array] $data [array]
+     * @return [boolean]
+     */
     private function saveMentions($model){
         
         $error = [];
@@ -140,10 +142,14 @@ class FacebookMessagesSearch {
         }
        return (empty($error)) ? true : false;
     }
-
+    /**
+     * [searchDataByDictionary search keywords in the message]
+     * @param  [array] $model 
+     * @return [array] [$model]
+     */
     private function searchDataByDictionary($model){
 
-        $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+        $words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
 
         foreach($model as $product => $ids_messages){
            // echo $product."\n";
@@ -177,7 +183,11 @@ class FacebookMessagesSearch {
     }
 
 
-
+    /**
+     *  saveUserMencions save user mencions
+     * @param array $user
+     * @return origin the loaded model origin
+     */
     private function saveUserMencions($user){
 
         $user_data['email'] = $user['email'];
@@ -194,11 +204,17 @@ class FacebookMessagesSearch {
                 'message'     => '',
             ]
         );
-
+        
         return $user;
     }
 
-
+    /**
+     *  saveMessage save messaqges
+     * @param array $comment
+     * @param int $alertsMencionId
+     * @param int $originId
+     * @return mention the loaded model mention
+     */
     private function saveMessage($messages,$alertsMencionsModel,$originId){
 
         $created_time = \app\helpers\DateHelper::asTimestamp($messages['created_time']);
@@ -226,11 +242,14 @@ class FacebookMessagesSearch {
                 'domain_url'     => $url,
             ]
         );
-
         return $mention;
         
     }
-
+    /**
+     *  saveComments common words
+     * @param array $mention
+     * @param int $alertsMencionId
+     */
     public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
         // most repeated words
         $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
@@ -295,7 +314,6 @@ class FacebookMessagesSearch {
      */
     private function _findAlertsMencions($product,$publication_id)
     {
-
         $alertsMencions =  \app\models\AlertsMencions::find()->where([
             'alertId'        => $this->alertId,
             'resourcesId'    =>  $this->resourcesId,
@@ -310,39 +328,5 @@ class FacebookMessagesSearch {
 
     }
 
-    /**
-     * [_isDictionaries is the alert hace dictionaries]
-     * @return boolean [description]
-     */
-    private function _isDictionaries(){
-        if(!is_null($this->alertId)){
-            $keywords = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->exists();
-            return $keywords;
-        }
-        return false;
-    }
-
-    /**
-     * [_setResourceId return the id from resource]
-     */
-    private function _setResourceId(){
-        
-        $socialId = (new \yii\db\Query())
-            ->select('id')
-            ->from('type_resources')
-            ->where(['name' => 'Social media'])
-            ->one();
-        
-        
-        $resourcesId = (new \yii\db\Query())
-            ->select('id')
-            ->from('resources')
-            ->where(['name' => 'Facebook Messages','resourcesId' => $socialId['id']])
-            ->all();
-        
-
-        return ArrayHelper::getColumn($resourcesId,'id')[0];
-
-    }
 
 }

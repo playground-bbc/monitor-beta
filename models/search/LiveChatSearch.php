@@ -25,8 +25,8 @@ class LiveChatSearch {
         if(empty($data)){
            return false;     
         }
-        $this->resourcesId    = $this->_setResourceId();
-        $this->isDictionaries = $this->_isDictionaries();
+        $this->resourcesId    = \app\helpers\AlertMentionsHelper::getResourceIdByName("Live Chat Conversations");
+        $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
 
         $this->data = current($data);
         unset($data);
@@ -128,7 +128,7 @@ class LiveChatSearch {
      * @return [type]        [description]
      */
     private function searchDataByDictionary($data){
-    	$words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+    	$words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
 
     	foreach($data as $term => $chats){
     		for($c = 0; $c < sizeOf($chats); $c ++){
@@ -268,7 +268,11 @@ class LiveChatSearch {
         return $model;
 
     }
-
+    /**
+     * [saveOrUpdatedCommonWords save or update common words]
+     * @param  [obj] $mention             [mention object]
+     * @param  [int] $alertsMencionsId [alertsMencionId id ]
+     */
     public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
         // most repeated words
         $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
@@ -346,41 +350,7 @@ class LiveChatSearch {
         return $alertsMencions;
 
     } 
-    /**
-     * [_setResourceId return the id from resource]
-     */
-    private function _setResourceId(){
-        
-        $socialId = (new \yii\db\Query())
-            ->select('id')
-            ->from('type_resources')
-            ->where(['name' => 'Social media'])
-            ->one();
-        
-        
-        $resourcesId = (new \yii\db\Query())
-            ->select('id')
-            ->from('resources')
-            ->where(['name' => 'Live Chat Conversations','resourcesId' => $socialId['id']])
-            ->all();
-        
-
-        return ArrayHelper::getColumn($resourcesId,'id')[0];
-
-    }
-
-    /**
-     * [_isDictionaries is the alert hace dictionaries]
-     * @return boolean [description]
-     */
-    private function _isDictionaries(){
-        if(!is_null($this->alertId)){
-            $keywords = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->exists();
-            return $keywords;
-        }
-        return false;
-    }
-
+  
 }
 
 

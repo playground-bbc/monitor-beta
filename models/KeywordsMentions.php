@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use app\modules\wordlists\models\Keywords;
 
 /**
  * This is the model class for table "keywords_mentions".

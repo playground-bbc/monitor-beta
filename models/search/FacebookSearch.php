@@ -25,7 +25,7 @@ class FacebookSearch
            return false;     
         }
         $this->resourceId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Facebook Comments');
-        $this->isDictionaries = $this->_isDictionaries();
+        $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
         
         
         $this->data = current($data);
@@ -145,21 +145,14 @@ class FacebookSearch
         return (empty($error)) ? true : false;
     }
 
+
     /**
-     * [_isDictionaries is the alert hace dictionaries]
-     * @return boolean [description]
+     * [searchDataByDictionary search keywords in the feed]
+     * @param  [array] $feeds 
+     * @return [array] [$feeds]
      */
-    private function _isDictionaries(){
-        if(!is_null($this->alertId)){
-            $keywords = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->exists();
-            return $keywords;
-        }
-        return false;
-    }
-
-
     private function searchDataByDictionary($feeds){
-        $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+        $words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
         foreach($feeds as $product => $posts){
             for($p = 0; $p < sizeof($posts); $p++){
                 if(ArrayHelper::keyExists('comments', $posts[$p], false) && !empty($posts[$p]['comments'])){
@@ -211,7 +204,11 @@ class FacebookSearch
 
     } 
 
-
+    /**
+     *  savePostMencions save post mencions
+     * @param array $post
+     * @return origin the loaded model origin
+     */
     public function savePostMencions($post){
         // $user_data['is_popular'] = $post['is_popular'];
         // $user_data['shares'] = $post['shares'];
@@ -241,7 +238,13 @@ class FacebookSearch
 
         return $origin;
     }
-
+    /**
+     *  saveComments save comments
+     * @param array $comment
+     * @param int $alertsMencionId
+     * @param int $originId
+     * @return mention the loaded model mention
+     */
     public function saveComments($comment,$alertsMencionId,$originId){
 
         $created_time = \app\helpers\DateHelper::asTimestamp($comment['created_time']);
@@ -276,7 +279,11 @@ class FacebookSearch
         return $mention;
         
     }
-
+    /**
+     *  saveComments common words
+     * @param array $mention
+     * @param int $alertsMencionId
+     */
     public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
         // most repeated words
         $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);

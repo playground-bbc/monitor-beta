@@ -80,7 +80,7 @@ class AlertController extends Controller
         return $out;
     }
     /**
-     * call Api drive: get products and save
+     * call Api drive: get products and save depred
      */
     public function actionReloadProducts()
     {
@@ -194,24 +194,39 @@ class AlertController extends Controller
     {
       \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
       $alert = $this->findModel($alertId);
-      $isDictionary = \app\models\Dictionaries::find()->where(['name' => $dictionaryName])->exists();
+      $isDictionary = \app\modules\wordlists\models\Dictionaries::find()->where(['name' => $dictionaryName])->exists();
       // if dictionaryName is equal filterName is there a dictionary
       if ($dictionaryName == $filterName) {
         
         if ($isDictionary) {
-          $dictionary = \app\models\Dictionaries::findOne(['name' => $dictionaryName]);
-          $keywordsAlertExits = \app\models\Keywords::find()->where(['alertId' => $alertId,'dictionaryId'=> $dictionary->id])->exists();
+          $dictionary = \app\modules\wordlists\models\Dictionaries::findOne(['name' => $dictionaryName]);
+          $keywordsAlertExits = \app\modules\wordlists\models\Keywords::find()->where(['dictionaryId'=> $dictionary->id])->exists();
           if ($keywordsAlertExits) {
-            \app\models\Keywords::deleteAll('alertId = :alertId AND dictionaryId = :dictionaryId', [':alertId' => $alert->id,':dictionaryId' => $dictionary->id]);
+            $keywordsIds = \app\modules\wordlists\models\Keywords::find()->select('id')->where(['dictionaryId' => $dictionary->id])->all();
+            $ids = \yii\helpers\ArrayHelper::getColumn($keywordsIds, 'id');  
+            \app\modules\wordlists\models\AlertsKeywords::deleteAll([
+                'alertId' => $alert->id,
+                'keywordId' => $ids,
+            ]);
           }
         }
       }else{
-
+        // if not a dictionary is free keyword
         if ($isDictionary) {
-           $dictionary = \app\models\Dictionaries::findOne(['name' => $dictionaryName]);
-           $keywordsAlertExits = \app\models\Keywords::find()->where(['alertId' => $alertId,'dictionaryId'=> $dictionary->id,'name' => $filterName])->exists();
+           $dictionary = \app\modules\wordlists\models\Dictionaries::findOne(['name' => $dictionaryName]);
+           $keywordsAlertExits = \app\modules\wordlists\models\Keywords::find()->where(['dictionaryId'=> $dictionary->id,'name' => $filterName])->exists();
            if ($keywordsAlertExits) {
-             \app\models\Keywords::deleteAll('alertId = :alertId AND dictionaryId = :dictionaryId AND name = :name', [':alertId' => $alert->id,':dictionaryId' => $dictionary->id,':name' => $filterName]);
+            $keywordsIds = \app\modules\wordlists\models\Keywords::find()->select('id')->where(['dictionaryId'=> $dictionary->id,'name' => $filterName])->all();
+            $ids = \yii\helpers\ArrayHelper::getColumn($keywordsIds, 'id');  
+            \app\modules\wordlists\models\AlertsKeywords::deleteAll([
+                'alertId' => $alert->id,
+                'keywordId' => $ids,
+            ]);
+            \app\modules\wordlists\models\Keywords::deleteAll([
+                'id' => $ids,
+                'dictionaryId' => $dictionary->id,
+                'name' => $filterName
+            ]);
            }
         }
 
@@ -303,12 +318,13 @@ class AlertController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
         $searchModel = new \app\models\grid\MentionSearch();
         $dataProvider = $searchModel->search(\Yii::$app->request->queryParams,$id);
 
         return $this->render('view', [
-            'model' => $this->findModel($id),
-            'searchModel' => $searchModel,
+            'model'        => $model,
+            'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
@@ -323,7 +339,7 @@ class AlertController extends Controller
         $alert = new \app\models\Alerts();
         $config = new \app\models\AlertConfig();
         $sources = new \app\models\AlertconfigSources();
-        $drive = new \app\models\api\DriveApi();
+       // $drive = new \app\models\api\DriveApi();
 
         $alert->scenario = 'saveOrUpdate';
 
@@ -361,7 +377,7 @@ class AlertController extends Controller
                 'dictionaryIds'
             ];
             if ($dictionaryIds) {
-                \app\models\Dictionaries::saveDictionaryDrive(
+                \app\modules\wordlists\models\Dictionaries::saveDictionary(
                     $dictionaryIds,
                     $alert->id
                 );
@@ -369,8 +385,8 @@ class AlertController extends Controller
             // if free words is
             $free_words = Yii::$app->request->post('Alerts')['free_words'];
             if ($free_words) {
-                $dictionaryName = \app\models\Dictionaries::FREE_WORDS_NAME;
-                \app\models\Dictionaries::saveFreeWords(
+                $dictionaryName = \app\modules\wordlists\models\Dictionaries::FREE_WORDS_NAME;
+                \app\modules\wordlists\models\Dictionaries::saveFreeWords(
                     $free_words,
                     $alert->id,
                     $dictionaryName
@@ -378,9 +394,9 @@ class AlertController extends Controller
             }
             // product_description
             if ($config->product_description) {
-                $dictionaryName = \app\models\Dictionaries::FREE_WORDS_PRODUCT;
+                $dictionaryName = \app\modules\wordlists\models\Dictionaries::FREE_WORDS_PRODUCT;
                 $words = explode(',', $config->product_description);
-                \app\models\Dictionaries::saveFreeWords(
+                \app\modules\wordlists\models\Dictionaries::saveFreeWords(
                     $words,
                     $alert->id,
                     $dictionaryName
@@ -389,9 +405,9 @@ class AlertController extends Controller
             // tag competitors
             if ($config->competitors) {
                 $dictionaryName =
-                    \app\models\Dictionaries::FREE_WORDS_COMPETITION;
+                    \app\modules\wordlists\models\Dictionaries::FREE_WORDS_COMPETITION;
                 $words = explode(',', $config->competitors);
-                \app\models\Dictionaries::saveFreeWords(
+                \app\modules\wordlists\models\Dictionaries::saveFreeWords(
                     $words,
                     $alert->id,
                     $dictionaryName
@@ -444,7 +460,6 @@ class AlertController extends Controller
         return $this->render('create', [
             'alert' => $alert,
             'config' => $config,
-            'drive' => $drive,
         ]);
     }
 
@@ -551,121 +566,39 @@ class AlertController extends Controller
             }
 
             // keywords/ dictionaryIds model
-            $dictionariesNames = Yii::$app->request->post('Alerts')[
+            $dictionariesIds = Yii::$app->request->post('Alerts')[
                 'dictionaryIds'
             ];
-
-            if ($dictionariesNames != '') {
-                \app\models\Dictionaries::saveOrUpdateDictionaries(
-                    $dictionariesNames,
-                    $alert->id
-                );
-            } else {
-                $dictionariesNames = $drive->dictionaries;
-                $dictionaryIds = \app\models\Dictionaries::find()
-                    ->where(['name' => $dictionariesNames])
-                    ->select(['id'])
-                    ->asArray()
-                    ->all();
-                foreach ($dictionaryIds as $dictionaryId) {
-                    //\app\models\Keywords::deleteAll(['alertId' => $alert->id,'dictionaryId' => $dictionaryId]);
-                    $keywords = \app\models\Keywords::find()
-                        ->where([
-                            'alertId' => $alert->id,
-                            'dictionaryId' => $dictionaryId,
-                        ])
-                        ->all();
-
-                    foreach ($keywords as $keyword) {
-                        if ($keyword->keywordsMentions) {
-                            $keyword->keywordsMentions->delete();
-                        }
-                    }
-                    \app\models\Keywords::deleteAll([
-                        'alertId' => $alert->id,
-                        'dictionaryId' => $dictionaryId,
-                    ]);
-                }
-            }
+            
+            \app\modules\wordlists\models\Dictionaries::updateDictionaries(
+                $dictionariesIds,
+                $alert->id
+            );
+            
 
             // if free words is
             $free_words = Yii::$app->request->post('Alerts')['free_words'];
-            $dictionaryName = \app\models\Dictionaries::FREE_WORDS_NAME;
-            $dictionary = \app\models\Dictionaries::find()
+            $dictionaryName = \app\modules\wordlists\models\Dictionaries::FREE_WORDS_NAME;
+            $dictionary = \app\modules\wordlists\models\Dictionaries::find()
                 ->where(['name' => $dictionaryName])
                 ->one();
             if ($free_words) {
-                \app\models\Dictionaries::saveOrUpdateWords(
+                \app\modules\wordlists\models\Dictionaries::saveOrUpdateWords(
                     $free_words,
                     $alert->id,
                     $dictionary->id
                 );
             } else {
-                \app\models\Keywords::deleteAll([
+                $keywordsIds = \app\modules\wordlists\models\Keywords::find()->select('id')->where(['dictionaryId' => $dictionary->id])->all();
+                $ids = \yii\helpers\ArrayHelper::getColumn($keywordsIds, 'id');
+                \app\modules\wordlists\models\AlertsKeywords::deleteAll([
                     'alertId' => $alert->id,
+                    'keywordId' => $ids,
+                ]);
+                \app\modules\wordlists\models\Keywords::deleteAll([
+                    'id' => $ids,
                     'dictionaryId' => $dictionary->id,
                 ]);
-            }
-
-            // if product_description
-            $dictionaryName = \app\models\Dictionaries::FREE_WORDS_PRODUCT;
-            $dictionary = \app\models\Dictionaries::find()
-                ->where(['name' => $dictionaryName])
-                ->one();
-
-            if ($config->product_description) {
-                $words = explode(',', $config->product_description);
-                \app\models\Dictionaries::saveOrUpdateWords(
-                    $words,
-                    $alert->id,
-                    $dictionary->id
-                );
-            } else {
-                $words = \app\models\Keywords::find()
-                    ->where([
-                        'alertId' => $alert->id,
-                        'dictionaryId' => $dictionary->id,
-                    ])
-                    ->select(['name', 'id'])
-                    ->all();
-                foreach ($words as $word) {
-                    \app\models\Keywords::deleteAll([
-                        'id' => $word->id,
-                        'alertId' => $alert->id,
-                        'dictionaryId' => $dictionary->id,
-                        'name' => $word->name,
-                    ]);
-                }
-            }
-
-            // if competitors
-            $dictionaryName = \app\models\Dictionaries::FREE_WORDS_COMPETITION;
-            $dictionary = \app\models\Dictionaries::find()
-                ->where(['name' => $dictionaryName])
-                ->one();
-            if ($config->competitors) {
-                $words = explode(',', $config->competitors);
-                \app\models\Dictionaries::saveOrUpdateWords(
-                    $words,
-                    $alert->id,
-                    $dictionary->id
-                );
-            } else {
-                $words = \app\models\Keywords::find()
-                    ->where([
-                        'alertId' => $alert->id,
-                        'dictionaryId' => $dictionary->id,
-                    ])
-                    ->select(['name', 'id'])
-                    ->all();
-                foreach ($words as $word) {
-                    \app\models\Keywords::deleteAll([
-                        'id' => $word->id,
-                        'alertId' => $alert->id,
-                        'dictionaryId' => $dictionary->id,
-                        'name' => $word->name,
-                    ]);
-                }
             }
 
             // set product/models
@@ -715,6 +648,14 @@ class AlertController extends Controller
         $alert_delete = Yii::$app->db->createCommand(
             'DELETE FROM alerts WHERE id=:alertId'
         );
+        // delete free words
+        $free_words_names = $model->freeKeywords;
+        $dictionaryName = \app\modules\wordlists\models\Dictionaries::FREE_WORDS_NAME;
+        $dictionary = \app\modules\wordlists\models\Dictionaries::find()->where(['name' => $dictionaryName])->one();
+        \app\modules\wordlists\models\Keywords::deleteAll([
+            'name' => $free_words_names,
+            'dictionaryId' => $dictionary->id,
+          ]);
 
         // delete history search
         $history_search = \app\models\HistorySearch::findOne([

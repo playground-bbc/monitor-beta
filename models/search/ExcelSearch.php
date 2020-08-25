@@ -30,9 +30,9 @@ class ExcelSearch {
         }
 
         $this->alertId = ArrayHelper::getValue($params, 0);
-        $this->isDictionaries = $this->_isDictionaries();
+        $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
         $this->products = $this->getProducts();
-        $this->resourcesId = $this->_setResourceId();
+        $this->resourcesId = \app\helpers\AlertMentionsHelper::getResourceIdByName('Excel Document');
 
         $this->_setDateAlerts();
 
@@ -271,7 +271,7 @@ class ExcelSearch {
      */
     private function searchDataByDictionary($mentions){
     	
-    	$words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+    	$words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
          
     	foreach ($mentions as $product => $mention){
     		for($m =  0; $m < sizeof($mention); $m++){

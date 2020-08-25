@@ -27,7 +27,7 @@ class InstagramSearch
            return false;     
         }
         $this->resourceId    = \app\helpers\AlertMentionsHelper::getResourceIdByName('Instagram Comments');
-        $this->isDictionaries = $this->_isDictionaries();
+        $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
         
         
         $this->data = current($data);
@@ -87,7 +87,6 @@ class InstagramSearch
 
     }
 
-
     /**
      * [saveMentions save  mentions or update]
      * @param  [array] $data [array]
@@ -126,7 +125,12 @@ class InstagramSearch
         } // end if null
         return (empty($error)) ? true : false;
     }
-
+    /**
+     * [savePropertyMentions save  mentions ]
+     * @param  [array] $comment [array comment prperties]
+     * @param  [int] $alertsMencions [id alertsMencions]
+     * @return [boolean]
+     */
     private function savePropertyMentions($comment,$alertsMencions,$permalink = null){
         $transaction = \Yii::$app->db->beginTransaction();
         try {
@@ -282,7 +286,7 @@ class InstagramSearch
      * @return [array] [$mentions]
      */
     private function searchDataByDictionary($mentions){
-        $words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+        $words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
 
 
         foreach($mentions as $product => $feeds){
@@ -339,19 +343,6 @@ class InstagramSearch
         return $mentions;
     }
 
-
-    /**
-     * [_isDictionaries is the alert hace dictionaries]
-     * @return boolean [description]
-     */
-    private function _isDictionaries(){
-        if(!is_null($this->alertId)){
-            $keywords = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->exists();
-            return $keywords;
-        }
-        return false;
-    }
-
     /**
      * Finds the AlertsMencions model based on product key value.
      * @param string $product
@@ -398,7 +389,10 @@ class InstagramSearch
         return ($alertsMencions) ? (object) $alertsMencions : null;
 
     }
-
+    /**
+     * [saveUserMencions save user porperties]
+     * @param  [string] $username           [name username]
+     */
     public function saveUserMencions($username){
         
         if(!\app\models\UsersMentions::find()->where( [ 'screen_name' => $username] )->exists()){
@@ -487,7 +481,12 @@ class InstagramSearch
         return $mention;
 
     }
-
+    /**
+     * [saveReplies save replies]
+     * @param  [array] $comment   [coments of the post ]
+     * @param  [int] $alertsMencionsId   [id alertsMencions]
+     * @param  [originId] $originId   [id user]
+     */
     private function saveReplies($comment,$alertsMencionsId,$originId){
 
     }
@@ -512,8 +511,6 @@ class InstagramSearch
         }
 
     }
-
-
 
 
     /**

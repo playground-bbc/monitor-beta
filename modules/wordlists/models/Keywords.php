@@ -1,14 +1,16 @@
 <?php
 
-namespace app\models;
+namespace app\modules\wordlists\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\behaviors\BlameableBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "keywords".
  *
  * @property int $id
- * @property int $alertId
  * @property int $dictionaryId
  * @property string $name
  * @property int $createdAt
@@ -17,7 +19,6 @@ use Yii;
  * @property int $updatedBy
  *
  * @property AlertsKeywords[] $alertsKeywords
- * @property Alerts $alert
  * @property Dictionaries $dictionary
  */
 class Keywords extends \yii\db\ActiveRecord
@@ -29,6 +30,27 @@ class Keywords extends \yii\db\ActiveRecord
     {
         return 'keywords';
     }
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['createdAt','updatedAt'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updatedAt'],
+                ],
+                'value' => function() { return date('U');  },
+            ],
+            [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'createdBy',
+                'updatedByAttribute' => 'updatedBy',
+            ],
+        ];
+    }
 
     /**
      * {@inheritdoc}
@@ -36,9 +58,8 @@ class Keywords extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['alertId', 'dictionaryId', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
+            [['dictionaryId', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name'], 'string', 'max' => 255],
-            [['alertId'], 'exist', 'skipOnError' => true, 'targetClass' => Alerts::className(), 'targetAttribute' => ['alertId' => 'id']],
             [['dictionaryId'], 'exist', 'skipOnError' => true, 'targetClass' => Dictionaries::className(), 'targetAttribute' => ['dictionaryId' => 'id']],
         ];
     }
@@ -50,7 +71,6 @@ class Keywords extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'alertId' => Yii::t('app', 'Alert ID'),
             'dictionaryId' => Yii::t('app', 'Dictionary ID'),
             'name' => Yii::t('app', 'Name'),
             'createdAt' => Yii::t('app', 'Created At'),
@@ -66,14 +86,6 @@ class Keywords extends \yii\db\ActiveRecord
     public function getKeywordsMentions()
     {
         return $this->hasMany(KeywordsMentions::className(), ['keywordId' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAlert()
-    {
-        return $this->hasOne(Alerts::className(), ['id' => 'alertId']);
     }
 
     /**

@@ -55,6 +55,7 @@ AppAsset::register($this);
                      '<li class="divider"></li>',
                      '<li class="dropdown-header"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configuraciones</li>',
                      ['label' => '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear Productos', 'url' => ['/products/']],
+                     ['label' => '<span class="glyphicon glyphicon-book" aria-hidden="true"></span> Crear Diccionarios', 'url' => ['/wordlists/']],
                 ],
             ],
             //['label' => 'Monitor', 'url' => ['/monitor/alert/index']],

@@ -54,7 +54,8 @@
         "yooper/php-text-analysis": "^1.5",
         "kartik-v/yii2-tabs-x": "dev-master",
         "kartik-v/yii2-export": "*",
-        "kartik-v/yii2-mpdf": "*"
+        "kartik-v/yii2-mpdf": "*",
+        "kartik-v/yii2-widget-colorinput": "dev-master"
 
     },
     "require-dev": {

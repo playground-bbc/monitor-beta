@@ -17,7 +17,6 @@ class ScrapingSearch
   	public $data = [];
   	public $isDictionaries = false;
   	public $isBoolean = false;
-  	public $resourceName = 'Paginas Webs';
 
   	public function load($data)
   	{
@@ -25,7 +24,7 @@ class ScrapingSearch
   			return false;
   		}
 
-	    $this->resourcesId    = \app\helpers\AlertMentionsHelper::getResourceIdByName($this->resourceName);
+	    $this->resourcesId    = \app\helpers\AlertMentionsHelper::getResourceIdByName('Paginas Webs');
 	    $this->isDictionaries = \app\helpers\AlertMentionsHelper::isAlertHaveDictionaries($this->alertId);
 
 		$this->data = current($data);
@@ -214,7 +213,7 @@ class ScrapingSearch
 	* @return [array]       [description]
 	*/
 	private function searchDataByDictionary($data){
-		$words = \app\models\Keywords::find()->where(['alertId' => $this->alertId])->select(['name','id'])->asArray()->all();
+		$words = \app\helpers\AlertMentionsHelper::getDictionariesWords($this->alertId);
 
 		$model = [];  
 

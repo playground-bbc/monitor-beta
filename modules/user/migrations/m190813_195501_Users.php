@@ -5,6 +5,7 @@ use yii\db\Migration;
 /**
  * ./yii migrate --migrationPath=@app/modules/user/migrations  --interactive=0
  * ./yii migrate --migrationPath=@app/modules/topic/migrations  --interactive=0
+ * ./yii migrate --migrationPath=@app/modules/insights/migrations  --interactive=0
  * ./yii migrate --migrationPath=@app/migrations  --interactive=0
  * Class m190813_195501_Users
  */

@@ -234,6 +234,7 @@ const count_resources_chat = Vue.component("total-resources-chart", {
   watch: {
     is_change: function (val, oldVal) {
       if (val) {
+        console.log("cambio en change");
         this.fetchResourceCount();
       }
     },
@@ -249,14 +250,16 @@ const count_resources_chat = Vue.component("total-resources-chart", {
             for (let index in response.data.data) {
               this.response.push(response.data.data[index]);
             }
-
             this.setOnLoadCallback();
           }
         })
         .catch((error) => console.log(error));
     },
     setOnLoadCallback() {
-      google.charts.setOnLoadCallback(this.drawColumnChart);
+      setTimeout(() => {
+        google.charts.setOnLoadCallback(this.drawColumnChart);
+      }, 1000);
+      // google.charts.setOnLoadCallback(this.drawColumnChart);
     },
     drawColumnChart() {
       var data = google.visualization.arrayToDataTable(this.response);
@@ -365,7 +368,7 @@ const post_interations_chart = Vue.component("post-interation-chart", {
                 this.response.push(response.data.data[index]);
               }
               // load chart
-              google.charts.setOnLoadCallback(this.drawColumnChart);
+              this.setOnLoadCallback();
             }
           }
         })
@@ -387,7 +390,9 @@ const post_interations_chart = Vue.component("post-interation-chart", {
       addLink(data, "post_mentions");
     },
     setOnLoadCallback() {
-      google.charts.setOnLoadCallback(this.drawColumnChart);
+      setTimeout(() => {
+        google.charts.setOnLoadCallback(this.drawColumnChart);
+      }, 1000);
     },
   },
 });
@@ -470,28 +475,7 @@ const products_interations_chart = Vue.component("products-interations-chart", {
   },
   mounted() {
     this.response = [this.dataTable];
-    // Load the Visualization API and the corechart package.
-    //google.charts.load("current", { packages: ["corechart"] });
-    // get firts data
     this.fetchResourceCount();
-    //window.onresize = this.drawColumnChart;
-    // load chart
-    // if (this.loaded) {
-    //   //console.log(this.response);
-    //   google.charts.setOnLoadCallback(this.drawColumnChart);
-    // }
-
-    // setInterval(
-    //   function () {
-    //     if (this.loaded) {
-    //       google.charts.setOnLoadCallback(this.drawColumnChart);
-    //     }
-    //     if (this.is_change) {
-    //       this.fetchResourceCount();
-    //     }
-    //   }.bind(this),
-    //   refreshTime
-    // );
   },
   watch: {
     is_change: function (val, oldVal) {
@@ -517,7 +501,9 @@ const products_interations_chart = Vue.component("products-interations-chart", {
         .catch((error) => console.log(error));
     },
     setOnLoadCallback() {
-      google.charts.setOnLoadCallback(this.drawColumnChart);
+      setTimeout(() => {
+        google.charts.setOnLoadCallback(this.drawColumnChart);
+      }, 1000);
     },
     drawColumnChart() {
       var data = google.visualization.arrayToDataTable(this.response);

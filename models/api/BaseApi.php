@@ -78,7 +78,6 @@ class BaseApi extends Model {
 
 	public function facebookCommentsApi($alerts = []){
 		
-		
 		$facebookCommentsApi = new \app\models\api\FacebookCommentsApi();
 
 		foreach ($alerts as $alert){
@@ -93,7 +92,6 @@ class BaseApi extends Model {
 
 	public function facebookMessagesApi($alerts = []){
 
-		
 		$facebookMessagesApi = new \app\models\api\FacebookMessagesApi();
 
 		foreach ($alerts as $alert){
@@ -107,7 +105,6 @@ class BaseApi extends Model {
 	}
 
 	public function InstagramCommentsApi($alerts = []){
-		
 		
 		$InstagramCommentsApi = new \app\models\api\InstagramCommentsApi();
 
@@ -280,8 +277,6 @@ class BaseApi extends Model {
 		$searchInstagramApi->alertId = $alertId;
 
 		$searchInstagramApi->load($data);
-
-
 		if($searchInstagramApi->search()){
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Instagram Comments');
 
@@ -290,11 +285,11 @@ class BaseApi extends Model {
 	}
 
 	public function readDataExcelDocumentApi($alertId,$data){
+		
 		$searchExcel = new \app\models\search\ExcelSearch();
 		$params = [$alertId,$data];
 
 		$searchExcel->load($params);
-
 		if($searchExcel->search()){
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Excel Document');
 
@@ -306,8 +301,8 @@ class BaseApi extends Model {
 		
 		$searchLiveApi = new \app\models\search\LiveTicketSearch(); 
 		$searchLiveApi->alertId = $alertId;
-		$searchLiveApi->load($data); 
 		
+		$searchLiveApi->load($data); 
 		if($searchLiveApi->search()){ 
 			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Live Chat'); 
 		} 

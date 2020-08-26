@@ -76,12 +76,12 @@ use yii\widgets\ActiveForm;
 </script>
 
 <script type="text/x-template" id="view-post-mentions-chart">
-  <div v-if="render">
-    <div v-if="loaded">
+  <div>
+    <div v-show="loaded">
       <div id="post_mentions"></div>
       <hr>
     </div>
-    <div v-else>
+    <div v-show="!loaded">
       <div class="loader">
         <div class="spinner"></div>
       </div>

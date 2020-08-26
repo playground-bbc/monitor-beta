@@ -252,7 +252,6 @@ class MentionsController extends Controller
           $data[] = \app\helpers\AlertMentionsHelper::getSocialNetworkInteractions($sources->name,$sources->id,$model->id);
       }
     }
-    
     // chage values to int
     for($d = 0; $d < sizeof($data); $d++){
       if(!is_null($data[$d])){

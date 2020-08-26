@@ -11,18 +11,25 @@ Yii::setAlias('@credencials',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}creden
 Yii::setAlias('@insights',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}widgets{$s}insights");
 Yii::setAlias('@cacert',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}credentials{$s}cacert.pem");
 
+// set env var
+$dotenv = Dotenv\Dotenv::createImmutable( dirname(dirname(__DIR__)). "{$s}{$folder}{$s}");
+$dotenv->load();
+
 return [
 	'adminEmail'  => 'eduardo@montana-studio.com',
 	'senderEmail' => 'eduardo@montana-studio.com',
 	'senderName'  => 'monitor-beta',
 	'facebook'    => [ 
 		'time_min_sleep'  => 5,  
-		'business_id'     => '169441517247',
-		'app_id'          => '446684435912359',
-		'name_app'        => 'monitor-facebook',
-		'name_account'    => 'Mundo LG',
-		'app_secret'      => '541f2431cc1ad60c9d5bb4836eed1356'
+		'business_id'     => $_ENV['BUSSINES_ID'],
+		'app_id'          => $_ENV['APP_ID'],
+		'name_app'        => $_ENV['NAME_APP'],
+		'name_account'    => $_ENV['NAME_ACCOUNT'],
+		'app_secret'      => $_ENV['APP_SECRET']
 
+	],
+	'dandelion' => [
+		'token' => $_ENV['DANDELION_TOKEN']
 	],
 ];
 

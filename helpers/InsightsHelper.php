@@ -227,7 +227,7 @@ class InsightsHelper
             $params = [
                 'text' => $model->message,
                 'lang' => 'es',
-                'token' => 'c29bd9219aa746198de326f0243de397'
+                'token' => Yii::$app->params['dandelion']['token']
             ];
 
             $data = \app\helpers\InsightsHelper::getData($end_point,$params,$base_url);

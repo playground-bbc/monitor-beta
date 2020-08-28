@@ -6,7 +6,7 @@ services:
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       - ./:/app:delegated
     ports:
-      - "8080:80"
+      - "80:3000"
     networks:
       - my-network
   db:
@@ -21,8 +21,8 @@ services:
       - TZ=America/Santiago
     ports:
       - "3307:3306"
-    expose:
-      - "3307"
+    #expose:
+    #- "3307"
     volumes:
       - my-db:/var/lib/mysql
     #volumes:

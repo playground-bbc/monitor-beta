@@ -49,7 +49,7 @@ AppAsset::register($this);
             ['label' => 'Logs', 'url' => ['/user/logs'],'visible' => $condition], 
             ['label' => 'Menciones', 'url' => ['/topic/']],
             [
-                'label' => 'Crear Alertas',
+                'label' => 'Monitor',
                 'items' => [
                     ['label' => 'Monitor', 'url' => ['/monitor/alert/index']],
                      '<li class="divider"></li>',

@@ -12,8 +12,8 @@ Yii::setAlias('@insights',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}widgets{$
 Yii::setAlias('@cacert',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}credentials{$s}cacert.pem");
 
 // set env var
-$dotenv = Dotenv\Dotenv::createImmutable( dirname(dirname(__DIR__)). "{$s}{$folder}{$s}");
-$dotenv->load();
+// $dotenv = Dotenv\Dotenv::createImmutable( dirname(dirname(__DIR__)). "{$s}{$folder}{$s}");
+// $dotenv->load();
 
 return [
 	'adminEmail'  => 'eduardo@montana-studio.com',
@@ -21,15 +21,15 @@ return [
 	'senderName'  => 'monitor-beta',
 	'facebook'    => [ 
 		'time_min_sleep'  => 5,  
-		'business_id'     => $_ENV['BUSSINES_ID'],
-		'app_id'          => $_ENV['APP_ID'],
-		'name_app'        => $_ENV['NAME_APP'],
-		'name_account'    => $_ENV['NAME_ACCOUNT'],
-		'app_secret'      => $_ENV['APP_SECRET']
+		'business_id'     => $_SERVER['BUSSINES_ID'],
+		'app_id'          => $_SERVER['APP_ID'],
+		'name_app'        => $_SERVER['NAME_APP'],
+		'name_account'    => $_SERVER['NAME_ACCOUNT'],
+		'app_secret'      => $_SERVER['APP_SECRET']
 
 	],
 	'dandelion' => [
-		'token' => $_ENV['DANDELION_TOKEN']
+		'token' => $_SERVER['DANDELION_TOKEN']
 	],
 ];
 

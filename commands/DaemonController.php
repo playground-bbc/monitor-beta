@@ -71,7 +71,7 @@ class DaemonController extends Controller
             $baseApi = new BaseApi();
             $api = $baseApi->readDataResource($alertsConfig);
             // send email
-            \app\helpers\EmailHelper::sendCommonWords($alertsConfig);
+            //\app\helpers\EmailHelper::sendCommonWords($alertsConfig);
         }
     }
     /**

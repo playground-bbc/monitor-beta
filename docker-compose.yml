@@ -9,7 +9,7 @@ services:
       - ./:/app:delegated
       #- ./:/var/www/html:delegated
     ports:
-      - "8000:80"
+      - "80:80"
     networks:
       - monitor-network
   db:

@@ -1,17 +1,5 @@
 version: "3.3"
 services:
-  php:
-    container_name: php
-    build: .
-    #image: yiisoftware/yii2-php:7.2-apache
-    volumes:
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      - ./:/app:delegated
-      #- ./:/var/www/html:delegated
-    ports:
-      - "80:80"
-    networks:
-      - monitor-network
   db:
     image: mysql:5.7
     container_name: db
@@ -24,31 +12,24 @@ services:
       - TZ=America/Santiago
     ports:
       - "3307:3306"
-    #expose:
-    #- "3307"
     volumes:
       - my-db:/var/lib/mysql
     #volumes:
     #  - ~/mysql:/var/lib/mysql
     networks:
       - monitor-network
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    depends_on:
-      - db
+  php:
+    container_name: php
+    build: .
+    #image: yiisoftware/yii2-php:7.2-apache
+    volumes:
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      - ./:/app:delegated
+      #- ./:/var/www/html:delegated
+    ports:
+      - "8080:80"
     networks:
       - monitor-network
-    restart: always
-    ports:
-      - 8081:80
-    volumes:
-      - my-db:/var/lib/mysql
-  memcached:
-    container_name: memcached
-    image: memcached:latest
-    ports:
-      - "0.0.0.0:11212:11211"
 volumes:
   my-db:
 networks:

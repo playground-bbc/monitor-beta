@@ -14,6 +14,12 @@ RUN apt-get autoremove -y
 RUN apt-get clean
 RUN rm -rf /tmp/pear
 
+RUN apt-get install php-mbstring
+RUN apt-get install php7.2-xml
+RUN apt-get install php7.2-gd
+RUN apt-get install php7.2-zip
+RUN apt-get install php7.2-curl
+
 
 RUN chmod 2775 /app/data
 RUN find /app/data -type d -exec sudo chmod 2775 {} +

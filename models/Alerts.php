@@ -103,11 +103,7 @@ class Alerts extends \yii\db\ActiveRecord
     public function getBringAllAlertsToRun($read = false,$resourceName = ''){
 
         // get time
-        $expression = new \yii\db\Expression('NOW()');
-        $now = (new \yii\db\Query)->select($expression)->scalar();
-        var_dump($now);
-        die();
-        $timestamp = time((new \DateTime())->format('Y-m-d H:i:s'));
+        $timestamp = \app\helpers\DateHelper::getToday();
         // get all alert with relation config with the condicion start_date less or equals to $timestamp
         $alerts = $this->find()->where([
             'status' => self::STATUS_ACTIVE,
@@ -163,9 +159,7 @@ class Alerts extends \yii\db\ActiveRecord
 
     public function getBringAllAlertsToFinish(){
         // get time
-        $expression = new \yii\db\Expression('NOW()');
-        $now = (new \yii\db\Query)->select($expression)->scalar();
-        $timestamp = time((new \DateTime())->format('Y-m-d H:i:s'));
+        $timestamp = \app\helpers\DateHelper::getToday();
         // get all alert with relation config with the condicion start_date less or equals to $timestamp
         $alerts = $this->find()->where([
             'status' => self::STATUS_ACTIVE,

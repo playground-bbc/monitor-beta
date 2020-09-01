@@ -12,7 +12,7 @@ use yii\web\View;
  */
 class SweetAlertAsset extends AssetBundle
 {
-    public $sourcePath = '@vendor/sweetalert/dist';
+    public $sourcePath = '@npm/sweetalert2/dist';
 
     /**
      * @inheritdoc

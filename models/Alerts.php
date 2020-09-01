@@ -105,7 +105,7 @@ class Alerts extends \yii\db\ActiveRecord
         // get time
         $expression = new \yii\db\Expression('NOW()');
         $now = (new \yii\db\Query)->select($expression)->scalar();
-        var_dump((new \DateTime())->format('Y-m-d H:i:s'));
+        var_dump($now);
         die();
         $timestamp = time((new \DateTime())->format('Y-m-d H:i:s'));
         // get all alert with relation config with the condicion start_date less or equals to $timestamp

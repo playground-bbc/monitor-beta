@@ -52,9 +52,15 @@ $config = [
             'cookieValidationKey' => 'cwAyJzhAYoJKZywPh0oEVaVAk_akHdXR',
         ],
         'cache' => [
-            'class' => 'yii\caching\DbCache',
-            'db' => $db,
-            'cacheTable' => 'cache',
+            'class' => 'yii\caching\MemCache',
+            'useMemcached' => true, // <--- here
+            'servers' => [
+                [
+                    'host' => '127.0.0.1',
+                    'port' => 11211,
+                    'weight' => 60,
+                ],
+            ],
         ],
         'user' => [
             'identityClass' => 'app\models\Users',

@@ -3,10 +3,15 @@ let id = document.getElementById("alertId").value;
 
 const origin = location.origin;
 const appId = location.pathname.split("/")[1];
-const baseUrlDocument = `${origin}/${appId}/web/monitor/pdf/`;
-const baseUrlView = `${origin}/${appId}/web/monitor/alert/`;
-const baseUrlApi = `${origin}/${appId}/web/monitor/api/mentions/`;
-const baseDetailApi = `${origin}/${appId}/web/monitor/api/detail/`;
+//const baseUrlDocument = `${origin}/${appId}/web/monitor/pdf/`;
+//const baseUrlView = `${origin}/${appId}/web/monitor/alert/`;
+//const baseUrlApi = `${origin}/${appId}/web/monitor/api/mentions/`;
+//const baseDetailApi = `${origin}/${appId}/web/monitor/api/detail/`;
+
+const baseUrlDocument = `${origin}/monitor/pdf/`;
+const baseUrlView = `${origin}/monitor/alert/`;
+const baseDetailApi = `${origin}/monitor/api/detail/`;
+const baseUrlApi = `${origin}/monitor/api/mentions/`;
 
 const apiClientView = axios.create({
   baseURL: baseUrlApi,

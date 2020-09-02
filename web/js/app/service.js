@@ -2,9 +2,10 @@
 let id = document.getElementById("alertId").value;
 
 const origin = location.origin;
-const appId = location.pathname.split("/")[1];
-const baseUrlDocument = `${origin}/${appId}/web/monitor/pdf/`;
-const baseUrlView = `${origin}/${appId}/web/monitor/alert/`;
+const appId =
+  location.pathname.split("/")[1] != "web" ? "monitor-beta/web" : "web";
+const baseUrlDocument = `${origin}/${appId}/monitor/pdf/`;
+const baseUrlView = `${origin}/${appId}/monitor/alert/`;
 const baseUrlApi = `${origin}/${appId}/monitor/api/mentions/`;
 const baseDetailApi = `${origin}/${appId}/monitor/api/detail/`;
 

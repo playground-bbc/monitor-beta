@@ -36,8 +36,8 @@ class LiveChatsApi extends Model {
 		if(!empty($alert)){
 			
 			$this->alertId        = $alert['id'];
-			$this->start_date     = $alert['config']['start_date'];
-			$this->end_date       = $alert['config']['end_date'];
+			$this->start_date     = (int)  $alert['config']['start_date'];
+			$this->end_date       =  (int) $alert['config']['end_date'];
 			// order products by his  length
 			array_multisort(array_map('strlen', $alert['products']), $alert['products']);
 			$this->products   = $alert['products'];
@@ -100,7 +100,6 @@ class LiveChatsApi extends Model {
 					'query'     => $productName,
 					'page'      => 1
 				];
-				
 				if($product_date_cache < $this->end_date){
 					if(!\app\helpers\DateHelper::isToday((int)$product_date_cache)){
 						$date_from = Yii::$app->formatter->asDate($product_date_cache,'yyyy-MM-dd');
@@ -389,6 +388,11 @@ class LiveChatsApi extends Model {
 				$model['LiveChat']['status'] = 'Finish'; 
 			}
 
+		}else{
+			
+			if(\app\helpers\DateHelper::getToday() > $this->end_date){
+				$model['LiveChat']['status'] = 'Finish'; 
+			}
 		}
 		
 		\app\helpers\HistorySearchHelper::createOrUpdate($this->alertId, $model);

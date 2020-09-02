@@ -374,6 +374,11 @@ class LiveTicketApi extends Model {
 				$model['LiveTicket']['status'] = 'Finish'; 
 			}
 
+		}else{
+			
+			if(\app\helpers\DateHelper::getToday() > $this->end_date){
+				$model['LiveTicket']['status'] = 'Finish'; 
+			}
 		}
 		
 		\app\helpers\HistorySearchHelper::createOrUpdate($this->alertId, $model);

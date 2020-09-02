@@ -141,6 +141,7 @@ class Alerts extends \yii\db\ActiveRecord
             }
         }
         ])->orderBy('id DESC')->asArray()->all();
+        
         $alertsConfig = null;
         // there is alert in the model
         if(!empty($alerts)){
@@ -153,7 +154,6 @@ class Alerts extends \yii\db\ActiveRecord
             $alertsConfig = \app\helpers\AlertMentionsHelper::setProductsSearch($alertsConfig);
             
         }
-       
        return $alertsConfig;
     }
 
@@ -174,7 +174,6 @@ class Alerts extends \yii\db\ActiveRecord
         ])->orderBy('id DESC')->asArray()->all();
 
         $alertsConfig = [];
-
         if(!empty($alerts)){
             // loop searching alert with mentions relation and config relation
             for($a = 0; $a < sizeOf($alerts); $a++){

@@ -678,9 +678,7 @@ const date_chart = Vue.component("date-chart", {
     drawColumnChart() {
       this.loaded = true;
       $.getJSON(
-        //`${origin}/monitor/api/mentions/mention-on-date?alertId=` +
-        //id,
-        `${origin}/monitor/api/mentions/mention-on-date?alertId=` + id,
+        `${origin}/${appId}/monitor/api/mentions/mention-on-date?alertId=` + id,
         function (data) {
           var chart = Highcharts.stockChart("date", {
             chart: {

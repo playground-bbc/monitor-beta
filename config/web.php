@@ -53,15 +53,14 @@ $config = [
         ],
         'cache' => [
             'class' => 'yii\caching\MemCache',
-            'useMemcached' => true,
+            'useMemcached' => true, // <--- here
             'servers' => [
                 [
-                    'host' => 'memcached',
-                    'port' => 11212,
-                    'weight' => 40,
-                ]
+                    'host' => '127.0.0.1',
+                    'port' => 11211,
+                    'weight' => 60,
+                ],
             ],
-            'serializer' => false,
         ],
         'user' => [
             'identityClass' => 'app\models\Users',
@@ -75,8 +74,8 @@ $config = [
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.gmail.com',  // e.g. smtp.mandrillapp.com or smtp.gmail.com
-                'username' => '',
-                'password' => '',
+                'username' => $_SERVER['EMAIL_FROM'],
+                'password' => $_SERVER['EMAIL_PASS'],
                 'port' => '587', // Port 25 is a very common port too
                 'encryption' => 'tls', // It is often used, check your provider or mail server specs
             ],
@@ -136,7 +135,7 @@ if (YII_ENV_DEV) {
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
-        'allowedIPs' => ['192.168.1.90', '::1'],
+        //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 
     $config['bootstrap'][] = 'gii';

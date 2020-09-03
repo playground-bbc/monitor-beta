@@ -42,36 +42,41 @@ AppAsset::register($this);
             'class' => 'navbar navbar-inverse fixed-top',
         ],
     ]);
-    echo Nav::widget([
-        'encodeLabels' => false,
-        'options' => ['class' => 'navbar-nav navbar-right'],
-        'items' => [
+    $menuItems = [];
+    if(Yii::$app->user->isGuest){
+        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+    }else{
+        $menuItems = [
             ['label' => 'Logs', 'url' => ['/user/logs'],'visible' => $condition], 
             ['label' => 'Menciones', 'url' => ['/topic/']],
             [
                 'label' => 'Monitor',
                 'items' => [
-                    ['label' => 'Monitor', 'url' => ['/monitor/alert/index']],
-                     '<li class="divider"></li>',
-                     '<li class="dropdown-header"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configuraciones</li>',
-                     ['label' => '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear Productos', 'url' => ['/products/']],
-                     ['label' => '<span class="glyphicon glyphicon-book" aria-hidden="true"></span> Crear Diccionarios', 'url' => ['/wordlists/']],
+                    ['label' => '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Alertas', 'url' => ['/monitor/alert/index']],
+                        '<li class="divider"></li>',
+                        '<li class="dropdown-header"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configuraciones</li>',
+                        ['label' => '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Crear Productos', 'url' => ['/products/']],
+                        ['label' => '<span class="glyphicon glyphicon-book" aria-hidden="true"></span> Crear Diccionarios', 'url' => ['/wordlists/']],
                 ],
             ],
-            //['label' => 'Monitor', 'url' => ['/monitor/alert/index']],
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post')
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link logout']
-                )
-                . Html::endForm()
-                . '</li>'
-            )
-        ],
+            [
+                'label' => 'User',
+                'items' => [
+                    ['label' => '<span class="glyphicon glyphicon-user" aria-hidden="true"></span> Perfil', 'url' => ['/user/default/edit']],
+                    [
+                        'label' => '<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout (' . Yii::$app->user->identity->username . ')',
+                        'url' => ['/site/logout'],
+                        'linkOptions' => ['data-method' => 'post']
+                    ]
+                ],
+            ]
+            
+        ];
+    }
+    echo Nav::widget([
+        'encodeLabels' => false,
+        'options' => ['class' => 'navbar-nav navbar-right'],
+        'items' => $menuItems,
     ]);
     NavBar::end();
     ?>

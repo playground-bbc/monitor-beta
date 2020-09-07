@@ -154,6 +154,12 @@ class AlertController extends Controller
             'alertId = :alertId AND resourcesId = :resourcesId',
             [':alertId' => $alertId, ':resourcesId' => $resourceId]
         );
+        // delete user then no have mention
+        Yii::$app->db
+            ->createCommand(
+                'DELETE FROM users_mentions WHERE users_mentions.id NOT IN ( SELECT distinct origin_id FROM mentions)'
+            )
+            ->execute();
         // clean cache
         $cache = \Yii::$app->cache;
         $cache->delete("{$configSource->alertResource->name}_{$alertId}");

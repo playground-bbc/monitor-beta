@@ -6,6 +6,7 @@ use yii\widgets\DetailView;
 \app\assets\AxiosAsset::register($this);
 \app\assets\VueAsset::register($this);
 \app\assets\JqcloudAsset::register($this);
+\app\assets\highmapsAsset::register($this);
 \app\assets\DetailAsset::register($this);
 ?>
 <div id="alerts-detail" class="alerts-detail" style="padding-top: 10px">

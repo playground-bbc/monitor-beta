@@ -65,7 +65,6 @@ const detailComponent = Vue.component("detail", {
             this.count
           );
           this.isChange = true;
-          console.info("Hubo un cambio en el count");
         } else {
           this.isChange = false;
         }
@@ -104,15 +103,16 @@ const detailComponent = Vue.component("detail", {
     },
     setCallSelectDepen() {
       if (document.body.contains(document.getElementById("depend_select"))) {
-        $("#depend_select").empty().trigger("change");
+        //$("#depend_select").empty().trigger("change");
         getDataSelectDetail(this.alertid, this.resourceid, this.term)
           .then((response) => {
             if (response.status == 200 && response.statusText == "OK") {
               if (response.data.data.length) {
                 response.data.data.forEach(function (element) {
                   var option = new Option(element.text, element.id, true, true);
-                  $("#depend_select").append(option).trigger("change");
+                  $("#depend_select").append(option);
                 });
+                $("#depend_select").val("").trigger("change");
               } else {
                 $("#depend_select").empty().trigger("change");
               }
@@ -181,7 +181,7 @@ const boxComponent = Vue.component("box-detail", {
         .then((response) => {
           if (response.status == 200 && response.statusText == "OK") {
             this.box_properties = response.data.propertyBoxs;
-            console.log("call api box-info");
+            //console.log("call api box-info");
           }
         })
         .catch((error) => {
@@ -200,7 +200,7 @@ const boxComponent = Vue.component("box-detail", {
     },
     searched(attribute) {
       for (var [key, value] of Object.entries(attribute)) {
-        console.log(key + " " + value);
+        //console.log(key + " " + value);
         $(`#mentionsearch-${key}`).attr("value", value);
       }
       $("#mentionsearch-id").attr("value", this.alertid);
@@ -219,7 +219,7 @@ const boxComponent = Vue.component("box-detail", {
         default:
           break;
       }
-      console.log(method, attribute);
+      //console.log(method, attribute);
     },
   },
   computed: {
@@ -298,7 +298,134 @@ const boxCommonWordsComponent = Vue.component("common-words-detail", {
     },
   },
 });
+/**
+ * mapUserComponent: send call to api and display user map
+ */
+const mapUserComponent = Vue.component("map-user-detail", {
+  props: {
+    alertid: {
+      type: Number,
+      required: true,
+    },
+    resourceid: {
+      type: Number,
+      required: true,
+    },
+    term: {
+      type: String,
+      required: true,
+    },
+    socialId: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    isChange: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  template: "#map-user-detail",
+  data: function () {
+    return {
+      regions_count: [],
+    };
+  },
+  mounted() {
+    this.fetchRegionsCount();
+  },
+  watch: {
+    isChange: function (val, oldVal) {
+      if (val) {
+        this.fetchRegionsCount();
+      }
+    },
+    socialId: function (val, oldVal) {
+      if (val || val == "") {
+        this.fetchRegionsCount();
+      }
+    },
+  },
+  methods: {
+    fetchRegionsCount() {
+      getRegionLiveChatDetail(
+        this.alertid,
+        this.resourceid,
+        this.term,
+        this.socialId
+      )
+        .then((response) => {
+          if (response.status == 200 && response.statusText == "OK") {
+            this.regions_count = response.data.regions_count;
+            if (this.regions_count.length) {
+              this.drawMapsRegions();
+            }
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          // see error by dialog
+        });
+    },
+    drawMapsRegions() {
+      // Create the chart
+      var chart = Highcharts.mapChart("map-user", {
+        chart: {
+          map: "countries/cl/cl-all",
+          events: {
+            load: function () {
+              //this.mapZoom(-0.3, 0, 0, 0.5, 0);
+              //console.log(this.get()); //zoom to the country using "id" from data serie
+            },
+          },
+        },
 
+        title: {
+          text: "Highmaps basic demo",
+        },
+        mapNavigation: {
+          enabled: true,
+          enableDoubleClickZoomTo: true,
+        },
+
+        subtitle: {
+          text:
+            'Source map: <a href="http://code.highcharts.com/mapdata/countries/cl/cl-all.js">Chile</a>',
+        },
+
+        mapNavigation: {
+          enabled: true,
+          buttonOptions: {
+            verticalAlign: "bottom",
+          },
+        },
+
+        colorAxis: {
+          min: 0,
+        },
+
+        series: [
+          {
+            data: this.regions_count,
+            name: "Random data",
+            states: {
+              hover: {
+                color: "#BADA55",
+              },
+            },
+            dataLabels: {
+              enabled: true,
+              format: "{point.name}",
+            },
+          },
+        ],
+      });
+      // zoon
+      //chart.zoomTo();
+    },
+  },
+});
 /**
  * gridMentions: display grid content
  */

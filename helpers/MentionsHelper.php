@@ -105,12 +105,58 @@ class MentionsHelper
             ->send();
             
         if ($response->isOk && $response->data['status'] == 'success') {
-            return  $response->data;
+            return [
+                'city' => $response->data['city'],
+                'mobile' => $response->data['mobile'],
+                'country' => $response->data['country'],
+                'region' => $response->data['regionName'],
+
+            ];
         }
         return null;
 
     }
-    
+    /**
+     * [isMobile by user_agent string get if is mobile or not]
+     * @param  [string]  [user agent string]
+     * @return [booleand] 
+     */
+    public static function isMobile($user_agent){
+        return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $user_agent);
+    }
+
+    public static function getRegionsOnHcKey(){
+        return [
+            "La Araucanía" => 'cl-2730',
+            
+            "Bio-Bio" => 'cl-bi',
+            "Region del Biobio" => 'cl-bi',
+            
+            "Los Lagos" => 'cl-ll',
+
+            'Libertador General Bernardo O"Higgins' => 'cl-li',
+            "O'Higgins Region" => 'cl-li',
+            
+            "Aisén del General Carlos Ibáñez del Campo" => 'cl-ai',
+            "Magallanes y Antártica Chilena" => 'cl-ma',
+            "Coquimbo" => 'cl-co',
+            "Atacama" => 'cl-at',
+            "Valparaiso" => 'cl-vs',
+            "Region de Valparaiso" => 'cl-vs',
+            
+            "Region Metropolitan" =>'cl-rm',
+            "Region Metropolitana" =>'cl-rm',
+            "Santiago Metropolitan" =>'cl-rm',
+            
+            "Los Ríos" => 'cl-ar',
+            "Maule" => 'cl-ml',
+            "Arica y Parinacota" => 'cl-2740',
+            "Antofagasta" => 'cl-an',
+
+            "Tarapaca"=>"cl-ta",
+            "Tarapacá"=>"cl-ta",
+        ];
+    }
 
     public static function setNumberCommentsSocialMedia($alertId,$resourceSocialIds = []){
         $alerMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($alertId,$resourceSocialIds);

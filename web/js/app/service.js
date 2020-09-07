@@ -167,3 +167,18 @@ function getBoxCommonWordsDetail(alertid, resourceid, term, socialId) {
     `common-words?alertId=${alertid}&resourceId=${resourceid}&term=${term}&socialId=${socialId}`
   );
 }
+
+/**
+ * View: Detail
+ * Vue Component: map-user
+ *  call api to regions count on users
+ * @param {Number} id
+ * @param {Number} resourceId
+ * @param {String} term
+ * @param {String} socialId
+ */
+function getRegionLiveChatDetail(alertid, resourceid, term, socialId) {
+  return apiClientDetail.get(
+    `get-region-live-chat?alertId=${alertid}&resourceId=${resourceid}&term=${term}&socialId=${socialId}`
+  );
+}

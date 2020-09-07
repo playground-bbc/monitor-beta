@@ -29,8 +29,14 @@ use yii\widgets\ActiveForm;
     :socialId="socialId"
     :isChange="isChange"/>
     
+    <map-user-detail
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange"/>
     
-    <grid-detail 
+    <grid-detail
     :alertid="alertid" 
     :resourceid="resourceid" 
     :term="term" 
@@ -96,6 +102,12 @@ use yii\widgets\ActiveForm;
       </div>
     </div>
   </div> 
+</script>
+
+<script type="text/x-template" id="map-user-detail">
+  <div>
+    <div id="map-user"></div>
+  </div>
 </script>
 
 <!-- grid mentions -->

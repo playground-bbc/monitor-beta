@@ -172,9 +172,10 @@ class LiveChatSearch {
         if(ArrayHelper::keyExists('name', $user)){
             $screen_name = $user['id'];
             $name = $user['name'];
+            $user_data['ip'] = $user['ip'];
             $user_data['geo'] = [
                 'city'    => $user['city'],
-                'mobile'  => (!\app\helpers\StringHelper::containsCount($user['user_agent'],'Windows')) ? true : false,
+                'mobile'  => (boolean) \app\helpers\MentionsHelper::isMobile($user['user_agent']),
                 'country' => $user['country'],
                 'region'  => $user['region'],
             ];

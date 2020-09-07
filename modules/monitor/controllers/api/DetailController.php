@@ -179,6 +179,60 @@ class DetailController extends Controller {
         
         return ['data' => $data];
     }
+
+
+    public function actionGetRegionLiveChat($alertId,$resourceId,$term = '',$socialId = ''){
+
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        
+        if($term != ""){ $where['term_searched'] = $term;}
+        
+        $alert_mentions = \app\models\AlertsMencions::find()->where($where)->all();
+
+        // $where_alertMentions = [];
+        // if($socialId != ""){ $where_alertMentions['mention_socialId'] = $socialId;}
+        $user_ids = [];
+        if(!empty($alert_mentions)){
+            for ($a=0; $a < sizeOf($alert_mentions) ; $a++) { 
+                if($alert_mentions[$a]->mentionsCount){
+                    if ($socialId != "") {
+                        $user_ids = $alert_mentions[$a]->getMentions()->select('origin_id')->where(['social_id'=> $socialId])->asArray()->all(); 
+                    } else {
+                        $user_ids = $alert_mentions[$a]->getMentions()->select('origin_id')->asArray()->all(); 
+                    }
+                    
+                    
+                }
+            }
+        }
+        $origin_ids = array_unique(\yii\helpers\ArrayHelper::getColumn($user_ids, 'origin_id'));
+        $status = '"client"';
+        $expressionSelect = new Expression("JSON_UNQUOTE(`user_data`->'$.geo.region') AS region,COUNT(*) AS num_geo");
+        $expressionWhere = new Expression("JSON_CONTAINS(user_data,'{$status}','$.type')");
+        $query = (new \yii\db\Query())
+            ->cache(5)
+            ->select($expressionSelect)
+            ->from('users_mentions')
+            ->where($expressionWhere)
+            ->andWhere(['id' => $origin_ids])
+            ->groupBy('region')
+            ->all();
+        
+        $regions_count = [];
+        if(count($query)){
+            $regions = \app\helpers\MentionsHelper::getRegionsOnHcKey();
+            for ($q=0; $q < sizeOf($query) ; $q++) { 
+                $regions_count [] = [
+                    $regions[$query[$q]['region']], (int)$query[$q]['num_geo']
+                ];
+            }
+        }
+
+
+        return [
+            'regions_count' => $regions_count
+        ];
+    }
     /**
      * Finds the Alerts model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

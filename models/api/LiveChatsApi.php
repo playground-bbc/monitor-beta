@@ -389,12 +389,20 @@ class LiveChatsApi extends Model {
 			}
 
 		}else{
-			
-			if(\app\helpers\DateHelper::getToday() > $this->end_date){
-				$model['LiveChat']['status'] = 'Finish'; 
+			// set term on cache
+			$cache = \Yii::$app->cache;
+			$key = "Live Chat Conversations";
+			$data = $cache->get("{$key}_{$this->alertId}");
+
+			if($data){
+				$min_date_search = min(array_values($data));
+				if($min_date_search >= $this->end_date ){
+					$model['LiveChat']['status'] = 'Finish'; 
+				}
 			}
+
+			
 		}
-		
 		\app\helpers\HistorySearchHelper::createOrUpdate($this->alertId, $model);
 
 	}

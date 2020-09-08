@@ -22,6 +22,17 @@ $config = [
             'class'           => 'yii\i18n\Formatter',
             'defaultTimeZone' => 'America/Santiago',
         ],
+        'cache' => [
+            'class' => 'yii\caching\MemCache',
+            'useMemcached' => true, // <--- here
+            'servers' => [
+                [
+                    'host' => '127.0.0.1',
+                    'port' => 11211,
+                    'weight' => 60,
+                ],
+            ],
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'transport' => [

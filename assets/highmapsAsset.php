@@ -22,7 +22,8 @@ class highmapsAsset extends AssetBundle
         //'highstock.js',
         'highmaps.js',
         'modules/exporting.js',
-        'https://code.highcharts.com/mapdata/countries/cl/cl-all.js'
+        'https://code.highcharts.com/mapdata/countries/cl/cl-all.js',
+        'https://code.highcharts.com/maps/modules/data.js'
         
     ];
 

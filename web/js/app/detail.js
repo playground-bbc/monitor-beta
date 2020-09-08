@@ -369,58 +369,65 @@ const mapUserComponent = Vue.component("map-user-detail", {
         });
     },
     drawMapsRegions() {
-      // Create the chart
-      var chart = Highcharts.mapChart("map-user", {
-        chart: {
-          map: "countries/cl/cl-all",
-          events: {
-            load: function () {
-              //this.mapZoom(-0.3, 0, 0, 0.5, 0);
-              //console.log(this.get()); //zoom to the country using "id" from data serie
-            },
-          },
-        },
-
-        title: {
-          text: "Highmaps basic demo",
-        },
-        mapNavigation: {
-          enabled: true,
-          enableDoubleClickZoomTo: true,
-        },
-
-        subtitle: {
-          text:
-            'Source map: <a href="http://code.highcharts.com/mapdata/countries/cl/cl-all.js">Chile</a>',
-        },
-
-        mapNavigation: {
-          enabled: true,
-          buttonOptions: {
-            verticalAlign: "bottom",
-          },
-        },
-
-        colorAxis: {
-          min: 0,
-        },
-
-        series: [
-          {
-            data: this.regions_count,
-            name: "Random data",
-            states: {
-              hover: {
-                color: "#BADA55",
+      let data = this.regions_count;
+      Highcharts.getJSON(
+        "https://gist.githubusercontent.com/spiderbbc/3cb18e8ec1832a6895f5e4eef4355dfe/raw/ece51b4fc0e1496d8b7839a5f66599f9a762f5d6/GeoChile.json",
+        function (topology) {
+          // Create the chart
+          var chart = Highcharts.mapChart("map-user", {
+            chart: {
+              map: topology,
+              events: {
+                load: function () {
+                  //this.mapZoom(-0.3, 0, 0, 0.5, 0);
+                  //console.log(this.get()); //zoom to the country using "id" from data serie
+                },
               },
             },
-            dataLabels: {
-              enabled: true,
-              format: "{point.name}",
+
+            title: {
+              text: "Mapa de Usuarios",
             },
-          },
-        ],
-      });
+            mapNavigation: {
+              enabled: true,
+              enableDoubleClickZoomTo: true,
+            },
+
+            subtitle: {
+              text:
+                'Source map: <a href="http://code.highcharts.com/mapdata/countries/cl/cl-all.js">Chile</a>',
+            },
+
+            mapNavigation: {
+              enabled: true,
+              buttonOptions: {
+                verticalAlign: "bottom",
+              },
+            },
+
+            colorAxis: {
+              min: 0,
+            },
+
+            series: [
+              {
+                data: data,
+                name: "Total de Usuarios",
+                states: {
+                  hover: {
+                    color: "#BADA55",
+                  },
+                },
+                dataLabels: {
+                  enabled: true,
+                  format: "{point.name}",
+                },
+              },
+            ],
+          });
+        }
+      );
+
       // zoon
       //chart.zoomTo();
     },

@@ -196,21 +196,25 @@ class DetailController extends Controller {
             for ($a=0; $a < sizeOf($alert_mentions) ; $a++) { 
                 if($alert_mentions[$a]->mentionsCount){
                     if ($socialId != "") {
-                        $user_ids = $alert_mentions[$a]->getMentions()->select('origin_id')->where(['social_id'=> $socialId])->asArray()->all(); 
+                        $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->where(['social_id'=> $socialId])->asArray()->all();
+                        $user_ids = $origins;  
                     } else {
-                        $user_ids = $alert_mentions[$a]->getMentions()->select('origin_id')->asArray()->all(); 
+                        $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->asArray()->all();
+                        $user_ids = $origins; 
                     }
-                    
-                    
                 }
             }
         }
         $origin_ids = array_unique(\yii\helpers\ArrayHelper::getColumn($user_ids, 'origin_id'));
+
+        // var_dump($user_ids);
+        // var_dump($origin_ids);
+        // die();
         $status = '"client"';
         $expressionSelect = new Expression("JSON_UNQUOTE(`user_data`->'$.geo.region') AS region,COUNT(*) AS num_geo");
         $expressionWhere = new Expression("JSON_CONTAINS(user_data,'{$status}','$.type')");
         $query = (new \yii\db\Query())
-            ->cache(5)
+            //->cache(5)
             ->select($expressionSelect)
             ->from('users_mentions')
             ->where($expressionWhere)
@@ -222,15 +226,20 @@ class DetailController extends Controller {
         if(count($query)){
             $regions = \app\helpers\MentionsHelper::getRegionsOnHcKey();
             for ($q=0; $q < sizeOf($query) ; $q++) { 
-                $regions_count [] = [
-                    $regions[$query[$q]['region']], (int)$query[$q]['num_geo']
-                ];
+                if(!is_null($query[$q]['region']) && isset($regions[$query[$q]['region']])){
+                    $regions_count [] = [
+                        $regions[$query[$q]['region']], (int)$query[$q]['num_geo']
+                    ];
+                }
+                
             }
         }
 
 
         return [
-            'regions_count' => $regions_count
+            'regions_count' => $regions_count,
+            'query' => $query,
+            'origin_ids' => $origin_ids,
         ];
     }
     /**

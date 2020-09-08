@@ -135,6 +135,7 @@ class MentionsHelper
             "Los Lagos" => 'cl-ll',
 
             'Libertador General Bernardo O"Higgins' => 'cl-li',
+            "Libertador General Bernardo O'Higgins" => 'cl-li',
             "O'Higgins Region" => 'cl-li',
             
             "Aisén del General Carlos Ibáñez del Campo" => 'cl-ai',

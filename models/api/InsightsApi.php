@@ -116,7 +116,7 @@ class InsightsApi extends Model
 
 		if (!is_null($typeContent) && !is_null($resource)) {
 			
-			$end_point = "{$this->_business_id}/published_posts?fields=id,permalink_url,updated_time,message,picture,attachments{media,media_type,subattachments,title},insights.metric(post_impressions,post_engaged_users,post_reactions_by_type_total,page_actions_post_reactions_total)&limit={$this->_limit}";
+			$end_point = "{$this->_business_id}/published_posts?fields=id,permalink_url,created_time,updated_time,message,picture,attachments{media,media_type,subattachments,title},insights.metric(post_impressions,post_engaged_users,post_reactions_by_type_total,page_actions_post_reactions_total)&limit={$this->_limit}";
 
 		
 			$params = [
@@ -141,7 +141,7 @@ class InsightsApi extends Model
 						'message'   => (isset($data[$d]['message'])) ? $data[$d]['message'] : '-',
 						'permalink' => $data[$d]['permalink_url'],
 						'image_url' => (isset($data[$d]['picture'])) ? $data[$d]['picture']: '-' ,
-						'timespan'  => \app\helpers\DateHelper::asTimestamp($data[$d]['updated_time']),
+						'timespan'  => \app\helpers\DateHelper::asTimestamp($data[$d]['created_time']),
 					];
 					$where['permalink'] = $data[$d]['permalink_url'];
 					$content = \app\helpers\InsightsHelper::saveContent($where,$properties);

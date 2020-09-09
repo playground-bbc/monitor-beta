@@ -68,8 +68,12 @@ class InsightsHelper
         // save or update
         if(!$model->save()){
             var_dump($model->errors);
+        }else{
+            if($model->typeContent->name == 'Post'){
+                self::setRelationPostWithFamilyProducts($model);
+            }
         }
-        self::setRelationPostWithFamilyProducts($model);
+        
         return $model;
 
     }
@@ -231,6 +235,7 @@ class InsightsHelper
             ];
 
             $data = \app\helpers\InsightsHelper::getData($end_point,$params,$base_url);
+            
             if($data){
                 if($data['annotations']){
                     $strict_search = (count($data['annotations']) > 1) ? true : false;
@@ -263,6 +268,11 @@ class InsightsHelper
                     }
                     
                     $ids_series = self::_searchIdSeriesInEntyties($entyties,$model->message);
+                    
+                    if(empty($ids_series)){
+                        $ids_series = self::_searchIdSeriesInScraping($entyties,$model->message);
+                    }
+
                     if(!empty($ids_series)){
                         for ($i=0; $i < sizeOf($ids_series) ; $i++) { 
                             $is_model = \app\models\WProductsFamilyContent::find()->where(
@@ -322,7 +332,8 @@ class InsightsHelper
        
         if(empty($ids_series)){
             foreach($products_categories as $product_categories){
-                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product_categories->name)){
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product_categories->name)||
+                \app\helpers\StringHelper::containsAny(strtolower($product_categories->name),$entyties)){
                     $ids_series[] = $product_categories->productsFamily->series->id;
                     break;
                     
@@ -332,7 +343,8 @@ class InsightsHelper
 
         if(empty($ids_series)){
             foreach($products_family as $product_family){
-                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product_family->name)){
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product_family->name)||
+                \app\helpers\StringHelper::containsAny(strtolower($product_family->name),$entyties)){
                     $ids_series[] = $product_family->series->id;
                     break;
                     
@@ -343,15 +355,57 @@ class InsightsHelper
         if(empty($ids_series)){
             $products = \app\models\Products::find()->all();
             foreach($products as $product){
-                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name)){
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name) ||
+                    \app\helpers\StringHelper::containsAny(strtolower($product->name),$entyties)){
                     $ids_series[] = $product->category->productsFamily->series->id;
                     break;
                     
                 }
             }
         }
-
         return $ids_series;
+    }
+
+    public static function _searchIdSeriesInScraping($entyties,$message){
+        $flag_recursive = true;
+        // split message
+        $message_explode = explode(" ",$message);
+
+        if(!empty($message_explode)){
+            $urls = [];
+            for ($m=0; $m < sizeOf($message_explode) ; $m++) { 
+                if(\app\helpers\StringHelper::isUrl($message_explode[$m])){
+                    if(empty($urls)){
+                        $urls[$message_explode[$m]]['links'][] = $message_explode[$m];
+                    }
+                }
+            }
+
+            if(!empty($urls)){
+                $crawlers = \app\helpers\ScrapingHelper::getRequest($urls);
+                $content  = \app\helpers\ScrapingHelper::getContent($crawlers);
+                $data     = \app\helpers\ScrapingHelper::setContent($content);
+                
+                if(!empty($data)){
+                    foreach($data as $links => $link){
+                        foreach($link as $content){
+                            for ($c=0; $c < sizeOf($content ); $c++) { 
+                                if(strlen($content[$c]) > 1){
+                                    $entyties[] = strtolower($content[$c]);
+                                }
+                            }
+                        }
+                    }
+                    if(!empty($entyties) && $flag_recursive){
+                        $flag_recursive = false;
+                        return self::_searchIdSeriesInEntyties($entyties,$message);
+                        
+                    }
+                }
+                
+            }
+            
+        }
     }
 
     /**

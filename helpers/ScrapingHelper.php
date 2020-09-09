@@ -201,13 +201,10 @@ class ScrapingHelper{
 						    $status_code = $client->getResponse()->getStatus();
 
 						    if ($status_code == 200) {
-						        $domain = $values['domain'];
-						        if($domain){
-						            $content_type = $client->getResponse()->getHeader('Content-Type');
-						            if (strpos($content_type, 'text/html') !== false) {
-						                $crawler[$url][$link][] = $response;
-						            }
-						        }// if domain
+						        $content_type = $client->getResponse()->getHeader('Content-Type');
+								if (strpos($content_type, 'text/html') !== false) {
+									$crawler[$url][$link][] = $response;
+								}
 						    }// end if status code    
 						} catch (\GuzzleHttp\Exception\ConnectException $e) {
 						    // var_dump($e);

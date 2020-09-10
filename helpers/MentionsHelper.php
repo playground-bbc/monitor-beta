@@ -105,11 +105,15 @@ class MentionsHelper
             ->send();
             
         if ($response->isOk && $response->data['status'] == 'success') {
+            $hcKey = self::getRegionsOnHcKey();
+            $region = $response->data['regionName'];
+            $country = $response->data['country'];
             return [
                 'city' => $response->data['city'],
                 'mobile' => $response->data['mobile'],
-                'country' => $response->data['country'],
-                'region' => $response->data['regionName'],
+                'country' => $country,
+                'region' => $region,
+                'code' => ($country == 'Chile') ? $hcKey[$region] : null,
 
             ];
         }
@@ -127,31 +131,56 @@ class MentionsHelper
 
     public static function getRegionsOnHcKey(){
         return [
+            "Araucania" => 'cl-2730',
             "La Araucanía" => 'cl-2730',
-            
+            "Region de la Araucania" => 'cl-2730',
+
             "Bio-Bio" => 'cl-bi',
+            "Biobío" => 'cl-bi',
             "Region del Biobio" => 'cl-bi',
             
             "Los Lagos" => 'cl-ll',
+            "Los Lagos Region" => 'cl-ll',
 
             'Libertador General Bernardo O"Higgins' => 'cl-li',
             "Libertador General Bernardo O'Higgins" => 'cl-li',
             "O'Higgins Region" => 'cl-li',
             
+            "Aysén" => 'cl-ai',
+            "Aisen del General Carlos Ibanez del Campo" => 'cl-ai',
             "Aisén del General Carlos Ibáñez del Campo" => 'cl-ai',
+            
+            "Magallanes y de la Antartica Chilena" => 'cl-ma',
             "Magallanes y Antártica Chilena" => 'cl-ma',
+            "Magallanes" => 'cl-ma',
+            
             "Coquimbo" => 'cl-co',
+            "Coquimbo Region" => 'cl-co',
+            
             "Atacama" => 'cl-at',
+            
             "Valparaiso" => 'cl-vs',
+            "Valparaíso" => 'cl-vs',
             "Region de Valparaiso" => 'cl-vs',
             
             "Region Metropolitan" =>'cl-rm',
             "Region Metropolitana" =>'cl-rm',
+            "Región Metropolitana de Santiago" => 'cl-rm',
             "Santiago Metropolitan" =>'cl-rm',
+
+            "Ñuble" => 'cl-nb',
+            "Región de Ñuble" => 'cl-nb',
             
+            "Los Rios" => 'cl-ar',
             "Los Ríos" => 'cl-ar',
+            "Los Ríos Region" => 'cl-ar',
+            
             "Maule" => 'cl-ml',
+            "Maule Region" => 'cl-ml',
+
             "Arica y Parinacota" => 'cl-2740',
+            "Region de Arica y Parinacota" => 'cl-2740',
+            
             "Antofagasta" => 'cl-an',
 
             "Tarapaca"=>"cl-ta",

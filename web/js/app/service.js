@@ -182,3 +182,18 @@ function getRegionLiveChatDetail(alertid, resourceid, term, socialId) {
     `get-region-live-chat?alertId=${alertid}&resourceId=${resourceid}&term=${term}&socialId=${socialId}`
   );
 }
+
+/**
+ * View: Detail
+ * Vue Component: map-user
+ *  call api to city count on users
+ * @param {Number} id
+ * @param {Number} resourceId
+ * @param {Array} options
+ */
+function getCityLiveChatDetail(alertid, resourceid, options) {
+  var options_string = JSON.stringify(options);
+  return apiClientDetail.get(
+    `get-city-live-chat?alertId=${alertid}&resourceId=${resourceid}&options=${options_string}`
+  );
+}

@@ -370,6 +370,8 @@ const mapUserComponent = Vue.component("map-user-detail", {
     },
     drawMapsRegions() {
       let data = this.regions_count;
+      let alertid = this.alertid;
+      let resourceid = this.resourceid;
       Highcharts.getJSON(
         "https://gist.githubusercontent.com/spiderbbc/3cb18e8ec1832a6895f5e4eef4355dfe/raw/ece51b4fc0e1496d8b7839a5f66599f9a762f5d6/GeoChile.json",
         function (topology) {
@@ -396,6 +398,44 @@ const mapUserComponent = Vue.component("map-user-detail", {
             subtitle: {
               text:
                 'Source map: <a href="http://code.highcharts.com/mapdata/countries/cl/cl-all.js">Chile</a>',
+            },
+            plotOptions: {
+              series: {
+                events: {
+                  click: function (e) {
+                    let text;
+                    getCityLiveChatDetail(alertid, resourceid, e.point.options)
+                      .then((response) => {
+                        if (
+                          response.status == 200 &&
+                          response.statusText == "OK"
+                        ) {
+                          var text = "<b>Ciudad || Total</b>: <br>";
+                          response.data.forEach(
+                            (element) =>
+                              (text += `<b>${element.city}</b>: ${element.num_city}<br>`)
+                          );
+                          if (!this.chart.clickLabel) {
+                            this.chart.clickLabel = this.chart.renderer
+                              .label(text, 0, 10)
+                              .css({
+                                width: "180px",
+                              })
+                              .add();
+                          } else {
+                            this.chart.clickLabel.attr({
+                              text: text,
+                            });
+                          }
+                        }
+                      })
+                      .catch((error) => {
+                        console.error(error);
+                        // see error by dialog
+                      });
+                  },
+                },
+              },
             },
 
             mapNavigation: {

@@ -180,7 +180,12 @@ class DetailController extends Controller {
         return ['data' => $data];
     }
 
-
+     /**
+     * return Regions user on view detail
+     * @param integer $id
+     * @param integer $resourceId
+     * @param string $term
+     */
     public function actionGetRegionLiveChat($alertId,$resourceId,$term = '',$socialId = ''){
 
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
@@ -189,32 +194,31 @@ class DetailController extends Controller {
         
         $alert_mentions = \app\models\AlertsMencions::find()->where($where)->all();
 
-        // $where_alertMentions = [];
-        // if($socialId != ""){ $where_alertMentions['mention_socialId'] = $socialId;}
         $user_ids = [];
         if(!empty($alert_mentions)){
             for ($a=0; $a < sizeOf($alert_mentions) ; $a++) { 
                 if($alert_mentions[$a]->mentionsCount){
                     if ($socialId != "") {
                         $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->where(['social_id'=> $socialId])->asArray()->all();
-                        $user_ids = $origins;  
                     } else {
                         $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->asArray()->all();
-                        $user_ids = $origins; 
+                    }
+
+                    if(count($origins)){
+                        for ($o=0; $o < sizeOf($origins) ; $o++) { 
+                            $user_ids[] = $origins[$o];
+                        }
                     }
                 }
             }
         }
         $origin_ids = array_unique(\yii\helpers\ArrayHelper::getColumn($user_ids, 'origin_id'));
 
-        // var_dump($user_ids);
-        // var_dump($origin_ids);
-        // die();
         $status = '"client"';
         $expressionSelect = new Expression("JSON_UNQUOTE(`user_data`->'$.geo.region') AS region,COUNT(*) AS num_geo");
         $expressionWhere = new Expression("JSON_CONTAINS(user_data,'{$status}','$.type')");
         $query = (new \yii\db\Query())
-            //->cache(5)
+            ->cache(5)
             ->select($expressionSelect)
             ->from('users_mentions')
             ->where($expressionWhere)
@@ -241,6 +245,50 @@ class DetailController extends Controller {
             'query' => $query,
             'origin_ids' => $origin_ids,
         ];
+    }
+
+    /**
+     * return city user on view detail
+     * @param integer $id
+     * @param integer $resourceId
+     * @param array $options
+     */
+    public function actionGetCityLiveChat($alertId,$resourceId,$options){
+        $options = json_decode($options,true);
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        
+        $alert_mentions = \app\models\AlertsMencions::find()->where($where)->all();
+
+        $user_ids = [];
+        if(!empty($alert_mentions)){
+            for ($a=0; $a < sizeOf($alert_mentions) ; $a++) { 
+                if($alert_mentions[$a]->mentionsCount){
+                    $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->asArray()->all();
+                    if(count($origins)){
+                        for ($o=0; $o < sizeOf($origins) ; $o++) { 
+                            $user_ids[] = $origins[$o];
+                        }
+                    }
+                }
+            }
+        }
+        $origin_ids = array_unique(\yii\helpers\ArrayHelper::getColumn($user_ids, 'origin_id'));
+
+        $status = '"'.$options['hc-key'].'"';  
+        
+        $expressionSelect = new Expression("JSON_UNQUOTE(`user_data`->'$.geo.city') AS city,COUNT(*) AS num_city");
+        $expressionWhere = new Expression("JSON_CONTAINS(user_data,'{$status}','$.geo.code')");
+        
+        $query = (new \yii\db\Query())
+            ->cache(5)
+            ->select($expressionSelect)
+            ->from('users_mentions')
+            ->where($expressionWhere)
+            ->andWhere(['id' => $origin_ids])
+            ->groupBy('city')
+            ->all();
+
+        return $query;
     }
     /**
      * Finds the Alerts model based on its primary key value.

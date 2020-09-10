@@ -170,14 +170,21 @@ class LiveChatSearch {
     private function saveUserMentions($user){
         $user_data = [];
         if(ArrayHelper::keyExists('name', $user)){
+            
             $screen_name = $user['id'];
             $name = $user['name'];
             $user_data['ip'] = $user['ip'];
+            
+            $hcKey = \app\helpers\MentionsHelper::getRegionsOnHcKey();
+            $country = $user['country'];
+            $region = $user['region'];
+
             $user_data['geo'] = [
                 'city'    => $user['city'],
                 'mobile'  => (boolean) \app\helpers\MentionsHelper::isMobile($user['user_agent']),
-                'country' => $user['country'],
-                'region'  => $user['region'],
+                'country' => $country,
+                'region'  => $region,
+                'code'    => ($country == 'Chile') ? $hcKey[$region] : null,
             ];
             $user_data['type'] = 'client';
             

@@ -28,7 +28,7 @@ class StringHelper
 
     public static function structure_product_to_search($product)
     {
-        $black_list_words = ['con','por','Casa','oficina','Blue','Ice','Fit','Frontal'];
+        $black_list_words = ['descubre','del','de','con','por','Casa','oficina','Blue','Ice','Fit','Frontal'];
         // if acents
         $product = self::normalizeChars($product);
         // eliminamos / y -

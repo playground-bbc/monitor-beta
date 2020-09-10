@@ -235,7 +235,6 @@ class InsightsHelper
             ];
 
             $data = \app\helpers\InsightsHelper::getData($end_point,$params,$base_url);
-            
             if($data){
                 if($data['annotations']){
                     $strict_search = (count($data['annotations']) > 1) ? true : false;
@@ -267,12 +266,12 @@ class InsightsHelper
                         }
                     }
                     
+                    
                     $ids_series = self::_searchIdSeriesInEntyties($entyties,$model->message);
                     
                     if(empty($ids_series)){
                         $ids_series = self::_searchIdSeriesInScraping($entyties,$model->message);
                     }
-
                     if(!empty($ids_series)){
                         for ($i=0; $i < sizeOf($ids_series) ; $i++) { 
                             $is_model = \app\models\WProductsFamilyContent::find()->where(
@@ -300,6 +299,8 @@ class InsightsHelper
      * _searchIdSeriesInEntyties private helpers look up id series on entityies if not search, look in the message 
     */
     public static function _searchIdSeriesInEntyties($entyties,$message){
+        $message = \app\helpers\StringHelper::sanitizePrayerForSearch($message);
+        $message = \app\helpers\StringHelper::remove_emoji($message);
         $ids_series = [];
         // names allowed What does the LG family represent
         $names_allowed = ['HA','HE','MC','Monitores'];
@@ -329,7 +330,9 @@ class InsightsHelper
                 
             }
         }
-       
+        
+
+
         if(empty($ids_series)){
             foreach($products_categories as $product_categories){
                 if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product_categories->name)||
@@ -354,10 +357,15 @@ class InsightsHelper
 
         if(empty($ids_series)){
             $products = \app\models\Products::find()->all();
+
             foreach($products as $product){
-                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name) ||
-                    \app\helpers\StringHelper::containsAny(strtolower($product->name),$entyties)){
-                    $ids_series[] = $product->category->productsFamily->series->id;
+                $product_destruct = \app\helpers\StringHelper::structure_product_to_search_to_scraping($message,false);
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name)
+                    ||
+                    \app\helpers\StringHelper::containsAny(strtolower($product->name),$entyties)
+                    ||
+                    \app\helpers\StringHelper::containsAll($message,$product_destruct)){
+                        $ids_series[] = $product->category->productsFamily->series->id;
                     break;
                     
                 }
@@ -370,17 +378,19 @@ class InsightsHelper
         $flag_recursive = true;
         // split message
         $message_explode = explode(" ",$message);
+        
 
         if(!empty($message_explode)){
             $urls = [];
             for ($m=0; $m < sizeOf($message_explode) ; $m++) { 
-                if(\app\helpers\StringHelper::isUrl($message_explode[$m])){
+                $msg = \app\helpers\StringHelper::remove_emoji($message_explode[$m]);
+                $isUrl = \app\helpers\StringHelper::isUrl(trim($msg));
+                if($isUrl){
                     if(empty($urls)){
-                        $urls[$message_explode[$m]]['links'][] = $message_explode[$m];
+                        $urls[$msg]['links'][] = $msg;
                     }
-                }
-            }
-
+               }
+            } 
             if(!empty($urls)){
                 $crawlers = \app\helpers\ScrapingHelper::getRequest($urls);
                 $content  = \app\helpers\ScrapingHelper::getContent($crawlers);
@@ -390,7 +400,7 @@ class InsightsHelper
                     foreach($data as $links => $link){
                         foreach($link as $content){
                             for ($c=0; $c < sizeOf($content ); $c++) { 
-                                if(strlen($content[$c]) > 1){
+                                if(strlen($content[$c]) > 12){
                                     $entyties[] = strtolower($content[$c]);
                                 }
                             }

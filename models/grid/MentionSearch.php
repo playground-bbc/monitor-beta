@@ -245,9 +245,9 @@ class MentionSearch extends Mentions
             }
 
             if($this->status != ''){
-                $name = strtolower(trim($this->status));
-                $rows = array_filter($rows, function ($role) use ($name) {
-                    return (empty($name) || strpos((strtolower(is_object($role) ? $role->status : $role['status'])), $name) !== false);
+                $status = strtolower(trim($this->status));
+                $rows = array_filter($rows, function ($role) use ($status) {
+                    return (empty($status) || strpos((strtolower($role['status'])), $status) !== false);
                 });
             }
 

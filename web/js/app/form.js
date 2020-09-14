@@ -1,7 +1,5 @@
 //var element = $("#productsIds");
 const origin = location.origin;
-const root = location.pathname.split("/")[1];
-const appId = root != "web" ? `${root}/web` : "web";
 const baseUrl = `${origin}/${appId}/web/monitor/alert/`;
 
 let message_error_no_dates = "Debe de escojer fecha de Inicio y fecha Final";

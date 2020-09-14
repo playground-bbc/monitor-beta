@@ -29,7 +29,7 @@ class DetailAsset extends AssetBundle
     ];
 
     public $publishOptions = [
-        'forceCopy' => true,
+        'forceCopy' => YII_DEBUG,
          //you can also make it work only in debug mode: 'forceCopy' => YII_DEBUG
     ];
 }

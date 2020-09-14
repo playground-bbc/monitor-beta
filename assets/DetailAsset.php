@@ -17,7 +17,7 @@ class DetailAsset extends AssetBundle
     ];
     public $js = [
         // include js for general variables
-        'js/app/variables.js',
+       // 'js/app/variables.js',
         // include js for Api call
         'js/app/service.js',
         // include js for Detail view

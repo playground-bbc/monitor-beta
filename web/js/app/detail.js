@@ -1,4 +1,14 @@
 "use strict";
+let columnsName = [
+  "col-md-12",
+  "col-md-6",
+  "col-md-4",
+  "col-md-3",
+  "col-md-5",
+  "col-md-2",
+  "col-md-1",
+  "col-xs-4 col-sm-3 col-md-8r",
+];
 
 Vue.filter("formatNumber", function (value) {
   return value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");

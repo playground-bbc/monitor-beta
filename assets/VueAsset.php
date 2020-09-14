@@ -18,7 +18,7 @@ class VueAsset extends AssetBundle
      * @inheritdoc
      */
     public $js = [
-        YII_ENV_DEV ? 'vue.js' : 'vue.min.js',
+        YII_ENV ? 'vue.js' : 'vue.min.js',
     ];
 
 

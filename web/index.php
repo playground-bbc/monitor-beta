@@ -4,6 +4,10 @@
 defined('YII_DEBUG') or define('YII_DEBUG', true);
 defined('YII_ENV') or define('YII_ENV', 'dev');
 
+// $test = YII_ENV ? 'vue.js' : 'vue.min.js';
+// var_dump(test);
+echo YII_ENV;
+
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
 

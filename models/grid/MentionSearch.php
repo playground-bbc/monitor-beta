@@ -111,8 +111,11 @@ class MentionSearch extends Mentions
         if(isset($params['resourceId'])){
             $where['resourcesId'] = $params['resourceId'];
         }
-        
-    
+        // if resourceId if not firts level on params
+        if(isset($params['MentionSearch']['resourceId'])){
+            $where['resourcesId'] = $params['MentionSearch']['resourceId'];
+        }
+       
         $alertMentions = $db->cache(function ($db) use ($where) {
           return (new \yii\db\Query())
             ->select('id')
@@ -246,6 +249,7 @@ class MentionSearch extends Mentions
 
             if($this->status != ''){
                 $status = strtolower(trim($this->status));
+                
                 $rows = array_filter($rows, function ($role) use ($status) {
                     return (empty($status) || strpos((strtolower($role['status'])), $status) !== false);
                 });

@@ -1,5 +1,9 @@
-const baseUrlApi = `${origin}/monitor-beta/web/monitor/api/insights/`;
-const baseUrlImg = `${origin}/monitor-beta/web/img/`;
+const origin = location.origin;
+const root = location.pathname.split("/")[1];
+const appId = root != "web" ? `${root}/web` : "web";
+
+const baseUrlApi = `${origin}/${appId}/monitor/api/insights/`;
+const baseUrlImg = `${origin}/${appId}/img/`;
 
 const titleInsights = {
   //facebook

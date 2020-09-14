@@ -2,8 +2,8 @@
 let id = document.getElementById("alertId").value;
 
 const origin = location.origin;
-const appId =
-  location.pathname.split("/")[1] != "web" ? "monitor-beta/web" : "web";
+const root = location.pathname.split("/")[1];
+const appId = root != "web" ? `${root}/web` : "web";
 const baseUrlDocument = `${origin}/${appId}/monitor/pdf/`;
 const baseUrlView = `${origin}/${appId}/monitor/alert/`;
 const baseUrlApi = `${origin}/${appId}/monitor/api/mentions/`;

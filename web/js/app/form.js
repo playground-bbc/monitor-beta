@@ -7,7 +7,6 @@ const baseUrl = `${origin}/${appId}/web/monitor/alert/`;
 let message_error_no_dates = "Debe de escojer fecha de Inicio y fecha Final";
 let message_more_than_one_month =
   "Consultar las paginas web tiene que ser un rango menor de <b>1 mes</b>";
-console.log(origin + `/${appId}/web/monitor/alert/update-history-search`);
 
 $("#urls").on("select2:unselecting", function (e) {
   var urls = $(this).val();

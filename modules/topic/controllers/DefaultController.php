@@ -44,7 +44,7 @@ class DefaultController extends Controller
             [
                 'class' => 'yii\filters\PageCache',
                 'only' => ['index'],
-                'duration' => 60,
+                'duration' => 5,
                 'variations' => [
                     \Yii::$app->language,
                 ],

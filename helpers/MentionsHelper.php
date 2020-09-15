@@ -151,6 +151,7 @@ class MentionsHelper
             "Aisén del General Carlos Ibáñez del Campo" => 'cl-ai',
             
             "Magallanes y de la Antartica Chilena" => 'cl-ma',
+            "Region of Magallanes" => 'cl-ma',
             "Magallanes y Antártica Chilena" => 'cl-ma',
             "Magallanes" => 'cl-ma',
             

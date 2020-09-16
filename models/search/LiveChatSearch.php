@@ -120,7 +120,7 @@ class LiveChatSearch {
                 }// end for chats
             }
         }// end foreach data
-        var_dump($error);
+        //var_dump($error);
         return (empty($error)) ? true : false;
     }
 

@@ -99,13 +99,15 @@ class LiveChatSearch {
                                 if(!\app\helpers\StringHelper::isEmpty($chats[$c]['messages'][$m]['text'])){
                                     $author = ($chats[$c]['messages'][$m]['user_type'] == 'visitor') ? $visitor : $agent;
                                     $chats[$c]['messages'][$m]['chat_start_url'] = $chat_start_url;
-                                    $mention = $this->saveMentions($chats[$c]['messages'][$m],$alertsMencionsModel->id,$author);
-                                    if(empty($mention->errors)){
-                                        if(ArrayHelper::keyExists('wordsId', $chats[$c]['messages'][$m])){
-                                            $wordsId = $chats[$c]['messages'][$m]['wordsId'];
-                                            $this->saveKeywordsMentions($wordsId,$mention->id);
-                                        }
-                                    }else{$error['mention'] = $mention->errors; }// end if errors
+                                    if(isset($author->id)){
+                                        $mention = $this->saveMentions($chats[$c]['messages'][$m],$alertsMencionsModel->id,$author);
+                                        if(empty($mention->errors)){
+                                            if(ArrayHelper::keyExists('wordsId', $chats[$c]['messages'][$m])){
+                                                $wordsId = $chats[$c]['messages'][$m]['wordsId'];
+                                                $this->saveKeywordsMentions($wordsId,$mention->id);
+                                            }
+                                        }else{$error['mention'] = $mention->errors; }// end if errors
+                                    }
                                 } // end if isEmpty
                             }// end loop messages
                         }// end fi keyExists messages
@@ -118,7 +120,6 @@ class LiveChatSearch {
                 }// end for chats
             }
     	}// end foreach data
-    
         return (empty($error)) ? true : false;
     }
 

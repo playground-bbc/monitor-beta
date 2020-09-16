@@ -119,7 +119,8 @@ class LiveChatSearch {
                     }
                 }// end for chats
             }
-    	}// end foreach data
+        }// end foreach data
+        var_dump($error);
         return (empty($error)) ? true : false;
     }
 
@@ -179,13 +180,13 @@ class LiveChatSearch {
             $hcKey = \app\helpers\MentionsHelper::getRegionsOnHcKey();
             $country = $user['country'];
             $region = $user['region'];
-
+            
             $user_data['geo'] = [
                 'city'    => $user['city'],
                 'mobile'  => (boolean) \app\helpers\MentionsHelper::isMobile($user['user_agent']),
                 'country' => $country,
                 'region'  => $region,
-                'code'    => ($country == 'Chile') ? $hcKey[$region] : null,
+                'code'    => ($country == 'Chile' && strlen($region)) ? $hcKey[$region] : null,
             ];
             $user_data['type'] = 'client';
             

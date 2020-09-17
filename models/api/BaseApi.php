@@ -175,10 +175,6 @@ class BaseApi extends Model {
 		}
 	}
 
-	public function webpage($alerts = []){
-		echo "webpage". "\n";
-	}
-
 	public function countAllTerms($alerts = []){
 		$count = 0;
 		for($a = 0; $a < sizeOf($alerts); $a++){

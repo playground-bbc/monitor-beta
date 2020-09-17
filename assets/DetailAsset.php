@@ -24,12 +24,12 @@ class DetailAsset extends AssetBundle
         'js/app/detail.js',
     ];
     public $depends = [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
+        // 'yii\web\YiiAsset',
+        // 'yii\bootstrap\BootstrapAsset',
     ];
 
     public $publishOptions = [
-        'forceCopy' => true,
+        'forceCopy' => YII_DEBUG,
          //you can also make it work only in debug mode: 'forceCopy' => YII_DEBUG
     ];
 }

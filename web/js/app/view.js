@@ -1154,9 +1154,7 @@ const vm = new Vue({
     fetchIsData() {
       getCountMentions(this.alertId)
         .then((response) => {
-          console.log(response.status);
-          console.log(response.statusText);
-          if (response.status == 200 && response.statusText == "OK") {
+          if (response.status == 200) {
             this.count = response.data.data.count;
             this.resourcescount = response.data.data;
             this.getOrSetStorage();

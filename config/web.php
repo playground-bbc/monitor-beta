@@ -41,7 +41,7 @@ $config = [
     ],
     'components' => [
         'assetManager' => [
-            'linkAssets' => false,
+            'linkAssets' => true,
             'appendTimestamp' => true,
         ],
         'formatter' => [

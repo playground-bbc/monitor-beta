@@ -52,7 +52,7 @@ const detailComponent = Vue.component("detail", {
     fetchIsData() {
       getCountMentionsDetail(this.alertid, this.resourceid, this.term)
         .then((response) => {
-          if (response.status == 200 && response.statusText == "OK") {
+          if (response.status == 200) {
             this.count = response.data.countMentions;
             this.loading = false;
             //this.loading = this.count > 0 ? false : true;
@@ -116,7 +116,7 @@ const detailComponent = Vue.component("detail", {
         //$("#depend_select").empty().trigger("change");
         getDataSelectDetail(this.alertid, this.resourceid, this.term)
           .then((response) => {
-            if (response.status == 200 && response.statusText == "OK") {
+            if (response.status == 200) {
               if (response.data.data.length) {
                 response.data.data.forEach(function (element) {
                   var option = new Option(element.text, element.id, true, true);
@@ -189,7 +189,7 @@ const boxComponent = Vue.component("box-detail", {
     fetchBoxInfo() {
       getBoxInfoDetail(this.alertid, this.resourceid, this.term, this.socialId)
         .then((response) => {
-          if (response.status == 200 && response.statusText == "OK") {
+          if (response.status == 200) {
             this.box_properties = response.data.propertyBoxs;
             //console.log("call api box-info");
           }
@@ -297,7 +297,7 @@ const boxCommonWordsComponent = Vue.component("common-words-detail", {
         this.socialId
       )
         .then((response) => {
-          if (response.status == 200 && response.statusText == "OK") {
+          if (response.status == 200) {
             this.words = response.data.words;
           }
         })
@@ -366,7 +366,7 @@ const mapUserComponent = Vue.component("map-user-detail", {
         this.socialId
       )
         .then((response) => {
-          if (response.status == 200 && response.statusText == "OK") {
+          if (response.status == 200) {
             this.regions_count = response.data.regions_count;
             if (this.regions_count.length) {
               this.drawMapsRegions();

@@ -20,7 +20,6 @@ class ViewAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-       'css/site.css',
        'css/view.css',
        
     ];
@@ -35,8 +34,8 @@ class ViewAsset extends AssetBundle
         'js/app/view.js',
     ];
     public $depends = [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
+         'yii\web\YiiAsset',
+         'yii\bootstrap\BootstrapAsset',
     ];
 
     public $publishOptions = [

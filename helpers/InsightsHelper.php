@@ -367,7 +367,6 @@ class InsightsHelper
                 for ($e=0; $e <sizeOf($entyties) ; $e++) { 
                     if(\app\helpers\StringHelper::containsCountIncaseSensitive($entyties[$e],$product->name)){
                         $ids_series[] = $product->category->productsFamily->series->id;
-                        echo "breack";
                         break;
                         
                     }
@@ -376,9 +375,6 @@ class InsightsHelper
             
 
         }
-        // var_dump($entyties);
-        // var_dump($ids_series);
-        // die();
         return $ids_series;
     }
 

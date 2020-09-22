@@ -416,10 +416,7 @@ const mapUserComponent = Vue.component("map-user-detail", {
                     let text;
                     getCityLiveChatDetail(alertid, resourceid, e.point.options)
                       .then((response) => {
-                        if (
-                          response.status == 200 &&
-                          response.statusText == "OK"
-                        ) {
+                        if (response.status == 200) {
                           var text = "<b>Ciudad || Total</b>: <br>";
                           response.data.forEach(
                             (element) =>

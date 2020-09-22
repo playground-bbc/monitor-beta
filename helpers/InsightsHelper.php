@@ -235,14 +235,13 @@ class InsightsHelper
             ];
 
             $data = \app\helpers\InsightsHelper::getData($end_point,$params,$base_url);
+            
+            // order data from api
+            $entyties = [];
             if($data){
                 if($data['annotations']){
                     $strict_search = (count($data['annotations']) > 1) ? true : false;
                     $anotations = \yii\helpers\ArrayHelper::map($data['annotations'],'spot','label','id');
-                    
-                    // order data from api
-                    $entyties = [];
-                    
                     foreach($anotations as $values){
                         if(!empty($values)){
                             foreach($values as $index => $value){
@@ -265,29 +264,28 @@ class InsightsHelper
                             }
                         }
                     }
-                    
-                    
-                    $ids_series = self::_searchIdSeriesInEntyties($entyties,$model->message);
-                    
-                    if(empty($ids_series)){
-                        $ids_series = self::_searchIdSeriesInScraping($entyties,$model->message);
-                    }
-                    if(!empty($ids_series)){
-                        for ($i=0; $i < sizeOf($ids_series) ; $i++) { 
-                            $is_model = \app\models\WProductsFamilyContent::find()->where(
-                                [
-                                    'contentId' => $model->id,
-                                    'serieId' => $ids_series[$i],
-                                ]
-                                )->exists();
-                            if(!$is_model){
-                                $contentProduct = new \app\models\WProductsFamilyContent();
-                                $contentProduct->contentId = $model->id;
-                                $contentProduct->serieId = $ids_series[$i];
-                                if(!$contentProduct->save()){
-                                    var_dump($contentProduct->errors);
-                                }
-                            }
+                }
+            }
+            $ids_series = self::_searchIdSeriesInEntyties($entyties,$model->message);
+            
+            if(empty($ids_series)){
+                $ids_series = self::_searchIdSeriesInScraping($entyties,$model->message);
+                
+            }
+            if(!empty($ids_series)){
+                for ($i=0; $i < sizeOf($ids_series) ; $i++) { 
+                    $is_model = \app\models\WProductsFamilyContent::find()->where(
+                        [
+                            'contentId' => $model->id,
+                            'serieId' => $ids_series[$i],
+                        ]
+                        )->exists();
+                    if(!$is_model){
+                        $contentProduct = new \app\models\WProductsFamilyContent();
+                        $contentProduct->contentId = $model->id;
+                        $contentProduct->serieId = $ids_series[$i];
+                        if(!$contentProduct->save()){
+                            var_dump($contentProduct->errors);
                         }
                     }
                 }
@@ -299,6 +297,7 @@ class InsightsHelper
      * _searchIdSeriesInEntyties private helpers look up id series on entityies if not search, look in the message 
     */
     public static function _searchIdSeriesInEntyties($entyties,$message){
+
         $message = \app\helpers\StringHelper::sanitizePrayerForSearch($message);
         $message = \app\helpers\StringHelper::remove_emoji($message);
         $ids_series = [];
@@ -354,23 +353,32 @@ class InsightsHelper
                 }
             }
         }
-
         if(empty($ids_series)){
             $products = \app\models\Products::find()->all();
-
+            
             foreach($products as $product){
                 $product_destruct = \app\helpers\StringHelper::structure_product_to_search_to_scraping($message,false);
-                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name)
-                    ||
-                    \app\helpers\StringHelper::containsAny(strtolower($product->name),$entyties)
-                    ||
-                    \app\helpers\StringHelper::containsAll($message,$product_destruct)){
-                        $ids_series[] = $product->category->productsFamily->series->id;
+                if(\app\helpers\StringHelper::containsCountIncaseSensitive($message,$product->name)){
+                    $ids_series[] = $product->category->productsFamily->series->id;
                     break;
                     
                 }
+
+                for ($e=0; $e <sizeOf($entyties) ; $e++) { 
+                    if(\app\helpers\StringHelper::containsCountIncaseSensitive($entyties[$e],$product->name)){
+                        $ids_series[] = $product->category->productsFamily->series->id;
+                        echo "breack";
+                        break;
+                        
+                    }
+                }
             }
+            
+
         }
+        // var_dump($entyties);
+        // var_dump($ids_series);
+        // die();
         return $ids_series;
     }
 

@@ -635,10 +635,10 @@ class InsightsHelper
                     for($w=0; $w < sizeof($insights) ; $w++){
                         $index = array_search($insights[$w]['name'],$where[$resourceName]);
                         if($index !== false){
-                            $data[]= $insights[$w];
+                            $data[$index]= $insights[$w];
                         }
                     }
-                    $posts_content[$p]['wInsights'] = $data;
+                    $posts_content[$p]['wInsights'] = array_values($data);
                 }
             }            
         }

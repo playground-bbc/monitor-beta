@@ -353,7 +353,9 @@ class MentionsController extends Controller
           // get total
           $total  += (isset($value['total'])) ? $value['total']: 0;
         }
-        $dataCount[] = array($product,$shares,$likes,$total);
+        if($total > 2){
+          $dataCount[] = array($product,$shares,$likes,$total);
+        }
     }
 
     if(!count($dataCount)){

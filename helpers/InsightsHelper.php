@@ -635,7 +635,7 @@ class InsightsHelper
                     for($w=0; $w < sizeof($insights) ; $w++){
                         $index = array_search($insights[$w]['name'],$where[$resourceName]);
                         if($index !== false){
-                            $data[$index]= $insights[$w];
+                            $data[]= $insights[$w];
                         }
                     }
                     $posts_content[$p]['wInsights'] = $data;

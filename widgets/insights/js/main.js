@@ -1,10 +1,19 @@
 "use strict";
 
+/**
+ * [componente que muestra cuantos card widget se mostraran en pantalla]
+ * template: '#card-template [description]
+ * @return {[component]}           [component]
+ */
 const cardWidget = Vue.component("card-widget", {
   props: ["resources"],
   template: "#card-template",
 });
-
+/**
+ * [componente que muestra todo el  card widget]
+ * template: '#widget-template [description]
+ * @return {[component]}           [component]
+ */
 const widget = Vue.component("widget", {
   props: ["resourceId", "index", "length"],
   template: "#widget-template",
@@ -78,14 +87,17 @@ const widget = Vue.component("widget", {
     },
   },
 });
-
+/**
+ * [componente que muestra el post en el card widget]
+ * template: '#post-template [description]
+ * @return {[component]}           [component]
+ */
 const PostsInsights = Vue.component("posts", {
   props: ["resourceId", "idTab"],
   template: "#post-template",
   data: function () {
     return {
       contentPosts: [],
-      insightsPost: [],
       insightsHeader: [],
     };
   },
@@ -106,7 +118,6 @@ const PostsInsights = Vue.component("posts", {
       for (var i = 0; i < insights.length; i++) {
         this.insightsHeader.push(insights[i].name);
       }
-      // console.log(this.insightsHeader);
     },
   },
   filters: {
@@ -138,7 +149,11 @@ const PostsInsights = Vue.component("posts", {
     },
   },
 });
-
+/**
+ * [componente que muestra el storys en el card widget]
+ * template: '#post-template [description]
+ * @return {[component]}           [component]
+ */
 const InsightsStrorys = Vue.component("storys", {
   props: ["resourceId", "idTab"],
   template: "#insights-template",

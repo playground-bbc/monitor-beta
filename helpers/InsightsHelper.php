@@ -617,7 +617,7 @@ class InsightsHelper
     public static function getPostInsightsByResource($posts_content = [],$resourceId)
     {
         $where = [
-            'Facebook Comments' => ['post_impressions','post_engaged_users','post_reactions_by_type_total'],
+            'Facebook Comments' => ['post_reactions_by_type_total','post_engaged_users','post_impressions'],
             'Instagram Comments' => ['impressions','reach','engagement','likes','coments'],
         ];
 
@@ -635,7 +635,7 @@ class InsightsHelper
                     for($w=0; $w < sizeof($insights) ; $w++){
                         $index = array_search($insights[$w]['name'],$where[$resourceName]);
                         if($index !== false){
-                            $data[]= $insights[$w];
+                            $data[$index]= $insights[$w];
                         }
                     }
                     $posts_content[$p]['wInsights'] = $data;

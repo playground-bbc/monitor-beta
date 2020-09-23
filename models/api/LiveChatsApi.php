@@ -285,6 +285,7 @@ class LiveChatsApi extends Model {
 							for($m = 0 ; $m < sizeof($chat->messages); $m++){
 								if(property_exists($chat->messages[$m],'text')){
 									$chat->messages[$m]->text = \app\helpers\StringHelper::collapseWhitespace($chat->messages[$m]->text);
+									$chat->messages[$m]->text = \app\helpers\StringHelper::stripTags($chat->messages[$m]->text);
 									$chat->messages[$m]->message_markup = $chat->messages[$m]->text;
 								}// end if property_exists
 							}

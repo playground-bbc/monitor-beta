@@ -291,6 +291,7 @@ class LiveTicketApi extends Model {
 								if(property_exists($ticket->events[$e],'message')){
 									if(\app\helpers\DateHelper::isBetweenDate($ticket->events[$e]->date,$this->start_date,$this->end_date)){
 										$ticket->events[$e]->message = \app\helpers\StringHelper::collapseWhitespace($ticket->events[$e]->message);
+										$ticket->events[$e]->message = \app\helpers\StringHelper::stripTags($ticket->events[$e]->message);
 										$ticket->events[$e]->message_markup = $ticket->events[$e]->message;
 									}else{
 										unset($ticket->events[$e]->message);

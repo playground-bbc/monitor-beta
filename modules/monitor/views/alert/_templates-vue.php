@@ -211,7 +211,7 @@ use yii\widgets\ActiveForm;
                   'triggerDownload' => false,
                   'pjaxContainerId' => 'mentions',
                   'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
-                  'batchSize' => 20, 
+                  'batchSize' => 10, 
                   'target' => kartik\grid\GridView::TARGET_POPUP, 
                   'exportConfig' => [
                       ExportMenu::FORMAT_HTML => false,

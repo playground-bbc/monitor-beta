@@ -624,21 +624,24 @@ class InsightsHelper
         for ($p=0; $p < sizeof($posts_content) ; $p++) { 
             if (isset($posts_content[$p]['resource']['name'])) {
                 $resourceName = $posts_content[$p]['resource']['name'];
-
                 $insights = \app\models\WInsights::find()->where([
                     'content_id' => $posts_content[$p]['id'],
                 ])->andWhere([
                     'name' => $where[$resourceName],
-                ])->orderBy(['end_time' => SORT_DESC ])->asArray()->limit(sizeof($where[$resourceName]))->all();
+                ])->orderBy([
+                    'end_time' => SORT_DESC,
+                    new \yii\db\Expression('FIELD(name,"post_reactions_by_type_total","post_engaged_users","post_impressions")') 
+                    
+                    ])->asArray()->limit(sizeof($where[$resourceName]))->all();
                 if (!is_null($insights)) {
                     $data = [];
                     for($w=0; $w < sizeof($insights) ; $w++){
                         $index = array_search($insights[$w]['name'],$where[$resourceName]);
                         if($index !== false){
-                            $data[$index]= $insights[$w];
+                            $data[]= $insights[$w];
                         }
                     }
-                    $posts_content[$p]['wInsights'] = array_values($data);
+                    $posts_content[$p]['wInsights'] = $data;
                 }
             }            
         }

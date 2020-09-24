@@ -27,7 +27,23 @@ class HelloController extends Controller
      */
     public function actionIndex($message = 'hello world')
     {   
-        echo $message . "\n";
+        // use the factory to create a Faker\Generator instance
+        $faker = \Faker\Factory::create();
+        
+        for ($i=0; $i < 1000 ; $i++) { 
+            $model = new \app\models\Mentions();
+            $model->alert_mentionId = 733;
+            $model->origin_id = 5007;
+            $model->created_time = $faker->unixTime($max = 'now');
+            $model->mention_data = ['retweet_count' => 0,'favorite_count' => 0];
+            $model->subject = $faker->sentence($nbWords = 6, $variableNbWords = true);
+            $model->message = $faker->sentence($nbWords = 6, $variableNbWords = true);
+            $model->message_markup = $faker->sentence($nbWords = 6, $variableNbWords = true);
+            $model->url = $faker->url;
+
+            $model->save();
+        }
+       
 
         return ExitCode::OK;
     }

@@ -16,7 +16,7 @@ const apiClientView = axios.create({
     Accept: "application/json",
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 20000,
 });
 
 const apiClientDetail = axios.create({
@@ -26,7 +26,7 @@ const apiClientDetail = axios.create({
     Accept: "application/json",
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 20000,
 });
 
 /**
@@ -36,6 +36,14 @@ const apiClientDetail = axios.create({
  */
 function getCountMentions(id) {
   return apiClientView.get("/count-mentions?alertId=" + id);
+}
+/**
+ * Vue Component: vm
+ *  call api to return property box resources
+ * @param {Number} id
+ */
+function getPropertySourceBox(id) {
+  return apiClientView.get("/properties-source-box?alertId=" + id);
 }
 
 /**

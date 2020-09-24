@@ -327,7 +327,7 @@ class AlertController extends Controller
         $model = $this->findModel($id);
         $searchModel = new \app\models\grid\MentionSearch();
         $dataProvider = $searchModel->search(\Yii::$app->request->queryParams,$id);
-
+        ini_set('max_execution_time', 600);
         return $this->render('view', [
             'model'        => $model,
             'searchModel'  => $searchModel,

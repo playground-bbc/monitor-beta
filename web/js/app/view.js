@@ -1156,7 +1156,7 @@ const vm = new Vue({
         .then((response) => {
           if (response.status == 200) {
             this.count = response.data.data.count;
-            this.resourcescount = response.data.data;
+            //this.resourcescount = response.data.data;
             this.getOrSetStorage();
           }
         })
@@ -1165,6 +1165,14 @@ const vm = new Vue({
     getOrSetStorage() {
       if (this.count > 0) {
         this.isData = true;
+        getPropertySourceBox(this.alertId)
+          .then((response) => {
+            if (response.status == 200) {
+              this.resourcescount = response.data.data;
+            }
+          })
+          .catch((error) => console.log(error));
+
         if (localStorage.getItem("alert_count_" + id)) {
           var count_storage = localStorage.getItem("alert_count_" + id);
           if (count_storage != this.count) {

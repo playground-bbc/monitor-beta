@@ -226,7 +226,8 @@ class AlertMentionsHelper
     {
         $data = [];
         $models = \app\models\AlertsMencions::find()->where(['id' => $alerts_mention_ids,'alertId' => $alertId])->all();
-
+        ini_set('memory_limit', '4G');
+        
         switch ($resourceName) {
             case 'Facebook Comments':
                 // contadores

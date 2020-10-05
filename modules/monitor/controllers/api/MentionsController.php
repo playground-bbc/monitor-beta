@@ -220,6 +220,7 @@ class MentionsController extends Controller
           }
       }
     }
+    
     return [
       'data' => $data
     ];

@@ -124,13 +124,28 @@ class InsightsController extends Controller
                 'type_content_id' => $storyContentId->id,
                 'resource_id' => $resourceId // get by source
             ]
-        )->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
+		)->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
+		
+		$nameInsights =  ['impressions','reach','replies'];
+        
 
         for ($p=0; $p < sizeof($storys_content) ; $p++) { 
 
-        	$insights = \app\models\WInsights::find()->where(['content_id' => $storys_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy(['id','name'])->limit(3)->all();
+        	$insights = \app\models\WInsights::find()->where(['content_id' => $storys_content[$p]['id']])->orderBy(
+				[
+					'end_time' => SORT_DESC,
+					//new \yii\db\Expression('FIELD(name,"impressions","reach","replies")')
+				]
+				)->asArray()->groupBy(['id','name'])->limit(4)->all();
         	if (!is_null($insights)) {
-        		$storys_content[$p]['wInsights'] = $insights;
+				$data = [];
+				for($w=0; $w < sizeof($insights) ; $w++){
+					$index = array_search($insights[$w]['name'],$nameInsights);
+					if($index !== false){
+						$data[]= $insights[$w];
+					}
+				}
+        		$storys_content[$p]['wInsights'] = $data;
         	}
         }
 

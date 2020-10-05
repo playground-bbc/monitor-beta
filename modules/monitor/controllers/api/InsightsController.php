@@ -134,7 +134,6 @@ class InsightsController extends Controller
         	$insights = \app\models\WInsights::find()->where(['content_id' => $storys_content[$p]['id']])->orderBy(
 				[
 					'end_time' => SORT_DESC,
-					//new \yii\db\Expression('FIELD(name,"impressions","reach","replies")')
 				]
 				)->asArray()->groupBy(['id','name'])->limit(4)->all();
         	if (!is_null($insights)) {
@@ -142,7 +141,7 @@ class InsightsController extends Controller
 				for($w=0; $w < sizeof($insights) ; $w++){
 					$index = array_search($insights[$w]['name'],$nameInsights);
 					if($index !== false){
-						$data[]= $insights[$w];
+						$data[$index]= $insights[$w];
 					}
 				}
         		$storys_content[$p]['wInsights'] = $data;

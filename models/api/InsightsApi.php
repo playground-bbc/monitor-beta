@@ -390,7 +390,7 @@ class InsightsApi extends Model
 	        	$posts = [];
 
 				foreach ($facebookPostsIdsDB as $facebookPost) {
-					$end_point = "{$this->_business_id}_{$facebookPost->content_id}?fields=id,permalink_url,updated_time,message,picture,attachments{media,media_type,subattachments,title},insights.metric(post_impressions,post_engaged_users,post_reactions_by_type_total,page_actions_post_reactions_total)";
+					$end_point = "{$this->_business_id}_{$facebookPost->content_id}?fields=id,permalink_url,created_time,updated_time,message,picture,attachments{media,media_type,subattachments,title},insights.metric(post_impressions,post_engaged_users,post_reactions_by_type_total,page_actions_post_reactions_total)";
 
 					$data = \app\helpers\InsightsHelper::getData($end_point,$params);
 					if ($data) {
@@ -406,7 +406,7 @@ class InsightsApi extends Model
 						'message'   => (isset($posts[$p]['message'])) ? $posts[$p]['message'] : '',
 						'permalink' => $posts[$p]['permalink_url'],
 						'image_url' => (isset($posts[$p]['picture'])) ? $posts[$p]['picture'] : '',
-						'timespan'  => \app\helpers\DateHelper::asTimestamp($posts[$p]['updated_time']),
+						'timespan'  => \app\helpers\DateHelper::asTimestamp($posts[$p]['created_time']),
 					];
 					$content = \app\helpers\InsightsHelper::saveContent($where,$properties);
 					if (isset($content->id)) {

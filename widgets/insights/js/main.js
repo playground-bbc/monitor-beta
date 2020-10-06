@@ -185,10 +185,11 @@ const InsightsStrorys = Vue.component("storys", {
         });
     },
     setHeaders() {
-      var insights = this.contentStorys[0].wInsights;
-      for (var i = 0; i < insights.length; i++) {
-        this.storysHeader.push(insights[i].title);
-      }
+      // var insights = this.contentStorys[0].wInsights;
+      // for (var i = 0; i < insights.length; i++) {
+      //   this.storysHeader.push(insights[i].title);
+      // }
+      this.storysHeader = ["Impresiones", "Alcance", "Respuestas"];
     },
   },
   filters: {

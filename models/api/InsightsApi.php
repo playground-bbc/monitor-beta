@@ -293,7 +293,6 @@ class InsightsApi extends Model
 
 		if (!is_null($typeContent) && !is_null($resource)) {
 			$end_point = "{$this->_business_id_instagram}/stories?fields=caption,id,comments_count,media_type,media_url,permalink,timestamp,insights.metric(impressions,reach,replies)";
-
 		
 			$params = [
 	            'access_token' => $this->_access_token,

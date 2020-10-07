@@ -47,7 +47,7 @@ use yii\helpers\Html;
 								<a :href="'#' +idTab+'a'" data-toggle="tab">Posts Insights</a>
 							</li>
 							<li>
-								<a :href="'#' +idTab+'b'" data-toggle="tab">Storys Insights</a>
+								<a :href="'#' +idTab+'b'" data-toggle="tab">Stories Insights</a>
 							</li>
 						</ul>
 						<div class="tab-content clearfix">

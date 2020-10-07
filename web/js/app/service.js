@@ -199,9 +199,9 @@ function getRegionLiveChatDetail(alertid, resourceid, term, socialId) {
  * @param {Number} resourceId
  * @param {Array} options
  */
-function getCityLiveChatDetail(alertid, resourceid, options) {
+function getCityLiveChatDetail(alertid, resourceid, options, socialId) {
   var options_string = JSON.stringify(options);
   return apiClientDetail.get(
-    `get-city-live-chat?alertId=${alertid}&resourceId=${resourceid}&options=${options_string}`
+    `get-city-live-chat?alertId=${alertid}&resourceId=${resourceid}&options=${options_string}&socialId=${socialId}`
   );
 }

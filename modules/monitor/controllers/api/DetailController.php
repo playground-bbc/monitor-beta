@@ -212,8 +212,10 @@ class DetailController extends Controller {
                 }
             }
         }
+        
+        
         $origin_ids = array_unique(\yii\helpers\ArrayHelper::getColumn($user_ids, 'origin_id'));
-
+        
         $status = '"client"';
         $expressionSelect = new Expression("JSON_UNQUOTE(`user_data`->'$.geo.region') AS region,COUNT(*) AS num_geo");
         $expressionWhere = new Expression("JSON_CONTAINS(user_data,'{$status}','$.type')");
@@ -253,7 +255,7 @@ class DetailController extends Controller {
      * @param integer $resourceId
      * @param array $options
      */
-    public function actionGetCityLiveChat($alertId,$resourceId,$options){
+    public function actionGetCityLiveChat($alertId,$resourceId,$options,$socialId = ''){
         $options = json_decode($options,true);
         $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
         
@@ -263,7 +265,12 @@ class DetailController extends Controller {
         if(!empty($alert_mentions)){
             for ($a=0; $a < sizeOf($alert_mentions) ; $a++) { 
                 if($alert_mentions[$a]->mentionsCount){
-                    $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->asArray()->all();
+                    if ($socialId != '') {
+                        $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->where(['social_id' => $socialId])->asArray()->all();
+                    } else {
+                        $origins = $alert_mentions[$a]->getMentions()->select('origin_id')->asArray()->all();
+                    }
+                    
                     if(count($origins)){
                         for ($o=0; $o < sizeOf($origins) ; $o++) { 
                             $user_ids[] = $origins[$o];

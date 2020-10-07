@@ -382,6 +382,8 @@ const mapUserComponent = Vue.component("map-user-detail", {
       let data = this.regions_count;
       let alertid = this.alertid;
       let resourceid = this.resourceid;
+      let social_id = this.socialId;
+
       Highcharts.getJSON(
         "https://gist.githubusercontent.com/spiderbbc/3cb18e8ec1832a6895f5e4eef4355dfe/raw/ece51b4fc0e1496d8b7839a5f66599f9a762f5d6/GeoChile.json",
         function (topology) {
@@ -414,7 +416,12 @@ const mapUserComponent = Vue.component("map-user-detail", {
                 events: {
                   click: function (e) {
                     let text;
-                    getCityLiveChatDetail(alertid, resourceid, e.point.options)
+                    getCityLiveChatDetail(
+                      alertid,
+                      resourceid,
+                      e.point.options,
+                      social_id
+                    )
                       .then((response) => {
                         if (response.status == 200) {
                           var text = "<b>Ciudad || Total</b>: <br>";

@@ -320,7 +320,8 @@ class StringHelper
      */
     public static function stripTags($sentence){
         $s = new Stringizer($sentence);
-        return $s->stripTags();
+        $s->stripTags();
+        return $s->getString();
     }
 
     /**

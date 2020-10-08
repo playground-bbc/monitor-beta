@@ -4,6 +4,7 @@ $s = DIRECTORY_SEPARATOR;
 $path = explode($s, dirname(__DIR__));
 $folder = end($path);
 
+Yii::setAlias('@stopwords',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}stop-words{$s}data{$s}");
 Yii::setAlias('@data',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}data");
 Yii::setAlias('@img',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}web{$s}img");
 Yii::setAlias('@pdf',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}web{$s}pdf");

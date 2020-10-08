@@ -295,14 +295,16 @@ class ScrapingHelper{
 			$freqDist = new \TextAnalysis\Analysis\FreqDist($tokens);
 			//Get all words
 			$allwords = $freqDist->getKeyValuesByFrequency();
-			//Get the top 10 most used words in Tom Sawyer 
+			//Get the top 50 most used wordsr 
 			$words = array_splice($allwords, 0, 50);
 			// get all stop words spanish
-			$stop_factory = StopWordFactory::get('stop-words_spanish_es.txt');
+			$path = \Yii::getAlias('@stopwords').'/stop-words_spanish_es.txt';
+			$stop_factory = array_map('trim', file($path));
 			$stopWord_es = new StopWordsFilter($stop_factory);
 			// get alll words english
-			$stop_factory_en = StopWordFactory::get('stop-words_english.txt');
-			$stopWord_en = new StopWordsFilter($stop_factory_en);
+			$path = \Yii::getAlias('@stopwords').'/stop-words_english.txt';
+			$stop_factory = array_map('trim', file($path));
+			$stopWord_en = new StopWordsFilter($stop_factory);
 			
 			// limit from ten words
 			$limit = 10;
@@ -319,7 +321,9 @@ class ScrapingHelper{
 					}
 				}
 			}
-			$analysis = \app\helpers\StringHelper::sortDataAnalysis($data,$link);
+			if(count($data) && !is_null($link)){
+				$analysis = \app\helpers\StringHelper::sortDataAnalysis($data,$link);
+			}
 		}
 		return (is_null($link)) ? $data : $analysis;
 		

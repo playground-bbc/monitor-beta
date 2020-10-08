@@ -5,7 +5,7 @@ let refreshTime = 15000;
 let refreshSweetAlert = 30000;
 let refreshTimeTable = 40000;
 let data_chart = new Object();
-
+// columns for boxes;
 let columnsName = [
   "col-md-12",
   "col-md-6",
@@ -246,7 +246,7 @@ const count_mentions = Vue.component("total-mentions", {
   methods: {
     calcColumns() {
       var size = Object.keys(this.resourcescount).length;
-      return columnsName[size - 2];
+      return columnsName[size - 1];
     },
     getClass(resource) {
       var className = false;
@@ -1156,7 +1156,6 @@ const vm = new Vue({
         .then((response) => {
           if (response.status == 200) {
             this.count = response.data.data.count;
-            //this.resourcescount = response.data.data;
             this.getOrSetStorage();
           }
         })

@@ -5,6 +5,8 @@ use yii\widgets\Pjax;
 use kartik\select2\Select2;
 use kartik\export\ExportMenu;
 use yii\widgets\ActiveForm;
+
+
 ?>
 <!-- template que muestra el boton para solicitar el pdf -->
 <script type="text/x-template" id="view-button-report">
@@ -169,61 +171,18 @@ use yii\widgets\ActiveForm;
               ],
               'toolbar' => [
                 '{export}',
-                \kartik\export\ExportMenu::widget([
-                  'clearBuffers' => true,
-                  'showConfirmAlert' => false,
-                  'dataProvider' => $dataProvider,
-                  'columns' => [
-                    [
-                      'attribute'=>'recurso',
-                      'label'=>'Recurso Social',
-                    ],
-                    [
-                      'attribute'=>'term_searched',
-                      'label'=>'Término buscado',
-                    ],
-                    [
-                        'attribute'=>'create_time',
-                        'label'=>'Date created',
-                        'value'=>function ($model) { 
-                            return \Yii::$app->formatter->asDate($model['created_time'], 'yyyy-MM-dd');
-                        },
-                        'format'=>'raw'
-                    ],
-                    [
-                      'attribute'=>'name',
-                      'label'=>'Nombre',
-                    ],
-                    [
-                      'attribute'=>'screen_name',
-                      'label'=>'Username',
-                    ],
-                    [
-                      'attribute'=>'subject',
-                      'label'=>'Titulo',
-                    ],
-                    [
-                      'attribute'=>'message_markup',
-                      'label'=>'Mencion',
-                    ],
-                    'url',
-                  ],
-                  'triggerDownload' => false,
-                  'pjaxContainerId' => 'mentions',
-                  'krajeeDialogSettings' => ['overrideYiiConfirm' => false],
-                  'batchSize' => 10, 
-                  'target' => kartik\grid\GridView::TARGET_POPUP, 
-                  'exportConfig' => [
-                      ExportMenu::FORMAT_HTML => false,
-                      ExportMenu::FORMAT_PDF => false,
-                      ExportMenu::FORMAT_CSV => false,
-                      ExportMenu::FORMAT_EXCEL => false,
-                  ],
-                  'dropdownOptions' => [
-                      'label' => 'Exportar todas las Menciones',
-                      'class' => 'btn btn-outline-secondary'
-                  ]
-              ])
+                [
+                  'content'=>
+                    Html::a('<i class="glyphicon glyphicon-export"></i> Exportar todas las Menciones',
+                      ['//monitor/pdf/export-mentions-excel','alertId' => $model->id],
+                      [
+                        'title'=>'Exportar todas las Menciones', 
+                        'target'=>'_blank',
+                        'data-pjax' => 0,
+                        'class'=>'btn btn-outline-secondary btn-default',
+                      ]
+                    ),
+                ]
               ],
               'columns' => [
                 [

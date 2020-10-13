@@ -77,7 +77,6 @@ class MentionSearch extends Mentions
                 'pageSize' => $this->pageSize,
             ],
             'totalCount' => count($model)
-            //'totalCount' => count($model)
         ]);
 
 

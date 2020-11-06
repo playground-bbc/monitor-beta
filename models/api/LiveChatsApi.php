@@ -60,9 +60,10 @@ class LiveChatsApi extends Model {
 		$key = "Live Chat Conversations";
 		//$cache->delete("{$key}_{$this->alertId}");
 		$data = $cache->get("{$key}_{$this->alertId}");
-        $time_expired = (($this->end_date - $this->start_date)) ? $this->end_date - $this->start_date : 86400;
-
-        if ($data === false) {
+		$time_expired = (($this->end_date - $this->start_date)) ? $this->end_date - $this->start_date : 86400;
+		
+	   
+		if ($data === false) {
             // $data is not found in cache, calculate it from scratch
             foreach($this->products as $index => $product){
                 $data[$product] = $this->start_date;
@@ -180,6 +181,10 @@ class LiveChatsApi extends Model {
 						$this->filename = $productMention['date_searched'];
 					}
 				}
+				// delete products from cache
+				unset($data[$productName]);
+				$cache->set("{$key}_{$this->alertId}", $data, $time_expired);
+
 			}
 
 		} // end for products
@@ -359,7 +364,7 @@ class LiveChatsApi extends Model {
     		'alertId'       => $this->alertId,
 	        'resourcesId'   => $this->resourcesId,
 	        'type'          => 'chat',
-	       // 'condition'		=> 'ACTIVE'
+	        'condition'		=> 'ACTIVE'
     	])->all();
 
 		$model = [
@@ -394,7 +399,7 @@ class LiveChatsApi extends Model {
 			$cache = \Yii::$app->cache;
 			$key = "Live Chat Conversations";
 			$data = $cache->get("{$key}_{$this->alertId}");
-
+			
 			if($data){
 				$min_date_search = min(array_values($data));
 				if($min_date_search >= $this->end_date ){

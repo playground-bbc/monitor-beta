@@ -64,8 +64,8 @@ class LiveTicketApi extends Model {
 		//$cache->delete("{$key}_{$this->alertId}");
 		$data = $cache->get("{$key}_{$this->alertId}");
         $time_expired = (($this->end_date - $this->start_date)) ? $this->end_date - $this->start_date : 86400;
-
-        if ($data === false) {
+  
+		if ($data === false) {
             // $data is not found in cache, calculate it from scratch
             foreach($this->products as $index => $product){
                 $data[$product] = $this->start_date;
@@ -185,6 +185,9 @@ class LiveTicketApi extends Model {
 					}
 
 				}
+				// delete products from cache
+				unset($data[$productName]);
+				$cache->set("{$key}_{$this->alertId}", $data, $time_expired);
 			}
 		
 
@@ -344,7 +347,7 @@ class LiveTicketApi extends Model {
     		'alertId'       => $this->alertId,
 	        'resourcesId'   => $this->resourcesId,
 	        'type'          => 'ticket',
-	        //'condition'		=> 'ACTIVE'
+	        'condition'		=> 'ACTIVE'
     	])->all(); 
 
 

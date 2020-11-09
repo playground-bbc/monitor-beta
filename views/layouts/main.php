@@ -48,7 +48,8 @@ AppAsset::register($this);
     }else{
         $menuItems = [
             ['label' => 'Logs', 'url' => ['/user/logs'],'visible' => $condition], 
-            ['label' => 'Menciones', 'url' => ['/topic/']],
+            //['label' => 'Menciones', 'url' => ['/topic/']],
+            ['label' => 'Reporte Mensual', 'url' => ['/report/']],
             [
                 'label' => 'Monitor',
                 'items' => [

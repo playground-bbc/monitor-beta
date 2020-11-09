@@ -32,6 +32,9 @@ $config = [
         'wordlists' => [
             'class' => 'app\modules\wordlists\Module',
         ],
+        'report' => [
+            'class' => 'app\modules\report\Module',
+        ],
         // kartik
         'gridview' => [
             'class' => '\kartik\grid\Module',

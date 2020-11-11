@@ -63,7 +63,10 @@
     "kartik-v/yii2-mpdf": "*",
     "kartik-v/yii2-widget-colorinput": "dev-master",
     "vlucas/phpdotenv": "^5.1",
-    "box/spout": "^3.1"
+    "box/spout": "^3.1",
+    "wbraganca/yii2-dynamicform": "^2.0",
+    "kartik-v/yii2-widget-typeahead": "dev-master",
+    "vova07/yii2-console-runner-extension": "*"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "~2.1.0",

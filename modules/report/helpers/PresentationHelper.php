@@ -6,10 +6,10 @@ use yii\db\Expression;
 use yii\helpers\Console;
 
 use app\modules\presentation\models\Presentation;
-use app\modules\presentation\models\Section;
-use app\modules\presentation\models\Page;
-use app\modules\presentation\models\PageElement;
-use app\modules\presentation\models\SectionType;
+use app\modules\report\models\Section;
+use app\modules\report\models\Page;
+use app\modules\report\models\PageElement;
+use app\modules\report\models\SectionType;
 
 require_once Yii::getAlias('@vendor') . '/autoload.php'; // call google client
 

@@ -16,16 +16,18 @@ require_once Yii::getAlias('@vendor') . '/autoload.php'; // call google client
 
 class SlideHelper{
 
-    public static function getClient(){
+    public static function getClient($userId = null){
         $client = new \Google_Client();
         $client->setApplicationName('report-lg-montana-studio');
-        $client->setScopes(Presentation::SCOPES);
-        $pathCredentials = \Yii::getAlias('@app/credentials/credentials.json');
+        $scopes = \app\modules\report\helpers\PresentationHelper::getScope();
+        $client->setScopes($scopes);
+        $pathCredentials = \Yii::getAlias('@app/modules/report/credentials/credentials.json');
         $client->setAuthConfig($pathCredentials);
         $client->setAccessType('offline');
         $client->setPrompt('select_account consent');
 
-        $tokenPath = \Yii::getAlias('@app/credentials/token.json');
+        $userId = (is_null($userId)) ? \Yii::$app->user->id : $userId;
+        $tokenPath = \Yii::getAlias("@app/modules/report/credentials/{$userId}.json");
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);
             $client->setAccessToken($accessToken);

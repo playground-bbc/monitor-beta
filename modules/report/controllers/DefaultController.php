@@ -9,9 +9,9 @@ use yii\helpers\ArrayHelper;
 use app\modules\report\helpers\PresentationHelper;
 
 use app\modules\report\models\Model;
-    use app\modules\report\models\Presentation;
-    use app\modules\report\models\Section;
-    use app\modules\report\models\SectionType;
+use app\modules\report\models\Presentation;
+use app\modules\report\models\Section;
+use app\modules\report\models\SectionType;
 use app\modules\report\models\Page;
 use app\modules\report\models\PageElement;
 use app\modules\report\models\DinamicForm;
@@ -126,8 +126,10 @@ class DefaultController extends Controller
     public function actionView($id)
     {
         $model = $this->findModel($id);
+        //\Yii::$app->consoleRunner->run("presentation/index {$model->id}");
         $pathConsole = Yii::getAlias('@app')."/yii";
         $cr = new ConsoleRunner(['file' => $pathConsole]);
+        $cr->phpBinaryPath = (YII_ENV_DEV) ? PHP_BINDIR . '/php7.4' : '/opt/bitnami/php/bin/php';
         $cr->run("presentation/index {$model->id}");
 
         return $this->render('view', [

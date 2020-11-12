@@ -40,7 +40,8 @@ class PresentationSearch extends Presentation
      */
     public function search($params)
     {
-        $query = Presentation::find();
+        $userId = \Yii::$app->user->getId();
+        $query = Presentation::find()->where(['userId' => $userId]);
 
         // add conditions that should always apply here
 

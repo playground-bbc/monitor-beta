@@ -4,6 +4,8 @@ namespace app\modules\report\models;
 
 use Yii;
 use app\models\Users;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "presentation".
@@ -36,6 +38,21 @@ class Presentation extends \yii\db\ActiveRecord
         return 'presentation';
     }
 
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['createdAt','updatedAt'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updatedAt'],
+                ],
+                'value' => function() { return date('U');  },
+            ],
+            
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -43,7 +60,8 @@ class Presentation extends \yii\db\ActiveRecord
     {
         return [
             [['userId', 'name', 'head_title', 'title'], 'required'],
-            //[['date'], 'date','format' => 'php:U'],
+            [['date'], 'required'],
+            //[['date'], 'filter', 'filter' => [$this, 'normalizeDate']],
             //['date', 'date', 'timestampAttribute' => 'date'],
             [['userId', 'status', 'updated', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name', 'head_title', 'title', 'url_sheet', 'url_presentation'], 'string', 'max' => 255],
@@ -51,6 +69,7 @@ class Presentation extends \yii\db\ActiveRecord
         ];
     }
 
+    
     
 
     /**
@@ -64,7 +83,7 @@ class Presentation extends \yii\db\ActiveRecord
             'name' => Yii::t('app', 'Nombre de la Presentación'),
             'head_title' => Yii::t('app', 'Título de Portada'),
             'title' => Yii::t('app', 'Título de Cabecera'),
-            'date' => Yii::t('app', 'Date'),
+            'date' => Yii::t('app', 'Fecha del Reporte'),
             'url_sheet' => Yii::t('app', 'Url Sheet'),
             'url_presentation' => Yii::t('app', 'Url Presentation'),
             'status' => Yii::t('app', 'Status'),

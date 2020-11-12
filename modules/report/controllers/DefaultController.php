@@ -45,7 +45,7 @@ class DefaultController extends Controller
         // The file token.json stores the user's access and refresh tokens, and is
         // created automatically when the authorization flow completes for the first
         // time.
-        $userId = \Yii::$app->user->id;
+        $userId = \Yii::$app->user->getId();
         $tokenPath = \Yii::getAlias("@app/modules/report/credentials/{$userId}.json");
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);
@@ -100,7 +100,7 @@ class DefaultController extends Controller
         $sheetForm = new SheetForm();
         if ($sheetForm->load(Yii::$app->request->post()) && $sheetForm->validate()) {
             //change to user loged
-            $userId = \Yii::$app->user->id;
+            $userId = \Yii::$app->user->getId();
             $session = Yii::$app->session;
             
             $data = $sheetForm->url;
@@ -153,7 +153,7 @@ class DefaultController extends Controller
         // get url form session
         $session = Yii::$app->session;
         // get user logged
-        $userId = \Yii::$app->user->id;
+        $userId = \Yii::$app->user->getId();
         $url = $session->get("url-sheet-{$userId}");
         $sheetRanges = \app\modules\report\helpers\PresentationHelper::getSheetNames($url);
         if(empty($sheetRanges)){
@@ -177,9 +177,9 @@ class DefaultController extends Controller
             Model::loadMultiple($modelsSection, $request);
 
             // validate presentation and section models
-            $model->date =  \Yii::$app->formatter->asTimestamp('now', 'php:U'); 
-            //change user
-            $model->userId = 1;
+            $model->date =  \Yii::$app->formatter->asTimestamp('now', 'php:U');
+            //adding user
+            $model->userId = \Yii::$app->user->getId();
             $model->url_sheet = $url;
             
             $session->remove("url-sheet-{$model->userId}");
@@ -581,7 +581,6 @@ class DefaultController extends Controller
         }
        
 
-        
         if ($model->load(Yii::$app->request->post())) {
             // reset
             $modelsPage = [];
@@ -598,8 +597,8 @@ class DefaultController extends Controller
 
 
             // validate person and houses models
-            $model->date =  \Yii::$app->formatter->asTimestamp('now', 'php:U'); 
-            $model->userId =  1; 
+            $model->date =  \Yii::$app->formatter->asTimestamp('now', 'php:U');
+            $model->userId =  \Yii::$app->user->getId();
             $valid = $model->validate();
             $valid = Model::validateMultiple($modelsSection) && $valid;
 

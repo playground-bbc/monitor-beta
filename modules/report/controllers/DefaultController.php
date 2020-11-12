@@ -63,7 +63,12 @@ class DefaultController extends Controller
                 mkdir(dirname($tokenPath), 0700, true);
             }
             file_put_contents($tokenPath, json_encode($client->getAccessToken()));
-            return $this->render('index');
+            $searchModel = new PresentationSearch();
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+            return $this->render('index',[
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider
+            ]);
             // Check to see if there was an error.
             if (array_key_exists('error', $accessToken)) {
                 throw new Exception(join(', ', $accessToken));

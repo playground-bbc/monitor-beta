@@ -28,6 +28,7 @@ class EmailHelper
         //cache config
         $cache = \Yii::$app->cache;
         $key = "email_common_words";
+        //$cache->delete($key);
         $time_expired = 86400; // seconds in a days
         // get cache
         $data_cache = $cache->get($key);
@@ -48,7 +49,7 @@ class EmailHelper
                 }
             }
         }
-       
+        
         // send  email
         if(count($alertIdTosendEmail)){
             // get all alerts active
@@ -102,9 +103,8 @@ class EmailHelper
                 ->setFrom('monitormtg@gmail.com')
                 ->setTo($data[$d]['alert']->user->email)->setSubject("Palabras mas Frecuentes 📝: {$data[$d]['alert']->name}");
             }
-        
             if(count($messages)){
-                \Yii::$app->mailer->sendMultiple($messages);
+                $isSend = \Yii::$app->mailer->sendMultiple($messages);
                 $cache->set($key, $data_cache, $time_expired, $dependency);
             }
         }

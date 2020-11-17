@@ -2,19 +2,152 @@
 
 namespace app\modules\insights\controllers;
 
-use yii\web\Controller;
+use yii\rest\Controller;
+use yii\db\Expression;
+use yii\helpers\ArrayHelper;
+use yii\web\Response;
+use yii\web\NotFoundHttpException;
+
 
 /**
- * Default controller for the `insights` module
+ * class controller to Api widget
  */
 class DefaultController extends Controller
 {
-    /**
-     * Renders the index view for the module
-     * @return string
-     */
-    public function actionIndex()
-    {
-        return $this->render('index');
-    }
+	/**
+	 * [behaviors negotiator to return the response in json format]
+	 * @return [array] [for controller]
+	 */
+	public function behaviors(){
+	   return [
+	        [
+	            'class' => 'yii\filters\ContentNegotiator',
+	            'only' => [
+	            	'numbers-content',
+	            	'content-page',
+	            	'posts-insights',
+	            	'storys-insights'
+	            ],  // in a controller
+	            // if in a module, use the following IDs for user actions
+	            // 'only' => ['user/view', 'user/index']
+	            'formats' => [
+	                'application/json' => Response::FORMAT_JSON,
+	            ],
+	            'languages' => [
+	                'en',
+	                'de',
+	            ],
+	        ],
+	   ];
+	}
+
+	/**
+	 * [actionNumbersContent returns the number of entities]
+	 * @return [array] [entity type with its id: page, post, storys]
+	 */
+	public function actionNumbersContent()
+	{
+		$pageContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Page'])->one(); 
+
+        $page_resource = \app\models\WContent::find()->select('resource_id')->where(['type_content_id' => $pageContentId->id])->groupBy('resource_id')->asArray()->all();
+        
+        return $page_resource;
+	}
+	/**
+	 * [actionContentPage returns the information on the page with its Insights]
+	 * @param  [int] $resourceId [id of resource Facebook o Instagram]
+	 * @return [array]           [Page data]
+	 */
+	public function actionContentPage($resourceId)
+	{
+		$pageContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Page'])->one(); 
+		$page_content = \app\models\WContent::find()->where(
+			[
+				'type_content_id' => $pageContentId->id,
+				'resource_id' => $resourceId
+			]
+		)->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->all();
+		// add image cover if instagram
+		if ($page_content[0]['resource']['name'] == 'Instagram Comments') {
+			$cover_url = \app\models\WContent::find()->select('image_url')->where(
+				[
+					'type_content_id' => $pageContentId->id,
+					'resource_id' => 5
+				]
+			)->one();
+			$page_content[0]['image_url'] = $cover_url->image_url;
+		}
+
+		$limit = ($resourceId == 5) ? 4:5;
+		for ($p=0; $p < sizeof($page_content) ; $p++) { 
+
+        	$insights = \app\models\WInsights::find()->where(['content_id' => $page_content[$p]['id']])->orderBy(['end_time' => SORT_DESC ])->asArray()->groupBy(['id','name'])->limit($limit)->all();
+        	if (!is_null($insights)) {
+        		$page_content[$p]['wInsights'] = $insights;
+        	}
+        }
+		
+		return reset($page_content);
+	}
+	/**
+	 * [actionPostsInsights returns the information on the Post with its Insights]
+	 * @param  [int] $resourceId [id of resource Facebook o Instagram]
+	 * @return [array]           [Post data]
+	 */
+	public function actionPostsInsights($resourceId)
+	{
+		// type posts
+        $postContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Post'])->one(); 
+        // last five
+        $posts_content = \app\models\WContent::find()->where(
+            [
+                'type_content_id' => $postContentId->id,
+                'resource_id' => $resourceId // get by source
+            ]
+        )->with(['resource','wProductsFamilyContent.serie'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
+
+
+
+        return \app\helpers\InsightsHelper::getPostInsightsByResource($posts_content,$resourceId);
+	}
+	/**
+	 * [actionStorysInsights returns the information on the Storys with its Insights]
+	 * @param  [int] $resourceId [id of resource Facebook o Instagram]
+	 * @return [array]           [Storys data]
+	 */
+	public function actionStorysInsights($resourceId)
+	{
+		$storyContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Story'])->one();
+
+        $storys_content = \app\models\WContent::find()->where(
+            [
+                'type_content_id' => $storyContentId->id,
+                'resource_id' => $resourceId // get by source
+            ]
+		)->with(['resource'])->orderBy(['timespan' => SORT_DESC])->asArray()->limit(5)->all();
+		
+		$nameInsights =  ['impressions','reach','replies'];
+        
+
+        for ($p=0; $p < sizeof($storys_content) ; $p++) { 
+
+        	$insights = \app\models\WInsights::find()->where(['content_id' => $storys_content[$p]['id']])->orderBy(
+				[
+					'end_time' => SORT_DESC,
+				]
+				)->asArray()->groupBy(['id','name'])->limit(4)->all();
+        	if (!is_null($insights)) {
+				$data = [];
+				for($w=0; $w < sizeof($insights) ; $w++){
+					$index = array_search($insights[$w]['name'],$nameInsights);
+					if($index !== false){
+						$data[$index]= $insights[$w];
+					}
+				}
+        		$storys_content[$p]['wInsights'] = $data;
+        	}
+        }
+
+        return $storys_content;
+	}
 }

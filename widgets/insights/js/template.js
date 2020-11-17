@@ -2,7 +2,7 @@ const origin = location.origin;
 const root = location.pathname.split("/")[1];
 const appId = root != "web" ? `${root}/web` : "web";
 
-const baseUrlApi = `${origin}/${appId}/monitor/api/insights/`;
+const baseUrlApi = `${origin}/${appId}/insights/default/`;
 const baseUrlImg = `${origin}/${appId}/img/`;
 
 const titleInsights = {

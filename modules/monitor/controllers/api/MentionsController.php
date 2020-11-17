@@ -64,7 +64,6 @@ class MentionsController extends Controller
    
     $model = $this->findModel($alertId);
 
-    $alertResources = \yii\helpers\ArrayHelper::map($model->config->sources,'id','name');
     $data = [];
 
     if($model){

@@ -19,19 +19,36 @@ class EmailController extends Controller
      */
     public function actionIndex()
     {   
-        $test = \Yii::$app->runAction('monitor/api/insights/content-page?resourceId=5');
         return ExitCode::OK;
     }
 
-    public function actionEmail()
-    {
-        // set main layout
-        //\Yii::$app->mailer->htmlLayout = "@app/mail/layouts/html";
-        // collect messages
-        \Yii::$app->mailer->compose('insights')
-        ->setFrom('monitormtg@gmail.com')
-        ->setTo("spiderbbc@gmail.com")->setSubject("Insigths de la Cuenta 📝: Mundo Lg")->send();
-        // send messages
-        //\Yii::$app->mailer->sendMultiple($messages);
+
+    public function actionInsights(){
+        $model = [];
+        // get resources ids
+        $resourcesIds = \app\helpers\InsightsHelper::getNumbersContent();
+        if(count($resourcesIds)){
+            foreach($resourcesIds as $resourceIndex => $resourceId){
+                if(isset($resourceId['resource_id'])){
+                    $id = $resourceId['resource_id'];
+                    $page = \app\helpers\InsightsHelper::getContentPage($id);
+                    $posts_content = \app\helpers\InsightsHelper::getPostsInsights($id);
+                    $posts_insights = \app\helpers\InsightsHelper::getPostInsightsByResource($posts_content,$resourceId);
+                    $stories = \app\helpers\InsightsHelper::getStorysInsights($id);
+                    $page['posts'] = $posts_insights;
+                    $page['stories'] = $stories;
+                    $model[] = $page;
+                }
+            }
+            
+        }
+        if(count($model)){
+            $pathLogo = dirname(__DIR__)."/web/img/";
+            \Yii::$app->mailer->compose('insights',['model' => $model,'pathLogo' => $pathLogo])
+            ->setFrom('monitormtg@gmail.com')
+            ->setTo(["spiderbbc@gmail.com"])->setSubject("Insigths de la Cuenta 📝: Mundo Lg")->send();
+        }
+
+        return ExitCode::OK;
     }
 }

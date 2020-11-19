@@ -722,7 +722,8 @@ class InsightsHelper
 
         	$insights = \app\models\WInsights::find()->where(['content_id' => $storys_content[$p]['id']])->orderBy(
 				[
-					'end_time' => SORT_DESC,
+                    'end_time' => SORT_DESC,
+                    new \yii\db\Expression('FIELD(name,"impressions","reach","replies")') 
 				]
 				)->asArray()->groupBy(['id','name'])->limit(4)->all();
         	if (!is_null($insights)) {
@@ -730,7 +731,7 @@ class InsightsHelper
 				for($w=0; $w < sizeof($insights) ; $w++){
 					$index = array_search($insights[$w]['name'],$nameInsights);
 					if(false !== $index){
-						$data[(int)$index]= $insights[$w];
+						$data[]= $insights[$w];
 					}
 				}
         		$storys_content[$p]['wInsights'] = $data;

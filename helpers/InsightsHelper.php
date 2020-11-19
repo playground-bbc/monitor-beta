@@ -729,8 +729,8 @@ class InsightsHelper
 				$data = [];
 				for($w=0; $w < sizeof($insights) ; $w++){
 					$index = array_search($insights[$w]['name'],$nameInsights);
-					if($index !== false){
-						$data[$index]= $insights[$w];
+					if(false !== $index){
+						$data[(int)$index]= $insights[$w];
 					}
 				}
         		$storys_content[$p]['wInsights'] = $data;

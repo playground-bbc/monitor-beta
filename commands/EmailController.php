@@ -92,7 +92,6 @@ class EmailController extends Controller
      * @return int Exit code
      */
     public function actionAlerts(){
-        $alert = new \app\models\Alerts();
         $alertsConfig = $alert->getBringAllAlertsToRun(true,'');
         //loop alerts
         foreach($alertsConfig as $indexAlertsConfig => $alertConfig){

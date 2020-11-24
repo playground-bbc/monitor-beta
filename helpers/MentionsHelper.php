@@ -261,6 +261,8 @@ class MentionsHelper
     
     
 
+    
+
 
     public static function getPropertiesSourceBox($alertId){
         $model = \app\models\Alerts::findOne($alertId);

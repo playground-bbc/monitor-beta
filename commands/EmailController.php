@@ -19,27 +19,27 @@ class EmailController extends Controller
             'background' => 'fdb45c'
         ],
         'Live Chat' => [
-            'alias' => 'Live Chat T', 
+            'alias' => 'L.C Tickets', 
             'background' => '5cfdf0',
         ],
         'Live Chat Conversations' => [
-            'alias' => 'Live Chat C', 
+            'alias' => 'L.C Chats', 
             'background' => '5cc2fd',
         ],
         'Facebook Comments' => [
-            'alias' => 'Facebook C', 
+            'alias' => 'Facebook Comentarios', 
             'background' => '945cfd',
         ],
         'Facebook Messages' => [
-            'alias' => 'Facebook M', 
+            'alias' => 'Facebook Inbox', 
             'background' => 'd75cfd',
         ],
         'Instagram Comments' => [
-            'alias' => 'Instagram C', 
+            'alias' => 'Instagram Comentarios', 
             'background' => 'fd5cfd',
         ],
         'Paginas Webs' => [
-            'alias' => 'Paginas W', 
+            'alias' => 'Paginas Webs', 
             'background' => 'fd5c5c',
         ],
 
@@ -127,7 +127,7 @@ class EmailController extends Controller
                 $productsMentionsCount = \app\helpers\MentionsHelper::getProductInteration($alertId);
                 $hiperLinkIterationByProducts = $this->getIterarionByProductsLinkGraph($productsMentionsCount['data']);
                 if(!is_null($hiperLinkIterationByProducts)){
-                    \Yii::$app->mailer->compose('alerts',[
+                    $message = \Yii::$app->mailer->compose('alerts',[
                         'alertName' => $alertName,
                         'createdAt' => $createdAt,
                         'start_date' => $start_date,
@@ -138,15 +138,48 @@ class EmailController extends Controller
                         'hiperLinkIterationByProducts' => $hiperLinkIterationByProducts,
                     ])
                     ->setFrom('monitormtg@gmail.com')
-                    ->setTo([$userModel->email])->setSubject("Alerta Monitor 📝: Mundo Lg")->send();
+                    ->setTo(["spiderbbc@gmail.com"])->setSubject("Alerta Monitor 📝: Mundo Lg");
+                    $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
+                    $isFileAttach = false;
+                    if(is_dir($pathFolder)){
+                        $files = \yii\helpers\FileHelper::findFiles($pathFolder,['only'=>['*.xlsx','*.xls']]);
+                        if(isset($files[0])){
+                            $start_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['start_date'],'yyyy-MM-dd');
+                            $end_date   = \Yii::$app->formatter->asDatetime($alertConfig['config']['end_date'],'yyyy-MM-dd');
+                            $name       = "{$alertConfig['name']} {$start_date} to {$end_date} mentions"; 
+                            $file_name  =  \app\helpers\StringHelper::replacingSpacesWithUnderscores($name);
+
+                            $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+                            $filePath = $folderPath."{$file_name}.xlsx";
+                            copy($files[0],"{$folderPath}{$file_name}.xlsx");
+                            // zip files
+                            $zip = new \ZipArchive;
+                            if ($zip->open($folderPath."{$file_name}.zip", \ZipArchive::CREATE) === TRUE){
+                                // Add files to the zip file
+                                $zip->addFile("{$folderPath}{$file_name}.xlsx","alert/{$file_name}.xlsx");
+                                // All files are added, so close the zip file.
+                                $zip->close();
+                                // Adjunta un archivo del sistema local de archivos:
+                                $message->attach("{$folderPath}{$file_name}.zip");
+                                $isFileAttach = true;
+                            }
+                           
+                        }
+                    };
+                    
+                    // send email
+                    $message->send(); 
+
+                    if($isFileAttach){
+                        unlink($filePath);
+                        unlink("{$folderPath}{$file_name}.zip");
+                    } 
                 }
 
             }
             
         }
             
-                
-
         return ExitCode::OK;
     }
 

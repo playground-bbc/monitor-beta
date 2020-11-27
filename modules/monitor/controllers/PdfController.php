@@ -77,103 +77,34 @@ class PdfController extends \yii\web\Controller
 
     public function actionExportMentionsExcel($alertId){
 
-        $writer = WriterEntityFactory::createXLSXWriter();
+        
         $model = \app\models\Alerts::findOne($alertId);
         $start_date = \Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy-MM-dd');
         $end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy-MM-dd');
         $name       = "{$model->name} {$start_date} to {$end_date} mentions"; 
         $file_name  =  \app\helpers\StringHelper::replacingSpacesWithUnderscores($name);
-        $filePath = \Yii::getAlias('@runtime/export/')."{$file_name}.xlsx";
-        $writer->openToFile($filePath); // write data to a file or to a PHP stream
-        
-        $cells = [
-            WriterEntityFactory::createCell('Recurso Social'),
-            WriterEntityFactory::createCell('Término buscado'),
-            WriterEntityFactory::createCell('Date created'),
-            WriterEntityFactory::createCell('Name'),
-            WriterEntityFactory::createCell('Username'),
-            WriterEntityFactory::createCell('Title'),
-            WriterEntityFactory::createCell('Mention'),
-            WriterEntityFactory::createCell('url'),
-
-        ];
-        ini_set('max_execution_time', 600);
-        $data = $this->getData($model->id);
-        
-        /** add a row at a time */
-        $singleRow = WriterEntityFactory::createRow($cells);
-        $writer->addRow($singleRow);
-        
-        
-        /** Shortcut: add a row from an array of values */
-        for ($v=0; $v < sizeOf($data) ; $v++) {
-            $rowFromValues = WriterEntityFactory::createRowFromArray($data[$v]);
-            $writer->addRow($rowFromValues);
-        }
-        
-        $writer->close();
-        
-        \Yii::$app->response->sendFile($filePath)->send();
-        unlink($filePath);
-    }
-
-
-    public function getData($alertId){
-        
-        $db = \Yii::$app->db;
-        $duration = 60;
-        
-        $where['alertId'] = $alertId;
-        if(isset($params['resourceId'])){
-            $where['resourcesId'] = $params['resourceId'];
-        }
-        // if resourceId if not firts level on params
-        if(isset($params['MentionSearch']['resourceId'])){
-            $where['resourcesId'] = $params['MentionSearch']['resourceId'];
-        }
        
-        $alertMentions = $db->cache(function ($db) use ($where) {
-          return (new \yii\db\Query())
-            ->select('id')
-            ->from('alerts_mencions')
-            ->where($where)
-            ->orderBy(['resourcesId' => 'ASC'])
-            ->all();
-        },$duration); 
-        
-        $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');  
-        
-        $rows = (new \yii\db\Query())
-        ->cache($duration)
-        ->select([
-          'recurso' => 'r.name',
-          'term_searched' => 'a.term_searched',
-          'created_time' => 'm.created_time',
-          'name' => 'u.name',
-          'screen_name' => 'u.screen_name',
-          'subject' => 'm.subject',
-          'message_markup' => 'm.message_markup',
-          'url' => 'm.url',
-        ])
-        ->from('mentions m')
-        ->where(['alert_mentionId' => $alertsId])
-        ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
-        ->join('JOIN','resources r', 'r.id = a.resourcesId')
-        ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
-        ->orderBy(['m.created_time' => 'ASC']);
-        //->all();
-        $data = [];    
-        if($rows){
-            foreach($rows->batch() as $mentions){
-                for ($r=0; $r < sizeOf($mentions) ; $r++) { 
-                    if(isset($mentions[$r]['created_time'])){
-                        $mentions[$r]['created_time'] =  \Yii::$app->formatter->asDate($mentions[$r]['created_time'], 'yyyy-MM-dd');
-                    }
-                    $data[] = $mentions[$r];
-                }
+        $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
+        if(is_dir($pathFolder)){
+            $files = \yii\helpers\FileHelper::findFiles($pathFolder,['only'=>['*.xlsx','*.xls']]);
+            if(isset($files[0])){
+                $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+                $filePath = $folderPath."{$file_name}.xlsx";
+                copy($files[0],"{$folderPath}{$file_name}.xlsx");
+                \Yii::$app->response->sendFile($filePath)->send();
+            }else{
+                $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+                $filePath = $folderPath."{$file_name}.xlsx";
+                $data = \app\helpers\MentionsHelper::getDataMentions($model->id);
+                \app\helpers\DocumentHelper::createExcelDocumentForMentions($filePath,$data);
+                \Yii::$app->response->sendFile($filePath)->send();
+                
             }
         }
-
-        return $data;
+        \Yii::$app->response->sendFile($filePath)->send();
+        //unlink($filePath);
     }
+
+
+    
 }

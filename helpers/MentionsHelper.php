@@ -485,4 +485,63 @@ class MentionsHelper
         $colors = ['#3CAAED','#EC1F2E','#3A05BD'];
         return array('status'=>true,'data' => $dataCount,'colors' => $colors);
     }
+
+    public static function getDataMentions($alertId){
+        
+        $db = \Yii::$app->db;
+        $duration = 60;
+        
+        $where['alertId'] = $alertId;
+        if(isset($params['resourceId'])){
+            $where['resourcesId'] = $params['resourceId'];
+        }
+        // if resourceId if not firts level on params
+        if(isset($params['MentionSearch']['resourceId'])){
+            $where['resourcesId'] = $params['MentionSearch']['resourceId'];
+        }
+       
+        $alertMentions = $db->cache(function ($db) use ($where) {
+          return (new \yii\db\Query())
+            ->select('id')
+            ->from('alerts_mencions')
+            ->where($where)
+            ->orderBy(['resourcesId' => 'ASC'])
+            ->all();
+        },$duration); 
+        
+        $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');  
+        
+        $rows = (new \yii\db\Query())
+        ->cache($duration)
+        ->select([
+          'recurso' => 'r.name',
+          'term_searched' => 'a.term_searched',
+          'created_time' => 'm.created_time',
+          'name' => 'u.name',
+          'screen_name' => 'u.screen_name',
+          'subject' => 'm.subject',
+          'message_markup' => 'm.message_markup',
+          'url' => 'm.url',
+        ])
+        ->from('mentions m')
+        ->where(['alert_mentionId' => $alertsId])
+        ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
+        ->join('JOIN','resources r', 'r.id = a.resourcesId')
+        ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
+        ->orderBy(['m.created_time' => 'ASC']);
+        //->all();
+        $data = [];    
+        if($rows){
+            foreach($rows->batch() as $mentions){
+                for ($r=0; $r < sizeOf($mentions) ; $r++) { 
+                    if(isset($mentions[$r]['created_time'])){
+                        $mentions[$r]['created_time'] =  \Yii::$app->formatter->asDate($mentions[$r]['created_time'], 'yyyy-MM-dd');
+                    }
+                    $data[] = $mentions[$r];
+                }
+            }
+        }
+
+        return $data;
+    }
 }

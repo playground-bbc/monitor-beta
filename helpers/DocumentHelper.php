@@ -8,6 +8,11 @@ use yii\web\UploadedFile;
 use app\models\file\JsonFile;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Box\Spout\Writer\Common\Creator\WriterFactory;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Common\Entity\Row;
+use Box\Spout\Common\Type;
+
 /**
  *
  * @author Eduardo Morales <eduardo@montana-studio.com>
@@ -113,5 +118,34 @@ class DocumentHelper
 			$jsonfile->load($data);
 			$jsonfile->save();
 		}
-	}
+    }
+    
+    public static function createExcelDocumentForMentions($filePath,$data){
+        $writer = WriterEntityFactory::createXLSXWriter();
+        $writer->openToFile($filePath); // write data to a file or to a PHP stream
+        $cells = [
+            WriterEntityFactory::createCell('Recurso Social'),
+            WriterEntityFactory::createCell('Término buscado'),
+            WriterEntityFactory::createCell('Date created'),
+            WriterEntityFactory::createCell('Name'),
+            WriterEntityFactory::createCell('Username'),
+            WriterEntityFactory::createCell('Title'),
+            WriterEntityFactory::createCell('Mention'),
+            WriterEntityFactory::createCell('url'),
+
+        ];
+        ini_set('max_execution_time', 600);
+        /** add a row at a time */
+        $singleRow = WriterEntityFactory::createRow($cells);
+        $writer->addRow($singleRow);
+        
+        
+        /** Shortcut: add a row from an array of values */
+        for ($v=0; $v < sizeOf($data) ; $v++) {
+            $rowFromValues = WriterEntityFactory::createRowFromArray($data[$v]);
+            $writer->addRow($rowFromValues);
+        }
+        
+        $writer->close();
+    }
 }

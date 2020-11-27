@@ -649,8 +649,7 @@ class AlertMentionsHelper
 	* @param  [obj] $model [topic  model]
 	* @return [array]              [arraty detailView]
 	*/
-	public static function getAttributesForDetailView($model)
-	{
+	public static function getAttributesForDetailView($model){
 		$url_detail_arr = [];
 		if ($model->config->urls != '') {
             $urls = explode(",",$model->config->urls);

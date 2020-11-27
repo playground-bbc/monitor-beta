@@ -148,6 +148,11 @@ class AlertController extends Controller
                 $alert->id,
                 $configSource->alertResource->name
             );
+            // clean cache
+            $cache = \Yii::$app->cache;
+            if($cache->exists("{$configSource->alertResource->name}_{$alertId}")){
+                $cache->delete("{$configSource->alertResource->name}_{$alertId}");
+            }
         }
         // delete mentions
         \app\models\AlertsMencions::deleteAll(
@@ -160,9 +165,10 @@ class AlertController extends Controller
                 'DELETE FROM users_mentions WHERE users_mentions.id NOT IN ( SELECT distinct origin_id FROM mentions)'
             )
             ->execute();
-        // clean cache
-        $cache = \Yii::$app->cache;
-        $cache->delete("{$configSource->alertResource->name}_{$alertId}");
+        
+        // delete document
+        $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+        \yii\helpers\FileHelper::removeDirectory($folderPath);
         return ['status' => true];
     }
 
@@ -185,7 +191,9 @@ class AlertController extends Controller
           // delete mentions
           \app\models\AlertsMencions::deleteAll('alertId = :alertId AND term_searched = :term_searched', [':alertId' => $alertId, ':term_searched' => $product]);
       }
-
+      // delete document
+      $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+      \yii\helpers\FileHelper::removeDirectory($folderPath);
       return ['status'=>true];
     }
 
@@ -251,7 +259,9 @@ class AlertController extends Controller
           }
         }
       }
-     
+      // delete document
+      $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+      \yii\helpers\FileHelper::removeDirectory($folderPath);
       
       $status = ($isDictionary) ? true: false;
       return ['status'=>$status];
@@ -272,6 +282,9 @@ class AlertController extends Controller
       
       \app\models\AlertsMencions::deleteAll('alertId = :alertId  AND  resourcesId = :resourcesId AND type = :type AND url = :url', 
         [':alertId' => $alertId,':resourcesId' => $resourceId, ':type' => $type, ':url' => $urlName]);
+      // delete document
+      $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+      \yii\helpers\FileHelper::removeDirectory($folderPath);
 
       return ['status' => true];
     }
@@ -688,7 +701,10 @@ class AlertController extends Controller
         );  
         // prepare and execute delete products_models_alerts
         $product_alert_delete->bindParam(':alertId', $id);
-        $product_alert_delete->execute();  
+        $product_alert_delete->execute(); 
+        // delete document
+        $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+        \yii\helpers\FileHelper::removeDirectory($folderPath); 
 
         return $this->redirect(['index']);
     }

@@ -91,18 +91,28 @@ class PdfController extends \yii\web\Controller
                 $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
                 $filePath = $folderPath."{$file_name}.xlsx";
                 copy($files[0],"{$folderPath}{$file_name}.xlsx");
-                \Yii::$app->response->sendFile($filePath)->send();
             }else{
                 $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
                 $filePath = $folderPath."{$file_name}.xlsx";
                 $data = \app\helpers\MentionsHelper::getDataMentions($model->id);
                 \app\helpers\DocumentHelper::createExcelDocumentForMentions($filePath,$data);
-                \Yii::$app->response->sendFile($filePath)->send();
                 
             }
+        }else{
+            // set path folder options
+            $folderOptions = [
+                'path' => \Yii::getAlias('@runtime/export/'),
+                'name' => $alertId,
+            ];
+            // create folder
+            $folderPath = \app\helpers\DirectoryHelper::setFolderPath($folderOptions);
+            $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+            $filePath = $folderPath."{$file_name}.xlsx";
+            $data = \app\helpers\MentionsHelper::getDataMentions($model->id);
+            \app\helpers\DocumentHelper::createExcelDocumentForMentions($filePath,$data);
         }
         \Yii::$app->response->sendFile($filePath)->send();
-        //unlink($filePath);
+        unlink($filePath);
     }
 
 

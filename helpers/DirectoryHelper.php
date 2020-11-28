@@ -33,7 +33,7 @@ class DirectoryHelper{
         
         
         if (!is_dir($path)) {
-           $folder = FileHelper::createDirectory($path, $mode = 0775,$recursive = true);
+           $folder = FileHelper::createDirectory($path, $mode = 0777,$recursive = true);
            return ($folder) ? $path : false; 
         }
 

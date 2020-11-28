@@ -17,6 +17,7 @@ $dotenv = Dotenv\Dotenv::createImmutable( dirname(dirname(__DIR__)). "{$s}{$fold
 $dotenv->load();
 
 return [
+	'frontendUrl' => 'https://lg.mediatrendsgroup.com/web/',
 	'adminEmail'  => 'eduardo@montana-studio.com',
 	'senderEmail' => 'eduardo@montana-studio.com',
 	'senderName'  => 'monitor-beta',

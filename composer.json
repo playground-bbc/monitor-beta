@@ -66,7 +66,8 @@
     "box/spout": "^3.1",
     "wbraganca/yii2-dynamicform": "^2.0",
     "kartik-v/yii2-widget-typeahead": "dev-master",
-    "vova07/yii2-console-runner-extension": "*"
+    "vova07/yii2-console-runner-extension": "*",
+    "ianw/quickchart": "^1.0"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "~2.1.0",

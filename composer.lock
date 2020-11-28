@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "efb591c891dec56c155418d097a2c937",
+    "content-hash": "dee8a361ad85609cace62276c4e6cbab",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -89,12 +89,12 @@
             "version": "0.3.14",
             "source": {
                 "type": "git",
-                "url": "git@github.com:TimSchlechter/bootstrap-tagsinput.git",
+                "url": "https://github.com/bootstrap-tagsinput/bootstrap-tagsinput.git",
                 "reference": "14f300f0b694ff19382a45f42f28757c34b7ed2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TimSchlechter/bootstrap-tagsinput/zipball/14f300f0b694ff19382a45f42f28757c34b7ed2b",
+                "url": "https://api.github.com/repos/bootstrap-tagsinput/bootstrap-tagsinput/zipball/14f300f0b694ff19382a45f42f28757c34b7ed2b",
                 "reference": "14f300f0b694ff19382a45f42f28757c34b7ed2b"
             },
             "type": "bower-asset",
@@ -107,7 +107,7 @@
             "version": "3.3.11",
             "source": {
                 "type": "git",
-                "url": "https://github.com/RobinHerbots/Inputmask.git",
+                "url": "git@github.com:RobinHerbots/Inputmask.git",
                 "reference": "5e670ad62f50c738388d4dcec78d2888505ad77b"
             },
             "dist": {
@@ -1595,6 +1595,51 @@
             ],
             "description": "Efficient, easy-to-use and fast JSON pull parser",
             "time": "2019-12-20T18:30:23+00:00"
+        },
+        {
+            "name": "ianw/quickchart",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typpo/quickchart-php.git",
+                "reference": "2148579889496ede5929fa7d8a948be8aafd2fa3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/typpo/quickchart-php/zipball/2148579889496ede5929fa7d8a948be8aafd2fa3",
+                "reference": "2148579889496ede5929fa7d8a948be8aafd2fa3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ian Webster",
+                    "homepage": "https://quickchart.io/"
+                }
+            ],
+            "description": "QuickChart chart API",
+            "homepage": "http://github.com/typpo/quickchart-php",
+            "keywords": [
+                "bar-chart",
+                "chart",
+                "chart-api",
+                "charts",
+                "image",
+                "line-chart"
+            ],
+            "time": "2020-11-21T18:06:01+00:00"
         },
         {
             "name": "jasonlam604/stringizer",

@@ -457,7 +457,7 @@ class MentionsHelper
             $data[$product][] = \app\helpers\AlertMentionsHelper::getProductInterations($resourceName,$alerts_mention_ids,$alertId);
         }
         }
-
+        
         //reorder data
         $dataCount = [];
         foreach ($data as $product => $values) {
@@ -474,13 +474,17 @@ class MentionsHelper
             // get total
             $total  += (isset($value['total'])) ? $value['total']: 0;
             }
-            if($total > 2){
             $dataCount[] = array($product,$shares,$likes,$total);
-            }
         }
 
         if(!count($dataCount)){
-        $dataCount[] = array('Not Found',0,0,0);
+            $dataCount[] = array('Not Found',0,0,0);
+        }else{
+            // get top terms more total value
+            usort($dataCount, function($a, $b) {
+                return end($b) - end($a);
+            });
+            $dataCount = array_slice($dataCount, 0, 10);
         }
         $colors = ['#3CAAED','#EC1F2E','#3A05BD'];
         return array('status'=>true,'data' => $dataCount,'colors' => $colors);

@@ -115,7 +115,8 @@ class EmailController extends Controller
               'frontendUrl' => \Yii::$app->params['frontendUrl'],
             ])
             ->setFrom('monitormtg@gmail.com')
-            ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: Mundo Lg");
+            ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
+            //->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
             $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
             $isFileAttach = false;
             if(is_dir($pathFolder)){
@@ -287,62 +288,69 @@ class EmailController extends Controller
     private function getIterarionByProductsLinkGraph($productsMentionsCount){
         
       $data = $productsMentionsCount;
-      $url = null;
-      if(count($data)){
-        $qc = new \QuickChart(array(
-            'width'=> 550,
-            'height'=> 300,
-        ));
 
-        $config = [
-          'type' => 'bar',
-          'data' => [
-            'labels' => [],
-            'datasets' => [
-              [
-                'label' => 'Shares/Retweets',
-                'data'  => [],
-                'backgroundColor' => 'rgba(54, 162, 235, 0.5)'
-              ],
-              [
-                'label' => 'Likes',
-                'data'  => [],
-                'backgroundColor' => 'rgba(240, 52, 52, 1)'
-              ],
-              [
-                'label' => 'Total',
-                'data'  => [],
-                'backgroundColor' => 'rgba(42, 187, 155, 1)'
+      // get top terms more total value
+      usort($data, function($a, $b) {
+        return end($b) - end($a);
+      });
+     
+      $url = null;
+      
+      if(count($data)){
+        if($data[0][0] != 'Not Found'){
+          $qc = new \QuickChart(array(
+              'width'=> 550,
+              'height'=> 300,
+          ));
+
+          $config = [
+            'type' => 'bar',
+            'data' => [
+              'labels' => [],
+              'datasets' => [
+                [
+                  'label' => 'Shares/Retweets',
+                  'data'  => [],
+                  'backgroundColor' => 'rgba(54, 162, 235, 0.5)'
+                ],
+                [
+                  'label' => 'Likes',
+                  'data'  => [],
+                  'backgroundColor' => 'rgba(240, 52, 52, 1)'
+                ],
+                [
+                  'label' => 'Total',
+                  'data'  => [],
+                  'backgroundColor' => 'rgba(42, 187, 155, 1)'
+                ],
               ],
             ],
-          ],
-          'options' => [
-            'plugins' => [
-              'datalabels' => [
-                'anchor' => 'end',
-                'align' => 'top',
-                'color' => '#000000',
-                'formatter' => '(value) => { return value ;}'
+            'options' => [
+              'plugins' => [
+                'datalabels' => [
+                  'anchor' => 'end',
+                  'align' => 'top',
+                  'color' => '#000000',
+                  'formatter' => '(value) => { return value ;}'
+                ]
               ]
             ]
-          ]
-        ];
-        
-
-        $limit = 3;
-        for($d = 0; $d < sizeOf($data); $d++){
-          if($d < $limit){
+          ];
+          
+          // top 3 products
+          for($d = 0; $d < 3; $d++){
             $config['data']['labels'][] = $data[$d][0];
             $config['data']['datasets'][0]['data'][] = $data[$d][1];
             $config['data']['datasets'][1]['data'][] = $data[$d][2];
-            $config['data']['datasets'][0]['data'][] = $data[$d][3];
+            $config['data']['datasets'][2]['data'][] = $data[$d][3];
           }
+
+          $config_json = json_encode($config);
+          $qc->setConfig($config_json);
+          
+          # Print the chart URL
+          $url =  $qc->getUrl();
         }
-        $config_json = json_encode($config);
-        $qc->setConfig($config_json);
-        
-        # Print the chart URL
-        $url =  $qc->getUrl();
       }
       return $url;
     }

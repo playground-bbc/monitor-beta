@@ -188,6 +188,7 @@ class LiveChatsApi extends Model {
 			}
 
 		} // end for products
+		
 		return $params; 
 	}
 
@@ -249,26 +250,28 @@ class LiveChatsApi extends Model {
 	 */
 	private function _setAlertsMencionsByProduct($productName){
 
+		if(in_array($productName,$this->products)){
 
-		if (\app\helpers\DateHelper::isToday(intval($this->start_date))) {
-			$date_searched = $this->start_date;
-		}else{
-			$newDateSearch = \app\helpers\DateHelper::add($this->start_date,'+1 day');
-			$date_searched = strtotime($newDateSearch);
-
-		}
-		$where = [
-			'alertId' => $this->alertId,
-			'resourcesId' => $this->resourcesId,
-			'term_searched' => $productName,
-		];
-		$properties = [
-			'condition' => 'ACTIVE',
-			'type' => 'chat',
-			'date_searched' => $date_searched,
-		];
-		if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExistsByProperties($where)){
-			\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,$properties);
+			if (\app\helpers\DateHelper::isToday(intval($this->start_date))) {
+				$date_searched = $this->start_date;
+			}else{
+				$newDateSearch = \app\helpers\DateHelper::add($this->start_date,'+1 day');
+				$date_searched = strtotime($newDateSearch);
+	
+			}
+			$where = [
+				'alertId' => $this->alertId,
+				'resourcesId' => $this->resourcesId,
+				'term_searched' => $productName,
+			];
+			$properties = [
+				'condition' => 'ACTIVE',
+				'type' => 'chat',
+				'date_searched' => $date_searched,
+			];
+			if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExistsByProperties($where)){
+				\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,$properties);
+			}
 		}
 	}
 

@@ -15,37 +15,7 @@ use QuickChart;
  */
 class EmailController extends Controller
 {
-    private $resourceProperties = [
-        'Twitter' => [
-            'alias' => 'Twitter',
-            'background' => 'fdb45c'
-        ],
-        'Live Chat' => [
-            'alias' => 'L.C Tickets', 
-            'background' => '5cfdf0',
-        ],
-        'Live Chat Conversations' => [
-            'alias' => 'L.C Chats', 
-            'background' => '5cc2fd',
-        ],
-        'Facebook Comments' => [
-            'alias' => 'Facebook Comentarios', 
-            'background' => '945cfd',
-        ],
-        'Facebook Messages' => [
-            'alias' => 'Facebook Inbox', 
-            'background' => 'd75cfd',
-        ],
-        'Instagram Comments' => [
-            'alias' => 'Instagram Comentarios', 
-            'background' => 'fd5cfd',
-        ],
-        'Paginas Webs' => [
-            'alias' => 'Paginas Webs', 
-            'background' => 'fd5c5c',
-        ],
-
-    ]; 
+    
     /**
      * This command echoes what you have entered as the message.
      * @param string $message the message to be echoed.
@@ -145,7 +115,7 @@ class EmailController extends Controller
               'frontendUrl' => \Yii::$app->params['frontendUrl'],
             ])
             ->setFrom('monitormtg@gmail.com')
-            ->setTo(["spiderbbc@gmail.com"])->setSubject("Alerta Monitor 📝: Mundo Lg");
+            ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: Mundo Lg");
             $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
             $isFileAttach = false;
             if(is_dir($pathFolder)){

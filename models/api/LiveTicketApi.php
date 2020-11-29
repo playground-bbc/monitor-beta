@@ -43,7 +43,6 @@ class LiveTicketApi extends Model {
 			// order products by his  length
 			array_multisort(array_map('strlen', $alert['products']), $alert['products']);
 			$this->products   = $alert['products'];
-			
 			// set if search finish
 			$this->searchFinish();
 			// set products
@@ -81,7 +80,6 @@ class LiveTicketApi extends Model {
             }
 
 		}
-
 		
 		for($p = 0; $p < sizeof($this->products); $p++){
 			$productName = $this->products[$p];
@@ -192,6 +190,7 @@ class LiveTicketApi extends Model {
 		
 
 		} // end for products
+		
 		return $params; 
 	}
 
@@ -250,27 +249,28 @@ class LiveTicketApi extends Model {
 	 */
 	private function _setAlertsMencionsByProduct($productName){
 		
-		if (\app\helpers\DateHelper::isToday(intval($this->start_date))) {
-			$date_searched = $this->start_date;
-		}else{
-			$newDateSearch = \app\helpers\DateHelper::add($this->start_date,'+1 day');
-			$date_searched = strtotime($newDateSearch);
-
+		if(in_array($productName,$this->products)){
+			if (\app\helpers\DateHelper::isToday(intval($this->start_date))) {
+				$date_searched = $this->start_date;
+			}else{
+				$newDateSearch = \app\helpers\DateHelper::add($this->start_date,'+1 day');
+				$date_searched = strtotime($newDateSearch);
+	
+			}
+			$where = [
+				'alertId' => $this->alertId,
+				'resourcesId' => $this->resourcesId,
+				'term_searched' => $productName,
+			];
+			$properties = [
+				'condition' => 'ACTIVE',
+				'type' => 'ticket',
+				'date_searched' => $date_searched,
+			];
+			if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExistsByProperties($where)){
+				\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,$properties);
+			}
 		}
-		$where = [
-			'alertId' => $this->alertId,
-			'resourcesId' => $this->resourcesId,
-			'term_searched' => $productName,
-		];
-		$properties = [
-			'condition' => 'ACTIVE',
-			'type' => 'ticket',
-			'date_searched' => $date_searched,
-		];
-		if(!\app\helpers\AlertMentionsHelper::isAlertsMencionsExistsByProperties($where)){
-			\app\helpers\AlertMentionsHelper::saveAlertsMencions($where,$properties);
-		}
-		
 	}
 
 	/**

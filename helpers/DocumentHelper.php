@@ -25,12 +25,39 @@ use Box\Spout\Common\Type;
  */
 class DocumentHelper
 {
+    /**
+     * Checks if a document json with the alert id and resource name exists
+     * @param  Integer $alertId [id from the alert]
+     * @param  String  $resource String [name from the resource]
+     * @return Boolean
+     */
     public static function isDocumentExist($alertId,$resource){
         $jsonfile = new JsonFile($alertId,$resource);
         return $jsonfile->isDocumentExist();
 
     }
 
+    /**
+     * save data to json file inside a folder with id alert
+     * @param  Integer $alertId [id alert]
+     * @param  String   $resourcesName
+     * @param  Array   $data
+     */
+    public static function saveJsonFile($alertId,$resourcesName,$data){
+        if(!empty($data)){
+            // call jsonfile
+            $jsonfile = new JsonFile($alertId,$resourcesName);
+            $jsonfile->fileName = $alertId;
+            $jsonfile->load($data);
+            $jsonfile->save();
+        }
+    }
+
+    /**
+     * Move files json to folder with the name folder processed
+     * @param  Integer $alertId [id from the alert]
+     * @param  String  $resource String [name from the resource]
+     */
 	public static function moveFilesToProcessed($alertId,$resource){
 
         $s = DIRECTORY_SEPARATOR;
@@ -60,6 +87,11 @@ class DocumentHelper
 
 	}
 
+    /**
+     * Move files json to root folder
+     * @param  Integer $alertId [id from the alert]
+     * @param  String  $resource String [name from the resource]
+     */
     public static function moveFilesToRoot($alertId,$resource){
         $s = DIRECTORY_SEPARATOR;
         $folderTarget = 'processed';
@@ -78,7 +110,11 @@ class DocumentHelper
         }
     }
 
-
+    /**
+     * get data to excel file to array
+     * @param  Object $model [model alert]
+     * @param  Array  $attribute
+     */
 	public static function excelToArray($model,$attribute){
         // https://es.stackoverflow.com/questions/69486/phpexcel-genera-error-allowed-memory-size-of-bytes-exhausted
         ini_set('memory_limit', '2G');
@@ -109,17 +145,12 @@ class DocumentHelper
 
        return $data;
 	}
-
-	public static function saveJsonFile($alertId,$resourcesName,$data){
-		if(!empty($data)){
-			// call jsonfile
-			$jsonfile = new JsonFile($alertId,$resourcesName);
-            $jsonfile->fileName = $alertId;
-			$jsonfile->load($data);
-			$jsonfile->save();
-		}
-    }
-    
+	
+    /**
+     * create a file excel 
+     * @param  String $filePath [id alert]
+     * @param  Array   $data
+     */ 
     public static function createExcelDocumentForMentions($filePath,$data){
         $writer = WriterEntityFactory::createXLSXWriter();
         $writer->openToFile($filePath); // write data to a file or to a PHP stream

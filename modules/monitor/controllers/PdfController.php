@@ -15,6 +15,10 @@ class PdfController extends \yii\web\Controller
 {
 	public $enableCsrfValidation = false;
 
+    /**
+     * Generate document pdf for Alert
+     * @return Array data and url document
+     */
     public function actionDocument()
     {
     	\Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
@@ -75,6 +79,10 @@ class PdfController extends \yii\web\Controller
         return array('data' => $url,'filename' => $file_name); 
     }
 
+    /**
+     * Generate document Excel for Alert
+     * @return Object response
+     */
     public function actionExportMentionsExcel($alertId){
 
         

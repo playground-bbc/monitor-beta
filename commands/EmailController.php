@@ -336,8 +336,12 @@ class EmailController extends Controller
               ]
             ]
           ];
+
+          if(count($data) > 5){
+              $data = array_slice($data, 0, 5); 
+          }
           
-          // top 3 products
+          // top 5 products
           for($d = 0; $d < 3; $d++){
             $config['data']['labels'][] = $data[$d][0];
             $config['data']['datasets'][0]['data'][] = $data[$d][1];

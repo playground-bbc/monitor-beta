@@ -345,7 +345,8 @@ class FacebookHelper
                 ]);
                 $query->orderBy(['updatedAt' => 'DESC']);
             }
-        ])->asArray()->all();
+		])->asArray()->all();
+		
 
         $usersFacebook = array_filter($usersFacebook,function ($user)
         {
@@ -388,7 +389,7 @@ class FacebookHelper
         	}
         }
         
-       $userFacebook = self::getUserbyPermissions($usersFacebook);
+        $userFacebook = self::getUserbyPermissions($usersFacebook);
 
        return $userFacebook;
 	}
@@ -405,14 +406,12 @@ class FacebookHelper
 			for ($u=0; $u < sizeof($usersFacebook) ; $u++) { 
 				if (!empty($usersFacebook[$u]['credencialsApis']) && !empty($usersFacebook[$u]['credencial'])) {
 					for ($d=0; $d < sizeof($usersFacebook[$u]['credencial']['data']) ; $d++) { 
-						$name_app = $usersFacebook[$u]['credencial']['data'][$d]['name'];
-						if ($name_app == \Yii::$app->params['facebook']['name_account']) {
-							$taks = $usersFacebook[$u]['credencial']['data'][$d]['tasks'];
-							if (in_array('MANAGE', $taks)) {
-								$user['user_id'] = $usersFacebook[$u]['id']; 
-								$user['credencial'] = $usersFacebook[$u]['credencial']['data'][0]; 
-								$user['appsecret_proof'] = $usersFacebook[$u]['appsecret_proof']; 
-							}
+						//$name_app = $usersFacebook[$u]['credencial']['data'][$d]['name'];
+						$taks = $usersFacebook[$u]['credencial']['data'][$d]['tasks'];
+						if (in_array('MANAGE', $taks)) {
+							$user['user_id'] = $usersFacebook[$u]['id']; 
+							$user['credencial'] = $usersFacebook[$u]['credencial']['data'][0]; 
+							$user['appsecret_proof'] = $usersFacebook[$u]['appsecret_proof']; 
 						}
 					}
 				}

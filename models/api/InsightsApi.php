@@ -153,8 +153,10 @@ class InsightsApi extends Model
 						\app\helpers\InsightsHelper::saveInsightsFacebookPost($model,$content->id);
 
 
-						$attachments = $data[$d]['attachments']['data'];
-						\app\helpers\InsightsHelper::saveAttachments($attachments,$content->id);
+						if(isset($data[$d]['attachments']['data'])){
+							$attachments = $data[$d]['attachments']['data'];
+							\app\helpers\InsightsHelper::saveAttachments($attachments,$content->id);
+						}
 					}// end if isset
 				}
 

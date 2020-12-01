@@ -64,6 +64,20 @@ class DateHelper
     /**
      * [diffInDays get diffInDays between two date]
      * @param  [string] $date_1   [date ej unix date]
+     * @return [string] $date_2   [date ej unix date]
+     */
+    public static function diffInHours($date_1,$date_2){
+    	
+    	$date_format_1 = Yii::$app->formatter->asDatetime($date_1,'yyyy-MM-dd');
+		$date_format_2 = Yii::$app->formatter->asDatetime($date_2,'yyyy-MM-dd');
+    	$diff = Date::parse($date_format_1)->floatDiffInHours($date_format_2);
+    	
+    	return round($diff);
+    }
+
+    /**
+     * [diffInDays get diffInDays between two date]
+     * @param  [string] $date_1   [date ej unix date]
      * @return [string] $date_21  [date ej "Sat Aug 24 14:29:51 +0000 2019"]
      */
     public static function diffInDays($date_1,$date_2){

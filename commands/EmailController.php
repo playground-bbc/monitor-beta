@@ -69,20 +69,35 @@ class EmailController extends Controller
      * @return int Exit code
      */
     public function actionAlerts(){
-      $alert = new \app\models\Alerts();
-      $alertsConfig = $alert->getBringAllAlertsToRun(true,'');
+      $alertsConfig = \app\models\Alerts::find()->with('config')->asArray()->all();
+      
       //loop alerts
       foreach($alertsConfig as $indexAlertsConfig => $alertConfig){
+        // flag to send
+        $flag = true;
         // get model the user
         $userModel = \app\models\Users::find()->select('email')->where(['id' => $alertConfig['userId']])->one();
         // get info form alert
         $alertId = $alertConfig['id'];
         $alertName = $alertConfig['name'];
-        $createdAt = \Yii::$app->formatter->asDatetime($alertConfig['createdAt']);
-        $start_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['start_date']);
-        $end_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['end_date']);
-        $status =  ($alertConfig['status']) ? 'Activa': 'Inactiva';
+        $createdAt = \Yii::$app->formatter->asDatetime($alertConfig['createdAt'],'yyyy-MM-dd');
+        $start_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['start_date'],'yyyy-MM-dd');
+        $end_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['end_date'],'yyyy-MM-dd');
 
+        if($alertConfig['status']){
+          $status =  'Activa';
+        }else{
+          $status =  'Inactiva';
+          // It is checked if the difference with the end date and the current day 
+          //is greater than 24 hours to validate only one email send when the alert is inactive 
+          $today = \app\helpers\DateHelper::getToday();
+          $diffHours =  \app\helpers\DateHelper::diffInHours($end_date,$today);
+          if($diffHours > 24){
+            $flag = false;
+          }
+        }
+
+        
         $count = (new \yii\db\Query())
         ->cache(10)
         ->from('alerts_mencions')
@@ -90,8 +105,7 @@ class EmailController extends Controller
         ->where(['alertId' => $alertId])
         ->count();
         
-        
-        if($count > 0){
+        if($count > 0 && $flag){
           $sourcesMentionsCount = \app\helpers\MentionsHelper::getCountSourcesMentions($alertId);
             
           if(isset($sourcesMentionsCount['data'])){

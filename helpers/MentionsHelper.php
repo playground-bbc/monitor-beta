@@ -407,15 +407,23 @@ class MentionsHelper
 
 
 
-    public static function getCountSourcesMentions($alertId){
+    public static function getCountSourcesMentions($alertId,$resourceId = null){
         // cuenta por menciones
         $model = \app\models\Alerts::findOne($alertId);
         $data = [];
 
         foreach ($model->config->sources as $sources){
-        if(!\app\helpers\StringHelper::in_array_r($sources->name,$data)){
-            $data[] = \app\helpers\AlertMentionsHelper::getSocialNetworkInteractions($sources->name,$sources->id,$model->id);
-        }
+            if(!\app\helpers\StringHelper::in_array_r($sources->name,$data)){
+                if (is_null($resourceId)) {
+                    $data[] = \app\helpers\AlertMentionsHelper::getSocialNetworkInteractions($sources->name,$sources->id,$model->id);
+                } else {
+                    if($sources->id == $resourceId){
+                        $data[] = \app\helpers\AlertMentionsHelper::getSocialNetworkInteractions($sources->name,$sources->id,$model->id);
+                    }
+                }
+                
+                
+            }
         }
         // chage values to int
         for($d = 0; $d < sizeof($data); $d++){
@@ -438,14 +446,19 @@ class MentionsHelper
     }
 
 
-    public static function getProductInteration($alertId){
+    public static function getProductInteration($alertId,$resourceId = null){
+
         $model = \app\models\Alerts::findOne($alertId);
-        $alerts_mentions = \app\models\AlertsMencions::find()->where(['alertId' => $model->id])->all();
+        $where = ['alertId' => $model->id];
+        if(!is_null($resourceId)){
+            $where['resourcesId'] = $resourceId;
+        }
+        $alerts_mentions = \app\models\AlertsMencions::find()->where($where)->with('mentions')->all();
 
         // get products
         $products = [];
         foreach ($alerts_mentions as $alerts_mention) {
-        if($alerts_mention->mentionsCount){
+        if(count($alerts_mention->mentions)){
             $products[$alerts_mention->term_searched][$alerts_mention->resources->name][] = $alerts_mention->id;
         }// end if
         }// end foreach

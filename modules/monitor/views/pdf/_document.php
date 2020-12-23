@@ -1,29 +1,52 @@
 <?php 
 use yii\helpers\Html;
 use yii\helpers\Url;
+
+$start_date = \Yii::$app->formatter->asDatetime($model->config->start_date,'dd/MM/yyyy');
+$end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'dd-MM/yyyy');
+$new_time = date("d/m", $model->config->start_date);
+$now = date("H:i d/m");
+
+$resourcesName = [
+    "Twitter" => "Twitter",
+    "Live Chat" => "Live Chat (Tickets)",
+    "Live Chat Conversations" => "Live Chat (Chats)",
+    "Facebook Comments" => "Facebook Commentarios",
+    "Instagram Comments" => "Instagram Commentarios",
+    "Facebook Messages" => "Facebook Inbox",
+    "Excel Document" => "Excel Documento",
+    "Paginas Webs" => "Paginas Webs",
+];
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title></title>
     <meta charset="utf-8">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-
 </head>
 <body>
-    
+    <!-- <link rel="stylesheet" href="../css/Socicon/style.css"> -->
+    <style>
+            
+            * {
+            box-sizing: border-box;
+            }
+            
+            .page_break { page-break-before: always; }
+            .chart{
+                width: 300px;
+                height: 300px;
+            }
+    </style>
     <div class="container">
         <!-- images portada -->
         <div class="row">
             <div class="col-md-12">
                 <div class="">
-                    <?= Html::img($url_logo_small) ?>
-                    <br>
-                    <?= Html::img($url_logo) ?>
+                     <?= Html::img($url_logo_small) ?>
+                     <br><br><br>
+                    <?= Html::img($url_logo,['height' => '500px','width' => '700px']) ?>
                 </div>
             </div>
         </div>
@@ -31,51 +54,59 @@ use yii\helpers\Url;
         <!-- leyend -->
         <div class="row">
             <div class="col-md-12">
-                <h1 style="font-family: 'PT Sans Narrow', sans-serif;">Reporte Monitor</h1>
-                <br>
-            <p style="font-family: 'PT Sans Narrow', sans-serif;"><?=  Yii::$app->formatter->asDate('now', 'yyyy-MM-dd');  ?></p>
-            <p>---</p>
-            <p style="font-family: 'PT Sans Narrow', sans-serif; font-size: 16px; color: blue"><?= $model->user->username ?></p>
-
-            <p style="font-family: 'PT Sans Narrow', sans-serif; font-size: 16px;">Social Media Trends</p>
-            
-            <p style="font-family: 'PT Sans Narrow', sans-serif; font-size: 16px;">Nombre de la Alerta: <?= $model->name ?></p>
-
+                <h3 style="font-family: 'Helvetica', sans-serif;">Reporte de Listening</h3>
+                <h2 style="font-family: 'Helvetica', sans-serif;">Análisis</h2>
+                <h4 style="font-family: 'Helvetica', sans-serif;"><?= $start_date ?> - <?= $end_date ?></h4>
+                <p>Datos obtenidos de 12:00 <?= $new_time ?> al <?= $now ?></p>
+                 
             </div>
         </div>
         <!-- end  leyend -->
-        <!-- break to another page -->
-        <br><br><br><br><br><br><br><br>
-        <!-- end break to another page -->
-        <!-- top belt -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="">
-                    <?= Html::img($chart_bar_resources_count,['width'=>550,'height'=>180]) ?>
-                </div>
-            </div>
-        </div>
-        <!-- end top belt -->
-        <div class="row">
-            <div class="col-md-12">
-                <?php if ($post_mentions): ?>
-                    <?= Html::img($post_mentions,['width'=>550,'height'=>180]) ?>
-                <?php endif ?>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <?= Html::img($products_interations,['width'=>550,'height'=>180]) ?>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                
-            </div>
-        </div>
-
-
+       
+        <br><br><br><br><br><br>
         
+       <!-- break to another page -->
+       <div class="page-break"></div>
+       <!-- end break to another page -->
+        
+        <div class="row">
+            <div class="col-md-12">
+                <!-- show  terms searched -->
+                <h2 style="font-family: 'Helvetica', sans-serif;"><?= $model->name ?></h2>
+                <h1 style="font-family: 'Helvetica', sans-serif;">Escucha</h1>
+
+                <?php foreach($model->products as $term): ?>
+                    <p><?= $term ?></p>
+                <?php endforeach; ?>  
+                <!-- end show  terms searched -->
+            </div>
+        </div>
+        
+        <!-- break to another page -->
+       <div class="page-break"></div>
+       <!-- end break to another page -->
+       
+       <!-- by resource -->
+       <div class="row">
+           <div class="col-md-12">
+            <?php foreach($resourcesSocialData as $resourceName  => $values) :?> 
+                    <div class="page_break"></div>
+                    
+                    <h2><?= $resourcesName[$resourceName] ?></h2>
+                    <?php foreach($values['terms'] as $term): ?>
+                        <p><?= $term ?></p>
+                    <?php endforeach; ?>
+
+                    <?php $url = $values['url_graph_data_terms'];?>
+                    <h2 style="font-family: 'Helvetica', sans-serif;">Totales por terminos</h2>
+                    <br><br>
+                    <div class="chart">
+                        <img src="<?= $url ?>" alt="Static Chart"/>
+                    </div>
+            <?php endforeach; ?> 
+           </div>
+       </div>
+        <!-- end by resource-->
     </div>
 
 
@@ -94,8 +125,6 @@ use yii\helpers\Url;
         }
     </script>
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
+   
 </body>
 </html>

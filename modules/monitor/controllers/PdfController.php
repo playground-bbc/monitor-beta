@@ -19,20 +19,12 @@ class PdfController extends \yii\web\Controller
      * Generate document pdf for Alert
      * @return Array data and url document
      */
-    public function actionDocument()
+    public function actionDocument($alertId)
     {
-    	\Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
-    	// get data post
-    	$data_post = json_decode(\Yii::$app->request->getRawBody());
-    	// asign data
-    	$alertId = $data_post->alertId;
-    	$chart_bar_resources_count = $data_post->chart_bar_resources_count;
-        $post_mentions = (isset($data_post->post_mentions)) ? $data_post->post_mentions : false;
-        $products_interations = $data_post->products_interations;
-        $date_resources = $data_post->date_resources;
+        set_time_limit(300);
     	// load images
-    	$url_logo_small = \yii\helpers\Url::to('@img/logo_small.png');
-        $url_logo = \yii\helpers\Url::to('@img/logo.jpg');
+    	$url_logo_small = \yii\helpers\Url::to('@web/img/logo_small.png',true);
+        $url_logo = \yii\helpers\Url::to('@web/img/logo.png',true);
         // load model alert
         $model = \app\models\Alerts::findOne($alertId);
         // name file
@@ -40,7 +32,9 @@ class PdfController extends \yii\web\Controller
         $end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy-MM-dd');
         $name       = "{$model->name} {$start_date} to {$end_date}.pdf"; 
         $file_name  =  \app\helpers\StringHelper::replacingSpacesWithUnderscores($name);
-        // 
+        // resources social data
+        $resourcesSocialData = $this->getSocialData($model); 
+
         // create option folder
         $folderOptions = [
             'name' => $alertId,
@@ -50,22 +44,21 @@ class PdfController extends \yii\web\Controller
         $path = \app\helpers\DirectoryHelper::setFolderPath($folderOptions);
         // options pdf
         $options = new Options();
-        $options->set('defaultFont', 'Courier');
-        $options->set('isRemoteEnabled', TRUE);
-        $options->set('debugKeepTemp', TRUE);
-        $options->set('isHtml5ParserEnabled', false);
+        //$options->set('defaultFont', 'Courier');
+        $options->set('isRemoteEnabled', true);
+        $options->set('debugKeepTemp', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
         // pdf libraries
-        $pdf = new Dompdf();
-        $pdf->set_option("isPhpEnabled", true);
+        $pdf = new Dompdf($options);
+        //$pdf->set_paper('letter', 'landscape');
+        
         // render partial html
         $html = $this->renderPartial('_document',[
             'model' => $model,
             'url_logo' => $url_logo,
-            'post_mentions' => $post_mentions,
-            'date_resources' => $date_resources,
             'url_logo_small' => $url_logo_small,
-            'products_interations' => $products_interations,
-            'chart_bar_resources_count' => $chart_bar_resources_count
+            'resourcesSocialData' => $resourcesSocialData
         ]);
         // load html
         $pdf->load_html($html);
@@ -75,10 +68,40 @@ class PdfController extends \yii\web\Controller
         // move file
         file_put_contents( $path.$file_name, $pdf->output()); 
         
-        $url = Url::to('@web/pdf/'.$model->id.'/'.$file_name);
-        return array('data' => $url,'filename' => $file_name); 
+        //$url = Url::to('@web/pdf/'.$model->id.'/'.$file_name);
+        //return array('data' => $url,'filename' => $file_name); 
     }
 
+
+    private function getSocialData($model){
+        
+        $data = $this->getTermsFindByResources($model);
+        $data = $this->getGraphDataTermsByResourceId($model,$data);
+        return $data;
+        
+    }
+
+    private function getTermsFindByResources($model){
+        $resources = [];
+        foreach($model->config->configSources as $source){
+            if(\app\helpers\AlertMentionsHelper::getCountAlertMentionsByResourceId($model->id,$source->alertResource->id)){
+                $termsFind = \app\helpers\MentionsHelper::getProductInteration($model->id,$source->alertResource->id);
+                for($t = 0; $t < sizeOf($termsFind['data']); $t++){
+                    $resources[$source->alertResource->name]['terms'][] =$termsFind['data'][$t][0];
+                }
+            }
+        }
+        return $resources;
+    }
+
+    private function getGraphDataTermsByResourceId($model,$data){
+
+        foreach($model->config->configSources as $source){
+            $url = \app\helpers\DocumentHelper::actionGraphDataTermsByResourceId($model->id,$source->alertResource->id);
+            $data[$source->alertResource->name]['url_graph_data_terms'] = $url;
+        }
+        return $data;
+    }
     /**
      * Generate document Excel for Alert
      * @return Object response

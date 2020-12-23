@@ -83,6 +83,25 @@ class AlertMentionsHelper
         return false;
     }
 
+    public static function getCountAlertMentionsByResourceIdAndTermSearched($alertId,$resourceId,$term_searched){
+        $db = \Yii::$app->db;
+        $models = $db->cache(function ($db) use($alertId,$resourceId,$term_searched){
+            return \app\models\AlertsMencions::find()->with('mentions')->where([
+                'alertId' => $alertId,
+                'resourcesId' => $resourceId,
+                'term_searched' => $term_searched
+                ]
+                )->all();
+        },60);
+        $count = 0;
+        foreach($models as $model){
+            if(count($model->mentions)){
+                $count++;
+            }
+        }
+        return $count;
+    }
+
     public static function getCountAlertMentionsByResourceId($alertId,$resourceId){
         $db = \Yii::$app->db;
         $models = $db->cache(function ($db) use($alertId,$resourceId){
@@ -225,8 +244,8 @@ class AlertMentionsHelper
     public static function getProductInterations($resourceName,$alerts_mention_ids,$alertId)
     {
         $data = [];
-        $models = \app\models\AlertsMencions::find()->where(['id' => $alerts_mention_ids,'alertId' => $alertId])->all();
         ini_set('memory_limit', '4G');
+        $models = \app\models\AlertsMencions::find()->where(['id' => $alerts_mention_ids,'alertId' => $alertId])->all();
         
         switch ($resourceName) {
             case 'Facebook Comments':

@@ -32,11 +32,36 @@ $resourcesName = [
             * {
             box-sizing: border-box;
             }
+            @font-face { 
+            font-family: noto; 
+            font-weight: normal; 
+            font-style: normal; src: url('fonts/NotoColorEmoji.ttf') format('truetype'); 
+            } 
             
             .page_break { page-break-before: always; }
             .chart{
                 width: 300px;
                 height: 300px;
+            }
+            .zui-table {
+                border: solid 1px #DDEEEE;
+                border-collapse: collapse;
+                border-spacing: 0;
+                font: normal 13px Arial, sans-serif;
+            }
+            .zui-table thead th {
+                background-color: #DDEFEF;
+                border: solid 1px #DDEEEE;
+                color: #336B6B;
+                padding: 10px;
+                text-align: left;
+                text-shadow: 1px 1px 1px #fff;
+            }
+            .zui-table tbody td {
+                border: solid 1px #DDEEEE;
+                color: #333;
+                padding: 10px;
+                text-shadow: 1px 1px 1px #fff;
             }
     </style>
     <div class="container">
@@ -83,13 +108,36 @@ $resourcesName = [
         </div>
         
         <!-- break to another page -->
-       <div class="page-break"></div>
+        <div class="page_break"></div>
        <!-- end break to another page -->
-       
+
+       <?php  if(count($emojis['data'])):?>
+       <div class="row">
+            <div class="col-md-12">
+            <table class="zui-table">
+                <thead>
+                    <tr>
+                        <th>Emoji</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($emojis['data'] as $emoji => $values) :?> 
+                    <tr>
+                        <td style="font-family: noto; font-weight:normal;"><?= $values['emoji'] ?></td>
+                        <td><?= $values['count'] ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            </div>
+       </div>
+       <?php endif; ?> 
        <!-- by resource -->
        <div class="row">
            <div class="col-md-12">
             <?php foreach($resourcesSocialData as $resourceName  => $values) :?> 
+                <?php  if(isset($values['terms']) && count($values['terms'])):?>
                     <div class="page_break"></div>
                     
                     <h2><?= $resourcesName[$resourceName] ?></h2>
@@ -103,6 +151,14 @@ $resourcesName = [
                     <div class="chart">
                         <img src="<?= $url ?>" alt="Static Chart"/>
                     </div>
+                    <div class="page_break"></div>   
+                    <?php $url = $values['url_graph_common_words'];?>
+                    <h2 style="font-family: 'Helvetica', sans-serif;">Palabras mas Comunes</h2>
+                    <br><br>
+                    <div class="chart">
+                        <img src="<?= $url ?>" alt="Static Chart"/>
+                    </div>
+                <?php endif; ?>     
             <?php endforeach; ?> 
            </div>
        </div>

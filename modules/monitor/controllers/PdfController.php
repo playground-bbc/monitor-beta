@@ -32,6 +32,9 @@ class PdfController extends \yii\web\Controller
         $end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy-MM-dd');
         $name       = "{$model->name} {$start_date} to {$end_date}.pdf"; 
         $file_name  =  \app\helpers\StringHelper::replacingSpacesWithUnderscores($name);
+        
+        // emojis
+        $emojis = $this->getEmojisByAlertId($model->id);
         // resources social data
         $resourcesSocialData = $this->getSocialData($model); 
 
@@ -56,6 +59,7 @@ class PdfController extends \yii\web\Controller
         // render partial html
         $html = $this->renderPartial('_document',[
             'model' => $model,
+            'emojis' => $emojis,
             'url_logo' => $url_logo,
             'url_logo_small' => $url_logo_small,
             'resourcesSocialData' => $resourcesSocialData
@@ -77,6 +81,7 @@ class PdfController extends \yii\web\Controller
         
         $data = $this->getTermsFindByResources($model);
         $data = $this->getGraphDataTermsByResourceId($model,$data);
+        $data = $this->getGraphCommonWordsByResourceId($model,$data);
         return $data;
         
     }
@@ -101,6 +106,20 @@ class PdfController extends \yii\web\Controller
             $data[$source->alertResource->name]['url_graph_data_terms'] = $url;
         }
         return $data;
+    }
+
+    private function getGraphCommonWordsByResourceId($model,$data){
+
+        foreach($model->config->configSources as $source){
+            $url = \app\helpers\DocumentHelper::GraphCommonWordsByResourceId($model->id,$source->alertResource->id);
+            $data[$source->alertResource->name]['url_graph_common_words'] = $url;
+        }
+        return $data;
+    }
+
+    private function getEmojisByAlertId($alertId){
+        $emojis = \app\helpers\MentionsHelper::getEmojisList($alertId); 
+        return array_slice($emojis, 0, 10);;
     }
     /**
      * Generate document Excel for Alert

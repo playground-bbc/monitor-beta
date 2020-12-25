@@ -303,34 +303,7 @@ class MentionsController extends Controller
    * @return [type]          [description]
    */
   public function actionListEmojis($alertId){
-    // list mentions: mentions
-    $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
-    $alertsId = [];
-    foreach ($alertMentions as $alertMention){
-      if($alertMention->mentionsCount){
-        $alertsId[] = $alertMention->id;
-      }
-    }
-
-    $mentions = \app\models\Mentions::find()->select(['id','message'])->where(['alert_mentionId' => $alertsId])->asArray()->all();
-    $model = [];
-    foreach ($mentions as $mention){
-      $emojis = \Emoji\detect_emoji($mention['message']);
-      if(!empty($emojis)){
-          foreach($emojis as $emoji){
-            $name = $emoji['short_name'];
-            if(isset($model[$name])){
-              $model[$name]['count'] += 1;
-              
-            }else{
-              $emoji = $emoji['emoji'];
-              $model[$name] = ['count' => 1,'emoji' => $emoji ];
-            }
-          }
-      }
-    }
-
-    return array('data' => $model);    
+    return \app\helpers\MentionsHelper::getEmojisList($alertId);   
 
   }
 

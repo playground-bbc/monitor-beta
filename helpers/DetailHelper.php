@@ -961,6 +961,55 @@ class DetailHelper {
 
         return $column;
     }
+
+    public static function CommonWords($alertId,$resourceId,$term = '',$socialId = ''){
+        
+        $model = self::findModel($alertId,$resourceId);
+        $where = ['alertId' => $alertId,'resourcesId' => $resourceId];
+        
+        if($term != ""){ $where['term_searched'] = $term;}
+        
+        $where_alertMentions = [];
+        if($socialId != ""){ $where_alertMentions['mention_socialId'] = $socialId;}
+
+        $alertsMentionsIds = \app\models\AlertsMencions::find()->select('id')->where($where)->asArray()->all();
+
+        // SELECT name,SUM(weight) as total FROM `alerts_mencions_words` WHERE  alert_mentionId IN (166,171,175,177,181,170,172,182) AND weight > 2 GROUP BY name  
+        // ORDER BY `total`  DESC
+        $ids = \yii\helpers\ArrayHelper::getColumn($alertsMentionsIds, 'id');
+        $where_alertMentions['alert_mentionId'] = $ids;
+        
+        $rows = (new \yii\db\Query())
+        ->select(['name','total' => 'SUM(weight)'])
+        ->from('alerts_mencions_words')
+        ->where($where_alertMentions)
+        ->groupBy('name')
+        ->orderBy(['total' => SORT_DESC])
+        ->limit(20)
+        ->all();
+        
+        $data = [];
+        for ($r=0; $r < sizeOf($rows) ; $r++) { 
+            if($rows[$r]['total'] >= 2){
+                $data[]= $rows[$r];
+            }
+        }
+        return ['words' => $data];
+    }
+
+    public static function findModel($id,$resourceId)
+    {
+        if (($model = \app\models\Alerts::findOne($id)) !== null) {
+            $alertResources = \yii\helpers\ArrayHelper::map($model->config->sources,'id','name');
+            if(in_array($resourceId,array_keys($alertResources))){
+                return $model;
+            }else{
+                throw new NotFoundHttpException('The resource page does not exist for this Alert.');  
+            }
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
     
 }
 

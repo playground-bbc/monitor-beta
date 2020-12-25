@@ -369,6 +369,106 @@ class DocumentHelper
         return $url;
     }
 
+    public static function GraphCommonWordsByResourceId($alertId,$resourceId){
+        $words = \app\helpers\DetailHelper::CommonWords($alertId,$resourceId);
+        $words = array_slice($words['words'],0,5);
 
+        $config = [
+        'type' => 'outlabeledPie',
+        'data' => [
+          'labels' => [],
+            'datasets' => [
+                [
+                    "backgroundColor" => ["#FF3784", "#36A2EB", "#4BC0C0", "#F77825", "#9966FF"],
+                    "data" => []
+                ]
+            ],
+        ],
+        'options' => [
+            'plugins' => [
+                "legend" => false,
+                "outlabels" => [
+                        "text" => "%l %p",
+                        "color" => "white",
+                        "stretch" => 35,
+                        "font" => [
+                            "resizable" => true,
+                            "minSize" => 12,
+                            "maxSize" => 18
+                        ]
+                    ]    
+                ]
+            ]
+        ];
+
+        for($w = 0; $w < sizeOf($words); $w++){
+            $config['data']['labels'][] = $words[$w]['name'];
+            $config['data']['datasets'][0]['data'][] = $words[$w]['total'];
+        }  
+
+        $qc = new \QuickChart(array(
+            'width'=> 400,
+            'height'=> 280,
+        ));
+
+
+        $config_json = json_encode($config);
+        $qc->setConfig($config_json);
+        
+        # Print the chart URL
+        $url =  $qc->getShortUrl();
+        return $url;
+    }
     
+
+    public static function GraphEmojisByResourceId($alertId){
+        $emojis = \app\helpers\MentionsHelper::getEmojisList($alertId);   
+        $emojis = array_slice($emojis['data'],0,10);
+
+        $config = [
+        'type' => 'outlabeledPie',
+        'data' => [
+          'labels' => [],
+            'datasets' => [
+                [
+                    "backgroundColor" => ["#FF3784", "#36A2EB", "#4BC0C0", "#F77825", "#9966FF","#060F77","#067761","#8EEA3C","#EAD03C","#EA813C","#EA3CBD"],
+                    "data" => []
+                ]
+            ],
+        ],
+        'options' => [
+            'plugins' => [
+                "legend" => false,
+                "outlabels" => [
+                        "text" => "%l %p",
+                        "color" => "white",
+                        "stretch" => 35,
+                        "font" => [
+                            "resizable" => true,
+                            "minSize" => 12,
+                            "maxSize" => 18
+                        ]
+                    ]    
+                ]
+            ]
+        ];
+
+        foreach($emojis as $emoji => $values){
+            $config['data']['labels'][] = $values['emoji'];
+            $config['data']['datasets'][0]['data'][] = $values['count'];
+        }
+
+        $qc = new \QuickChart(array(
+            'width'=> 400,
+            'height'=> 280,
+        ));
+
+
+        $config_json = json_encode($config);
+        $qc->setConfig($config_json);
+        
+        # Print the chart URL
+        $url =  $qc->getShortUrl();
+        return $url;
+    }
 }

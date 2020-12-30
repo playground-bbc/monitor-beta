@@ -141,8 +141,8 @@ class DateHelper
         return $date->getTimestamp();
     }
 
-    public static function asDatetime($date){
-        return date('d/m/Y',$date);
+    public static function asDatetime($date,$format = "d/m/Y"){
+        return date($format,$date);
     }
     /**
      * [isToday take a date and well his function name isToday rigth]

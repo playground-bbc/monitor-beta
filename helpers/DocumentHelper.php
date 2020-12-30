@@ -26,6 +26,7 @@ use QuickChart;
  */
 class DocumentHelper
 {
+
     /**
      * Checks if a document json with the alert id and resource name exists
      * @param  Integer $alertId [id from the alert]
@@ -181,7 +182,56 @@ class DocumentHelper
         $writer->close();
     }
 
+    public static function GraphCountSourcesMentions($alertId){
+        $data = \app\helpers\MentionsHelper::getCountSourcesMentions($alertId);
+        $colors =  [
+            "Twitter" => "rgb(255, 99, 132)",
+            "Live Chat" => "rgb(255, 159, 64)",
+            "Live Chat Conversations" => "rgb(255, 205, 86)",
+            "Facebook Comments" => "rgb(75, 192, 192)",
+            "Instagram Comments" => "rgb(54, 162, 235)",
+            "Facebook Messages" => "rgb(54, 162, 235)",
+            "Excel Document" => "rgb(54, 162, 235)",
+            "Paginas Webs" => "rgb(54, 162, 235)",
+        ];
+        
+        $config = [
+            'type' => 'doughnut',
+            'data' => [
+              'labels' => [],
+                'datasets' => [
+                    [
+                        "backgroundColor" => [],
+                        "data" => []
+                    ]
+                ],
+            ],
+            
+        ];
+        for($i = 0; $i < sizeOf($data['data']); $i ++){
+            $resourceName = $data['data'][$i][0];
+            $total = $data['data'][$i][3];
+            if($total){
+                $config['data']['labels'][] = \Yii::$app->params['resourcesName'][$resourceName];
+                $config['data']['datasets'][0]['backgroundColor'][] = $colors[$resourceName];
+                $config['data']['datasets'][0]['data'][] = $total;
+            }
+            
+        }
 
+        $qc = new \QuickChart(array(
+            'width'=> 300,
+            'height'=> 280,
+        ));
+
+
+        $config_json = json_encode($config);
+        $qc->setConfig($config_json);
+        
+        # Print the chart URL
+        $url =  $qc->getShortUrl();
+        return $url;
+    }
 
     public static function actionGraphTermsCountByResourceId($alertId,$resourceId){
         $data = \app\helpers\MentionsHelper::getProductInteration($alertId,$resourceId);
@@ -372,52 +422,57 @@ class DocumentHelper
     public static function GraphCommonWordsByResourceId($alertId,$resourceId){
         $words = \app\helpers\DetailHelper::CommonWords($alertId,$resourceId);
         $words = array_slice($words['words'],0,5);
-
-        $config = [
-        'type' => 'outlabeledPie',
-        'data' => [
-          'labels' => [],
-            'datasets' => [
-                [
-                    "backgroundColor" => ["#FF3784", "#36A2EB", "#4BC0C0", "#F77825", "#9966FF"],
-                    "data" => []
-                ]
-            ],
-        ],
-        'options' => [
-            'plugins' => [
-                "legend" => false,
-                "outlabels" => [
-                        "text" => "%l %p",
-                        "color" => "white",
-                        "stretch" => 35,
-                        "font" => [
-                            "resizable" => true,
-                            "minSize" => 12,
-                            "maxSize" => 18
-                        ]
-                    ]    
-                ]
-            ]
-        ];
-
-        for($w = 0; $w < sizeOf($words); $w++){
-            $config['data']['labels'][] = $words[$w]['name'];
-            $config['data']['datasets'][0]['data'][] = $words[$w]['total'];
-        }  
-
-        $qc = new \QuickChart(array(
-            'width'=> 400,
-            'height'=> 280,
-        ));
-
-
-        $config_json = json_encode($config);
-        $qc->setConfig($config_json);
         
-        # Print the chart URL
-        $url =  $qc->getShortUrl();
-        return $url;
+        if(count($words)){
+            $config = [
+            'type' => 'outlabeledPie',
+            'data' => [
+                'labels' => [],
+                'datasets' => [
+                    [
+                        "backgroundColor" => ["#FF3784", "#36A2EB", "#4BC0C0", "#F77825", "#9966FF"],
+                        "data" => []
+                    ]
+                ],
+            ],
+            'options' => [
+                'plugins' => [
+                    "legend" => false,
+                    "outlabels" => [
+                            "text" => "%l %p",
+                            "color" => "white",
+                            "stretch" => 35,
+                            "font" => [
+                                "resizable" => true,
+                                "minSize" => 12,
+                                "maxSize" => 18
+                            ]
+                        ]    
+                    ]
+                ]
+            ];
+    
+            for($w = 0; $w < sizeOf($words); $w++){
+                $config['data']['labels'][] = $words[$w]['name'];
+                $config['data']['datasets'][0]['data'][] = $words[$w]['total'];
+            }  
+    
+            $qc = new \QuickChart(array(
+                'width'=> 400,
+                'height'=> 280,
+            ));
+    
+    
+            $config_json = json_encode($config);
+            $qc->setConfig($config_json);
+            
+            # Print the chart URL
+            $url =  $qc->getShortUrl();
+            return $url;
+        }
+
+        
+        return null;
     }
     
 
@@ -471,4 +526,83 @@ class DocumentHelper
         $url =  $qc->getShortUrl();
         return $url;
     }
+
+    public static function GraphResourceOnDate($alertId){
+        $data = \app\helpers\MentionsHelper::getMentionOnDate($alertId,false);  
+        
+        if(isset($data['model']) && count($data['model'])){
+
+            $config = [
+                'type' => 'line',
+                'data' => [
+                    'datasets' => [],
+                ],
+                'options' => [
+                    "responsive"=> true,
+                    "scales" =>[
+                        "xAxes" => [
+                            [
+                                "type" => "time",
+                                "display" => true,
+                                "scaleLabel" => [
+                                    "display"=> true,
+                                    "labelString"=> "Fecha"
+                                ],
+                                "ticks" => [
+                                    "major" => [
+                                        "enabled"=> true
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "yAxes" => [
+                            [
+                                "display" => true,
+                                "scaleLabel" => [
+                                    "display"=> true,
+                                    "labelString"=> "Valor"
+                                ],
+                            ]
+                        ]
+                    ]
+                    
+                ]
+            ];
+
+            $dataset = [];
+            for($m = 0; $m < sizeOf($data['model']); $m++){
+                $dataset[$m]['label'] = $data['model'][$m]['name'];
+                $dataset[$m]['backgroundColor'] = $data['model'][$m]['color'];
+                $dataset[$m]['borderColor'] = $data['model'][$m]['color'];
+                $dataset[$m]['fill'] = false;
+                if(count($data['model'][$m]['data'])){
+                    $tmp = [];
+                    for($d = 0; $d < sizeOf($data['model'][$m]['data']); $d++){
+                        $tmp[] = [
+                            "x" => \app\helpers\DateHelper::asDatetime($data['model'][$m]['data'][$d][0],"Y-m-d"),
+                            "y" => $data['model'][$m]['data'][$d][1]
+                        ];
+                    }
+                    $dataset[$m]['data'] = $tmp;
+                }
+            }
+            $config['data']['datasets'] = $dataset;
+            $qc = new \QuickChart(array(
+                'width'=> 400,
+                'height'=> 280,
+            ));
+            
+            $config_json = json_encode($config);
+            $qc->setConfig($config_json);
+            
+            # Print the chart URL
+            $url =  $qc->getShortUrl();
+            return $url;
+
+        }
+        
+        
+        return null;
+    }
+
 }

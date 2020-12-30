@@ -9,6 +9,7 @@ namespace app\commands;
 
 use yii\console\Controller;
 use yii\console\ExitCode;
+use \kartik\mpdf\Pdf;
 /**
  *
  * This command is provided creation document
@@ -16,7 +17,7 @@ use yii\console\ExitCode;
 class DocumentController extends Controller
 {
     /**
-     * This command echoes what you have entered as the message.
+     * This command create document excel with mention of the alert.
      * @param string $message the message to be echoed.
      * @return int Exit code
      */
@@ -53,7 +54,7 @@ class DocumentController extends Controller
                         if (!is_dir($pathFolder))
                         {
                             // set path folder options
-                            $folderOptions = ['path' => \Yii::getAlias('@runtime/export/') , 'name' => $alerts['id'], ];
+                            $folderOptions = ['path' => \Yii::getAlias('@runtime/export/') , 'name' => $alerts['id']];
                             // create folder
                             $folderPath = \app\helpers\DirectoryHelper::setFolderPath($folderOptions);
                             $fileIsCreated = true;
@@ -96,6 +97,128 @@ class DocumentController extends Controller
         return ExitCode::OK;
     }
 
+
+    public function actionPdf()
+    {
+        $alerts = \app\models\Alerts::find(['status' => 1])->all();
+
+        if (!empty($alerts))
+        {
+            // loop alerts
+            foreach ($alerts as $index => $alert)
+            {
+                // if there mentions
+                $alertsMentions = \app\helpers\AlertMentionsHelper::getAlersMentions(['alertId' => $alert->id]);
+                if (!is_null($alertsMentions))
+                {
+                    // get alertMentios ids
+                    $alertsMentionsIds = \yii\helpers\ArrayHelper::getColumn($alertsMentions, 'id');
+                    // get mentions order by created_at
+                    $mentions = \app\models\Mentions::find()->select('createdAt')
+                        ->where(['alert_mentionId' => $alertsMentionsIds])->orderBy(['createdAt' => SORT_ASC])
+                        ->asArray()
+                        ->all();
+                    // if there mentions
+                    if (count($mentions))
+                    {
+                        // recent registration
+                        $record = end($mentions);
+                        $createdAt = $record['createdAt'];
+                        // if dir folder
+                        $pathFolder = \Yii::getAlias("@pdf/{$alert->id}");
+                        $fileIsCreated = false;
+                        if (!is_dir($pathFolder))
+                        {
+                            // set path folder options
+                            $folderOptions = ['path' => \Yii::getAlias('@pdf/') , 'name' => $alert->id];
+                            // create folder
+                            $folderPath = \app\helpers\DirectoryHelper::setFolderPath($folderOptions);
+                            $fileIsCreated = true;
+                        }
+                        else
+                        {
+                            $files = \yii\helpers\FileHelper::findFiles($pathFolder, ['only' => ['*.pdf']]);
+                            // get the name the file
+                            if (isset($files[0]))
+                            {
+                                $path_explode = explode('/', $files[0]);
+                                $filename = explode('.', end($path_explode));
+
+                                if ($filename[0] != $createdAt)
+                                {
+                                    unlink($files[0]);
+                                    $fileIsCreated = true;
+                                }
+                            }
+                            else
+                            {
+                                $fileIsCreated = true;
+                            }
+                        }
+
+                        if ($fileIsCreated)
+                        {
+                            $resourcesSocialData = \app\helpers\PdfHelper::getDataForPdf($alert); 
+                            if (count($resourcesSocialData))
+                            {
+                                $folderPath = \Yii::getAlias("@pdf/{$alert->id}/");
+                                $filePath = $folderPath . "{$createdAt}.pdf";
+
+                                 // load images
+                                $url_logo_small = \yii\helpers\Url::to('monitor-beta/web/img/logo_small.png',true);
+                                $url_logo = \yii\helpers\Url::to('monitor-beta/web/img/logo.png',true);
+                                
+                                $html = $this->renderPartial('_document',[
+                                    'model' => $alert,
+                                    'resourcesSocialData' => $resourcesSocialData,
+                                    'url_logo_small' => $url_logo_small,
+                                    'url_logo' =>$url_logo,
+                                ]);
+                                echo "proceseed \n";
+                                //die();
+                                set_time_limit(300);
+                                $pdf = new \kartik\mpdf\Pdf([
+                                   // 'mode' => 'utf-8', 
+                                    'filename' => $filePath,
+                                    // set to use core fonts only
+                                    'mode' => Pdf::MODE_CORE, 
+                                    // A4 paper format
+                                    'format' => Pdf::FORMAT_A4, 
+                                    // portrait orientation
+                                    'orientation' => Pdf::ORIENT_PORTRAIT, 
+                                    // stream to browser inline
+                                    'destination' => Pdf::DEST_FILE, 
+                                    // your html content input
+                                    'content' => $html,  
+                                    // format content from your own css file if needed or use the
+                                    // enhanced bootstrap css built by Krajee for mPDF formatting 
+                                    'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
+                                    // any css to be embedded if required
+                                    'cssInline' => '.kv-heading-1{font-size:18px}', 
+                                    // set mPDF properties on the fly
+                                    'options' => ['title' => $alert->name],
+                                    // call mPDF methods on the fly
+                                    'methods' => [ 
+                                        'SetHeader'=>[$alert->name], 
+                                        'SetFooter'=>['{PAGENO}'],
+                                    ]
+                                ]);
+                                //$pdf->in_charset='UTF-8';
+                                // return the pdf output as per the destination setting
+                                $pdf->render(); 
+                                unset($pdf);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ExitCode::OK;
+    }
+    /**
+     * This command create json with post facebook.
+     * @return int Exit code
+     */
     public function actionFacebookPost()
     {
         // get credential user
@@ -191,7 +314,10 @@ class DocumentController extends Controller
             $jsonfile->save();
         }
     }
-
+    /**
+     * This command create json with post instagram.
+     * @return int Exit code
+     */
     public function actionInstagramPost()
     {
         // get credential user

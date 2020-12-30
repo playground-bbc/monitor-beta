@@ -110,6 +110,11 @@ class MentionSearch extends Mentions
         if(isset($params['resourceId'])){
             $where['resourcesId'] = $params['resourceId'];
         }
+        // if limit for pdf
+        if(isset($params['limits'])){
+            $limits = $params['limits'];
+        }
+
         // if resourceId if not firts level on params
         if(isset($params['MentionSearch']['resourceId'])){
             $where['resourcesId'] = $params['MentionSearch']['resourceId'];
@@ -124,7 +129,7 @@ class MentionSearch extends Mentions
             ->all();
         },$duration); 
         
-        $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');  
+        $ids = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');  
         
         $rows = (new \yii\db\Query())
         ->cache($duration)
@@ -144,12 +149,12 @@ class MentionSearch extends Mentions
           'url' => 'm.url',
         ])
         ->from('mentions m')
-        ->where(['alert_mentionId' => $alertsId])
+        ->where(['alert_mentionId' => $ids])
         ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
         ->join('JOIN','resources r', 'r.id = a.resourcesId')
         ->join('JOIN','users_mentions u', 'u.id = m.origin_id')
         ->orderBy(['m.created_time' => 'ASC'])
-        //->limit($limit)
+        ->limit((isset($limits)) ? $limits : -1)
         //->offset($offset)
         ->all();
         

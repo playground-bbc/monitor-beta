@@ -60,14 +60,15 @@
     "yooper/php-text-analysis": "^1.5",
     "kartik-v/yii2-tabs-x": "dev-master",
     "kartik-v/yii2-export": "*",
-    "kartik-v/yii2-mpdf": "*",
+    "kartik-v/yii2-mpdf": "dev-master",
     "kartik-v/yii2-widget-colorinput": "dev-master",
     "vlucas/phpdotenv": "^5.1",
     "box/spout": "^3.1",
     "wbraganca/yii2-dynamicform": "^2.0",
     "kartik-v/yii2-widget-typeahead": "dev-master",
     "vova07/yii2-console-runner-extension": "*",
-    "ianw/quickchart": "^1.0"
+    "ianw/quickchart": "^1.0",
+    "danielboendergaard/phantom-pdf": "^2.0"
   },
   "require-dev": {
     "yiisoft/yii2-debug": "~2.1.0",

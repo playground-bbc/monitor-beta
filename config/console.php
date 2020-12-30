@@ -13,6 +13,7 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@tests' => '@app/tests',
+        '@webroot' => '@app/web',
     ],
     'components' => [
         'cache' => [
@@ -54,6 +55,10 @@ $config = [
             ],
         ],
         'db' => $db,
+        'urlManager' => [
+            'class' => 'yii\web\UrlManager',
+            'hostInfo' => (YII_ENV_DEV) ? 'http://localhost/' : 'https://lg.mediatrendsgroup.com/'
+    ]
     ],
     'params' => $params,
     

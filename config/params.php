@@ -6,6 +6,8 @@ $folder = end($path);
 
 Yii::setAlias('@stopwords',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}stop-words{$s}data{$s}");
 Yii::setAlias('@data',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}data");
+// Yii::setAlias('@web',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}web");
+// Yii::setAlias('@webroot',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}web");
 Yii::setAlias('@img',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}web{$s}img");
 Yii::setAlias('@pdf',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}web{$s}pdf");
 Yii::setAlias('@credencials',dirname(dirname(__DIR__)). "{$s}{$folder}{$s}credentials{$s}monitor-app-96f0293a0153.json");
@@ -33,5 +35,17 @@ return [
 	'dandelion' => [
 		'token' => $_SERVER['DANDELION_TOKEN']
 	],
+	// alias for resources
+	'resourcesName' => [
+		"Twitter" => "Twitter",
+		"Live Chat" => "Live Chat (Tickets)",
+		"Live Chat Conversations" => "Live Chat (Chats)",
+		"Facebook Comments" => "Facebook Commentarios",
+		"Instagram Comments" => "Instagram Commentarios",
+		"Facebook Messages" => "Facebook Inbox",
+		"Excel Document" => "Excel Documento",
+		"Paginas Webs" => "Paginas Webs",
+	],
+	
 ];
 

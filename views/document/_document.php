@@ -1,5 +1,11 @@
 <?php 
 use yii\helpers\Html;
+
+// load dates to cover
+$start_date = \Yii::$app->formatter->asDatetime($model->config->start_date,'dd/MM/yyyy');
+$end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'dd-MM/yyyy');
+$new_time = date("d/m", $model->config->start_date);
+$now = date("h:i d/m");
 ?>
 <div class="container">
     <?= $this->render('_cover',[
@@ -34,3 +40,4 @@ use yii\helpers\Html;
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
+

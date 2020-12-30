@@ -360,78 +360,7 @@ class MentionsController extends Controller
    * @return [array \ Exception]  [array of date or exception if alert id not exists]
    */
   public function actionMentionOnDate($alertId){
-    // get models
-    $model = $this->findModel($alertId);
-    // get resources
-    $alertResources = \yii\helpers\ArrayHelper::map($model->config->sources,'id','name');
-    //menciones por recurso y fecha
-    $expression = new Expression("r.name,DATE(FROM_UNIXTIME(created_time)) AS date_created,COUNT(*) AS total");
-    // menciones por recurso y fecha para los chats
-    $expressionChats = new Expression("r.name,DATE(FROM_UNIXTIME(created_time)) AS date_created,COUNT( DISTINCT social_id) AS total");
-    
-    // query by target resourceName chats
-    $target = ['Facebook Messages','Live Chat Conversations','Live Chat'];
-    $chatsIds = [];
-    $commentsIds = [];
-    foreach($alertResources as $id => $resourceName){
-      if(in_array($resourceName,$target)){
-        $chatsIds[] = $id;
-      }else{
-        $commentsIds[] = $id;
-      }
-    }
-    
-    $rowsChats = [];
-    if(count($chatsIds)){
-      // get alertMentions and ids
-      $alertMentions = \app\models\AlertsMencions::find()->select('id')->where(['alertId' => $alertId,'resourcesId' => $chatsIds])->orderBy(['resourcesId' => 'ASC'])->asArray()->all();
-      $alertMentionsIds = \yii\helpers\ArrayHelper::getColumn($alertMentions, 'id');
-      $rowsChats = (new \yii\db\Query())
-        ->select($expressionChats)
-        ->from('mentions')
-        ->where(['alert_mentionId' => $alertMentionsIds])
-        ->join('JOIN','alerts_mencions a', 'alert_mentionId = a.id')
-        ->join('JOIN','resources r', 'r.id = a.resourcesId')
-        ->orderBy('date_created ASC')
-        ->groupBy(['date_created','r.name'])
-        ->all(); 
-    }
-    $rowsComments = [];
-    if(count($commentsIds)){
-      // get alertMentions and ids
-      $alertMentions = \app\models\AlertsMencions::find()->select('id')->where(['alertId' => $alertId,'resourcesId' => $commentsIds])->orderBy(['resourcesId' => 'ASC'])->asArray()->all();
-      $alertMentionsIds = \yii\helpers\ArrayHelper::getColumn($alertMentions, 'id');
-      $rowsComments = (new \yii\db\Query())
-        ->select($expression)
-        ->from('mentions')
-        ->where(['alert_mentionId' => $alertMentionsIds])
-        ->join('JOIN','alerts_mencions a', 'alert_mentionId = a.id')
-        ->join('JOIN','resources r', 'r.id = a.resourcesId')
-        ->orderBy('date_created ASC')
-        ->groupBy(['date_created','r.name'])
-        ->all();
-
-        
-    }
-    // merge both arrays
-    $rows = ArrayHelper::merge($rowsChats, $rowsComments);
-   
-    $result = ArrayHelper::index($rows, null, 'name');
-    // compose array to higchart  
-    $model = array();
-    $index = 0; 
-    foreach ($result as $resourceName => $data){
-      if(count($data)){
-        $model[$index]['name'] = $resourceName;
-        for($d = 0; $d < sizeOf($data); $d++){
-          $date = (int) strtotime($data[$d]['date_created']) * 1000;
-          $model[$index]['data'][] = array((int)$date,(int)$data[$d]['total']);
-        }
-        $model[$index]['color'] = \app\helpers\MentionsHelper::getColorResourceByName($resourceName);
-        $index++;
-      }
-    }
-    return array('status'=>true,'model' => $model);  
+    return  \app\helpers\MentionsHelper::getMentionOnDate($alertId);  
   }
 
 

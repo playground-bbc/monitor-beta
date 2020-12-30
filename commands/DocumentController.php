@@ -100,7 +100,7 @@ class DocumentController extends Controller
 
     public function actionPdf()
     {
-        $alerts = \app\models\Alerts::find(['status' => 1])->all();
+        $alerts = $this->getAlerts();
 
         if (!empty($alerts))
         {
@@ -174,35 +174,8 @@ class DocumentController extends Controller
                                     'url_logo_small' => $url_logo_small,
                                     'url_logo' =>$url_logo,
                                 ]);
-                                echo "proceseed \n";
-                                //die();
-                                set_time_limit(300);
-                                $pdf = new \kartik\mpdf\Pdf([
-                                   // 'mode' => 'utf-8', 
-                                    'filename' => $filePath,
-                                    // set to use core fonts only
-                                    'mode' => Pdf::MODE_CORE, 
-                                    // A4 paper format
-                                    'format' => Pdf::FORMAT_A4, 
-                                    // portrait orientation
-                                    'orientation' => Pdf::ORIENT_PORTRAIT, 
-                                    // stream to browser inline
-                                    'destination' => Pdf::DEST_FILE, 
-                                    // your html content input
-                                    'content' => $html,  
-                                    // format content from your own css file if needed or use the
-                                    // enhanced bootstrap css built by Krajee for mPDF formatting 
-                                    'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
-                                    // any css to be embedded if required
-                                    'cssInline' => '.kv-heading-1{font-size:18px}', 
-                                    // set mPDF properties on the fly
-                                    'options' => ['title' => $alert->name],
-                                    // call mPDF methods on the fly
-                                    'methods' => [ 
-                                        'SetHeader'=>[$alert->name], 
-                                        'SetFooter'=>['{PAGENO}'],
-                                    ]
-                                ]);
+
+                                $pdf = \app\helpers\PdfHelper::getKartikMpdf($filePath,$html,$alert);
                                 //$pdf->in_charset='UTF-8';
                                 // return the pdf output as per the destination setting
                                 $pdf->render(); 
@@ -214,6 +187,35 @@ class DocumentController extends Controller
             }
         }
         return ExitCode::OK;
+    }
+
+    private function getAlerts(){
+        $alerts = [];
+        $pathFolder = \Yii::getAlias("@pdf");
+        $files = \yii\helpers\FileHelper::findFiles($pathFolder);
+
+        if(count($files)){
+            $func = function($value) {
+                $value_explode = explode("/",$value);
+                if(count($value_explode)){
+                    // get name of the folder
+                    return $value_explode[count($value_explode) - 2];
+                }
+            };
+            $foldersName = array_map($func, $files);
+            $models = \app\models\Alerts::find()->all();
+            foreach($models as $model){
+               if(!in_array($model->id,$foldersName)){
+                $alerts[] = $model;
+               }
+            }
+            if(count($alerts)){
+                return $alerts;
+            }
+        }
+        
+        $alerts = \app\models\Alerts::find()->all();
+        return $alerts;
     }
     /**
      * This command create json with post facebook.

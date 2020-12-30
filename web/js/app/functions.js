@@ -97,7 +97,7 @@ function modalFinish(count, baseUrlView,id){
       buttonsStyling: true
     })
 
-    var title = '<strong>Alerta Finalizada</strong>';
+    var title = '<strong>Generar Informe</strong>';
     var msg = (parseInt(count)) ? message_with_data : message_not_data; 
     var icon = (parseInt(count)) ? 'success' : 'warning'; 
     var is_continue = (parseInt(count)) ? true : false; 
@@ -114,24 +114,9 @@ function modalFinish(count, baseUrlView,id){
       footer: '<a class="btn btn-dark" href= '+ baseUrlView + 'update?id='+ id + '&fresh=true' +'>update the alert?</a>'
     }).then(function(result){
         if(result.value){
-          axios.post(baseUrlDocument + 'document' , {
-              chart_bar_resources_count: data_chart['chart_bar_resources_count'],
-              post_mentions: data_chart['post_mentions'],
-              products_interations: data_chart['products_interations'],
-              date_resources: data_chart['date_resources'],
-              alertId: id,
-          })
-          .then(function (response) {
-            var link = document.createElement('a');
-            link.href = origin + response.data.data;
-            link.download = response.data.filename;
-            link.dispatchEvent(new MouseEvent('click'));
-            
-              
-          })
-          .catch(function (error) {
-             console.log(error);
-          });
+          var url = baseUrlDocument + 'document?alertId='+ id ;
+          var win = window.open(url, '_blank');
+          win.focus();
         }
        // console.log(result)
     });

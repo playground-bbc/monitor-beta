@@ -2,9 +2,8 @@
 namespace app\helpers;
 
 use yii;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use kartik\mpdf\Pdf;
+
 
 /**
  *
@@ -37,26 +36,33 @@ class PdfHelper{
      * This return Dompdf instance.
      * @return object Dompdf
      */
-    public static function getDompdf(){
-        // options pdf
-        $options = new Options();
-        //$options->set('defaultFont', 'Courier');
-        $options->set('isRemoteEnabled', true);
-        $options->set('debugKeepTemp', true);
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isPhpEnabled', true);
-        // pdf libraries
-        $pdf = new Dompdf($options);
-        return $pdf;
-    }
-
-    public static function getPhantomPdf(){
-        //use \PhantomPdf;
-        $pdf = new \PhantomPdf\PdfGenerator;
-        $runtime_path = \Yii::getAlias('@runtime/export/');
-        // Set a writable path for temporary files
-        $pdf->setStoragePath($runtime_path);
-        return $pdf;
+    public static function getKartikMpdf($file_path,$content,$model){
+        return new \kartik\mpdf\Pdf([
+            'filename' => $file_path,
+            // set to use core fonts only
+            'mode' => Pdf::MODE_CORE, 
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4, 
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT, 
+            // stream to browser inline
+            'destination' => Pdf::DEST_FILE, 
+            // your html content input
+            'content' => $content,  
+            // format content from your own css file if needed or use the
+            // enhanced bootstrap css built by Krajee for mPDF formatting 
+            'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
+            // any css to be embedded if required
+            'cssInline' => '.list-inline{list-style: none;
+                float: left;}', 
+            // set mPDF properties on the fly
+            'options' => ['title' => $model->name],
+            // call mPDF methods on the fly
+            'methods' => [ 
+                'SetHeader'=>[$model->name], 
+                'SetFooter'=>['{PAGENO}'],
+            ]
+        ]);
     }
 
     public static function getDataForPdf($model){

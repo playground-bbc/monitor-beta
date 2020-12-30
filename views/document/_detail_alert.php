@@ -91,6 +91,9 @@ use yii\helpers\Html;
 <?php endif; ?>
 
 <?php if(!is_null($url_graph_date_sources)): ?>
+<!-- break to another page -->
+<div style='page-break-after:always'></div>
+<!-- end break to another page -->  
 <div class="row">
     <h4>Totales globales por fecha</h4>
     <div class="col-md-12">

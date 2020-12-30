@@ -8,7 +8,6 @@ use Box\Spout\Writer\Common\Creator\WriterFactory;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
 use Box\Spout\Common\Type;
-use kartik\mpdf\Pdf;
 
 class PdfController extends \yii\web\Controller
 {
@@ -20,15 +19,27 @@ class PdfController extends \yii\web\Controller
      */
     public function actionDocument($alertId)
     {
+        
+        $model = \app\models\Alerts::findOne($alertId);
+        $file_name  =  \app\helpers\PdfHelper::setName($model);
+        
+        $pathFolder = \Yii::getAlias("@pdf/{$alertId}");
+
+        if(is_dir($pathFolder)){
+            $files = \yii\helpers\FileHelper::findFiles($pathFolder,['only'=>['*.pdf']]);
+            if(isset($files[0])){
+                $filePath = $pathFolder."/{$file_name}";
+                copy($files[0],"{$filePath}");
+                \Yii::$app->response->sendFile($filePath)->send();
+                unlink($filePath);
+                return null;
+            }
+        }
+
+        $filePath = $pathFolder."/{$file_name}";
         // load images
         $url_logo_small = \yii\helpers\Url::to('@web/img/logo_small.png',true);
         $url_logo = \yii\helpers\Url::to('@web/img/logo.png',true);
-        // load model alert
-        $model = \app\models\Alerts::findOne($alertId);
-        // name file
-        $file_name  =  \app\helpers\PdfHelper::setName($model);
-        // emojis
-        $emojis = $this->getEmojisByAlertId($model->id);
         // resources social data
         $resourcesSocialData = \app\helpers\PdfHelper::getDataForPdf($model); 
         
@@ -38,49 +49,23 @@ class PdfController extends \yii\web\Controller
                 'name' => $alertId,
                 'path' => '@pdf',
             ]);
-            //$this->layout = '';
             // render partial html
-            $html = $this->renderPartial('_document',[
+            $html = $this->renderPartial('//document/_document',[
                 'model' => $model,
-                // 'emojis' => $emojis,
                 'resourcesSocialData' => $resourcesSocialData,
                 'url_logo_small' => $url_logo_small,
                 'url_logo' =>$url_logo,
             ]);
             set_time_limit(300);
-            $pdf = new \kartik\mpdf\Pdf([
-                'filename' => $path.$file_name,
-                // set to use core fonts only
-                'mode' => Pdf::MODE_CORE, 
-                // A4 paper format
-                'format' => Pdf::FORMAT_A4, 
-                // portrait orientation
-                'orientation' => Pdf::ORIENT_PORTRAIT, 
-                // stream to browser inline
-                'destination' => Pdf::DEST_FILE, 
-                // your html content input
-                'content' => $html,  
-                // format content from your own css file if needed or use the
-                // enhanced bootstrap css built by Krajee for mPDF formatting 
-                'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
-                // any css to be embedded if required
-                'cssInline' => '.kv-heading-1{font-size:18px}', 
-                // set mPDF properties on the fly
-                'options' => ['title' => $model->name],
-                // call mPDF methods on the fly
-                'methods' => [ 
-                    'SetHeader'=>[$model->name], 
-                    'SetFooter'=>['{PAGENO}'],
-                ]
-            ]);
+            $pdf = \app\helpers\PdfHelper::getKartikMpdf($file_name,$html,$model);
 
-            // return the pdf output as per the destination setting
-            return $pdf->render(); 
-
+            $pdf->render(); 
+            \Yii::$app->response->sendFile($filePath)->send();
+            unlink($filePath);
+            unset($pdf);
+            return null;
         }
         
-        //$url = Url::to('@web/pdf/'.$model->id.'/'.$file_name);
-        //return array('data' => $url,'filename' => $file_name); 
     }
 
 
@@ -92,7 +77,7 @@ class PdfController extends \yii\web\Controller
         $url_logo_small = \yii\helpers\Url::to('@web/img/logo_small.png',true);
         $url_logo = \yii\helpers\Url::to('@web/img/logo.png',true);
         $resourcesSocialData = $this->getSocialData($model); 
-        return $this->render('_desing',[
+        return $this->render('//document/_document',[
             'model' => $model,
             'resourcesSocialData' => $resourcesSocialData,
             'url_logo_small' => $url_logo_small,
@@ -136,7 +121,6 @@ class PdfController extends \yii\web\Controller
      * @return Object response
      */
     public function actionExportMentionsExcel($alertId){
-
         
         $model = \app\models\Alerts::findOne($alertId);
         $start_date = \Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy-MM-dd');

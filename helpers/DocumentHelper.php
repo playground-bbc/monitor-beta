@@ -184,16 +184,6 @@ class DocumentHelper
 
     public static function GraphCountSourcesMentions($alertId){
         $data = \app\helpers\MentionsHelper::getCountSourcesMentions($alertId);
-        $colors =  [
-            "Twitter" => "rgb(255, 99, 132)",
-            "Live Chat" => "rgb(255, 159, 64)",
-            "Live Chat Conversations" => "rgb(255, 205, 86)",
-            "Facebook Comments" => "rgb(75, 192, 192)",
-            "Instagram Comments" => "rgb(54, 162, 235)",
-            "Facebook Messages" => "rgb(54, 162, 235)",
-            "Excel Document" => "rgb(54, 162, 235)",
-            "Paginas Webs" => "rgb(54, 162, 235)",
-        ];
         
         $config = [
             'type' => 'doughnut',
@@ -213,7 +203,7 @@ class DocumentHelper
             $total = $data['data'][$i][3];
             if($total){
                 $config['data']['labels'][] = \Yii::$app->params['resourcesName'][$resourceName];
-                $config['data']['datasets'][0]['backgroundColor'][] = $colors[$resourceName];
+                $config['data']['datasets'][0]['backgroundColor'][] = \app\helpers\MentionsHelper::getColorResourceByName($resourceName);
                 $config['data']['datasets'][0]['data'][] = $total;
             }
             
@@ -235,6 +225,7 @@ class DocumentHelper
 
     public static function actionGraphTermsCountByResourceId($alertId,$resourceId){
         $data = \app\helpers\MentionsHelper::getProductInteration($alertId,$resourceId);
+       
         $terms = [];
         $totals = [];
 
@@ -571,7 +562,10 @@ class DocumentHelper
 
             $dataset = [];
             for($m = 0; $m < sizeOf($data['model']); $m++){
-                $dataset[$m]['label'] = $data['model'][$m]['name'];
+                $dataset[$m]['label'] = (isset(\Yii::$app->params['resourcesName'][$data['model'][$m]['name']])) ?
+                            \Yii::$app->params['resourcesName'][$data['model'][$m]['name']] : 
+                            $data['model'][$m]['name'] ;
+               
                 $dataset[$m]['backgroundColor'] = $data['model'][$m]['color'];
                 $dataset[$m]['borderColor'] = $data['model'][$m]['color'];
                 $dataset[$m]['fill'] = false;

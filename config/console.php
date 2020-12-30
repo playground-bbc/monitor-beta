@@ -57,7 +57,7 @@ $config = [
         'db' => $db,
         'urlManager' => [
             'class' => 'yii\web\UrlManager',
-            'hostInfo' => (YII_ENV) ? 'http://localhost/' : 'https://lg.mediatrendsgroup.com/'
+            'hostInfo' => 'https://lg.mediatrendsgroup.com/'
     ]
     ],
     'params' => $params,

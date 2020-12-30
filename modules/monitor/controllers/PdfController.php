@@ -57,7 +57,7 @@ class PdfController extends \yii\web\Controller
                 'url_logo' =>$url_logo,
             ]);
             set_time_limit(300);
-            $pdf = \app\helpers\PdfHelper::getKartikMpdf($file_name,$html,$model);
+            $pdf = \app\helpers\PdfHelper::getKartikMpdf($filePath,$html,$model);
 
             $pdf->render(); 
             \Yii::$app->response->sendFile($filePath)->send();

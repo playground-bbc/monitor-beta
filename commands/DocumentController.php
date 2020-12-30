@@ -165,8 +165,8 @@ class DocumentController extends Controller
                                 $filePath = $folderPath . "{$createdAt}.pdf";
 
                                  // load images
-                                $url_logo_small = \yii\helpers\Url::to('monitor-beta/web/img/logo_small.png',true);
-                                $url_logo = \yii\helpers\Url::to('monitor-beta/web/img/logo.png',true);
+                                $url_logo_small = \yii\helpers\Url::to('web/img/logo_small.png',true);
+                                $url_logo = \yii\helpers\Url::to('web/img/logo.png',true);
                                 
                                 $html = $this->renderPartial('_document',[
                                     'model' => $alert,

@@ -10,9 +10,9 @@ $now = date("h:i d/m");
 <div class="row">
     <div class="col-md-12 text-center">
         <div class="">
-                <p><?= $url_logo_small ?></p>
+                <?= Html::img($url_logo_small) ?>
                 <br><br><br>
-           
+            <?= Html::img($url_logo,['height' => '500px','width' => '700px']) ?>
         </div>
     </div>
 </div>

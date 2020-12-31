@@ -518,7 +518,12 @@ class DocumentHelper
         return $url;
     }
 
-    public static function GraphResourceOnDate($alertId){
+    public static function GraphResourceOnDate($alertId,$properties = []){
+       
+        $width = (isset($properties['width'])) ? $properties['width'] : 400;
+        $height = (isset($properties['height'])) ? $properties['height'] : 280;
+        $leyend = (isset($properties['leyend'])) ? $properties['leyend'] : [] ;
+
         $data = \app\helpers\MentionsHelper::getMentionOnDate($alertId,false);  
         
         if(isset($data['model']) && count($data['model'])){
@@ -530,6 +535,7 @@ class DocumentHelper
                 ],
                 'options' => [
                     "responsive"=> true,
+                    "legend" => $leyend,
                     "scales" =>[
                         "xAxes" => [
                             [
@@ -559,6 +565,7 @@ class DocumentHelper
                     
                 ]
             ];
+            
 
             $dataset = [];
             for($m = 0; $m < sizeOf($data['model']); $m++){
@@ -582,8 +589,8 @@ class DocumentHelper
             }
             $config['data']['datasets'] = $dataset;
             $qc = new \QuickChart(array(
-                'width'=> 400,
-                'height'=> 280,
+                'width'=> $width,
+                'height'=> $height,
             ));
             
             $config_json = json_encode($config);

@@ -116,6 +116,18 @@ class EmailController extends Controller
             $productsMentionsCount = \app\helpers\MentionsHelper::getProductInteration($alertId);
             $urlIterationsProducts = $this->getIterarionByProductsLinkGraph($productsMentionsCount['data']);
 
+            $properties = [
+              'width'=> 250,
+              'height'=> 300,
+              'leyend' => [
+                  "display" => true,
+                  "labels" => [
+                      "fontSize" => 5
+                    ]
+                ]
+            ];
+            $urlMentionsDateCount = \app\helpers\DocumentHelper::GraphResourceOnDate($alertConfig['id'],$properties);
+
             $message = \Yii::$app->mailer->compose('alerts',[
               'alertId' => $alertId,
               'alertName' => $alertName,
@@ -126,6 +138,7 @@ class EmailController extends Controller
               'hiperLinkTotalResource' => $urlTotalResource,
               'hiperLinkIterationResource' => $urlIterationResource,
               'hiperLinkIterationByProducts' => $urlIterationsProducts,
+              'hiperLinkMentionsDateCount' => $urlMentionsDateCount,
               'frontendUrl' => \Yii::$app->params['frontendUrl'],
             ])
             ->setFrom('monitormtg@gmail.com')

@@ -399,7 +399,7 @@
                                                 
                                                 <tr>
                                                    <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                                      <a href="<?= "{$frontendUrl}monitor/pdf/document?alertId={$alertId}"?>" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 3px; background-color: #D4647A; border-top: 12px solid #D4647A; border-bottom: 12px solid #D4647A; border-right: 18px solid #D4647A; border-left: 18px solid #D4647A; display: inline-block;">Descargar Reporte &rarr;</a>
+                                                      <a href="<?= "{$frontendUrl}monitor/pdf/document?alertId={$alertId}"?>" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 3px; background-color: #D4647A; border-top: 12px solid #D4647A; border-bottom: 12px solid #D4647A; border-right: 18px solid #D4647A; border-left: 18px solid #D4647A; display: inline-block;">Descargar Reporte &rarr;</a>
                                                     </td>
                                                 </tr>
                                              </table>

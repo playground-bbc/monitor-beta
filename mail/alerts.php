@@ -165,7 +165,7 @@
                                              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f5f5f5;vertical-align:top;" width="100%">
                                                 <tr>
                                                    <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                                      <div style="font-family:Roboto, Helvetica, Arial, Sans-Serif;font-size:18px;line-height:1;text-align:left;color:black;">Nombre de la Alerta: <a href=<?= "{$frontendUrl}monitor/alert/view?id={$alertId}"?><?=  $alertName ?></a></div>
+                                                      <div style="font-family:Roboto, Helvetica, Arial, Sans-Serif;font-size:18px;line-height:1;text-align:left;color:black;">Nombre de la Alerta: <a href="<?= "{$frontendUrl}monitor/alert/view?id={$alertId}"?>"><?=  $alertName ?></a></div>
                                                    </td>
                                                 </tr>
                                              </table>

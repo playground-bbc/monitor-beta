@@ -76,112 +76,116 @@ class EmailController extends Controller
         // flag to send
         $flag = true;
         // get model the user
-        $userModel = \app\models\Users::find()->select('email')->where(['id' => $alertConfig['userId']])->one();
-        // get info form alert
-        $alertId = $alertConfig['id'];
-        $alertName = $alertConfig['name'];
-        $createdAt = \Yii::$app->formatter->asDatetime($alertConfig['createdAt'],'yyyy-MM-dd');
-        $start_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['start_date'],'yyyy-MM-dd');
-        $end_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['end_date'],'yyyy-MM-dd');
+        $userModel = \app\models\Users::find()->select('email')->where(['id' => $alertConfig['userId'],'status' => 10])->one();
 
-        if($alertConfig['status']){
-          $status =  'Activa';
-        }else{
-          $status =  'Inactiva';
-          // It is checked if the difference with the end date and the current day 
-          //is greater than 24 hours to validate only one email send when the alert is inactive 
-          $today = \app\helpers\DateHelper::getToday();
-          $diffHours =  \app\helpers\DateHelper::diffInHours($end_date,$today);
-          if($diffHours > 24){
-            $flag = false;
+        if(!is_null($userModel)){
+          // get info form alert
+          $alertId = $alertConfig['id'];
+          $alertName = $alertConfig['name'];
+          $createdAt = \Yii::$app->formatter->asDatetime($alertConfig['createdAt'],'yyyy-MM-dd');
+          $start_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['start_date'],'yyyy-MM-dd');
+          $end_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['end_date'],'yyyy-MM-dd');
+
+          if($alertConfig['status']){
+            $status =  'Activa';
+          }else{
+            $status =  'Inactiva';
+            // It is checked if the difference with the end date and the current day 
+            //is greater than 24 hours to validate only one email send when the alert is inactive 
+            $today = \app\helpers\DateHelper::getToday();
+            $diffHours =  \app\helpers\DateHelper::diffInHours($end_date,$today);
+            if($diffHours > 24){
+              $flag = false;
+            }
           }
-        }
 
-        
-        $count = (new \yii\db\Query())
-        ->cache(10)
-        ->from('alerts_mencions')
-        ->join('JOIN', 'mentions', 'mentions.alert_mentionId = alerts_mencions.id')
-        ->where(['alertId' => $alertId])
-        ->count();
-        
-        if($count > 0 && $flag){
-          $sourcesMentionsCount = \app\helpers\MentionsHelper::getCountSourcesMentions($alertId);
-            
-          if(isset($sourcesMentionsCount['data'])){
-            // link graph
-            $urlTotalResource = $this->getTotalResourceHyperLinkGraph($sourcesMentionsCount['data']);
-            $urlIterationResource = $this->getIterationResourcesHyperLinkGraph($sourcesMentionsCount['data']);
-            
-            $productsMentionsCount = \app\helpers\MentionsHelper::getProductInteration($alertId);
-            $urlIterationsProducts = $this->getIterarionByProductsLinkGraph($productsMentionsCount['data']);
-
-            $properties = [
-              'width'=> 250,
-              'height'=> 300,
-              'leyend' => [
-                  "display" => true,
-                  "labels" => [
-                      "fontSize" => 5
-                    ]
-                ]
-            ];
-            $urlMentionsDateCount = \app\helpers\DocumentHelper::GraphResourceOnDate($alertConfig['id'],$properties);
-
-            $message = \Yii::$app->mailer->compose('alerts',[
-              'alertId' => $alertId,
-              'alertName' => $alertName,
-              'createdAt' => $createdAt,
-              'start_date' => $start_date,
-              'end_date' => $end_date,
-              'status' => $status,
-              'hiperLinkTotalResource' => $urlTotalResource,
-              'hiperLinkIterationResource' => $urlIterationResource,
-              'hiperLinkIterationByProducts' => $urlIterationsProducts,
-              'hiperLinkMentionsDateCount' => $urlMentionsDateCount,
-              'frontendUrl' => \Yii::$app->params['frontendUrl'],
-            ])
-            ->setFrom('monitormtg@gmail.com')
-            //->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
-            ->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
-            $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
-            $isFileAttach = false;
-            if(is_dir($pathFolder)){
-                $files = \yii\helpers\FileHelper::findFiles($pathFolder,['only'=>['*.xlsx','*.xls']]);
-                if(isset($files[0])){
-                    $start_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['start_date'],'yyyy-MM-dd');
-                    $end_date   = \Yii::$app->formatter->asDatetime($alertConfig['config']['end_date'],'yyyy-MM-dd');
-                    $name       = "{$alertConfig['name']} {$start_date} to {$end_date} mentions"; 
-                    $file_name  =  \app\helpers\StringHelper::replacingSpacesWithUnderscores($name);
-
-                    $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
-                    $filePath = $folderPath."{$file_name}.xlsx";
-                    copy($files[0],"{$folderPath}{$file_name}.xlsx");
-                    // zip files
-                    $zip = new \ZipArchive;
-                    if ($zip->open($folderPath."{$file_name}.zip", \ZipArchive::CREATE) === TRUE){
-                        // Add files to the zip file
-                        $zip->addFile("{$folderPath}{$file_name}.xlsx","alert/{$file_name}.xlsx");
-                        // All files are added, so close the zip file.
-                        $zip->close();
-                        // Adjunta un archivo del sistema local de archivos:
-                        $message->attach("{$folderPath}{$file_name}.zip");
-                        $isFileAttach = true;
-                    }
-                    
-                }
-            };
+          
+          $count = (new \yii\db\Query())
+          ->cache(10)
+          ->from('alerts_mencions')
+          ->join('JOIN', 'mentions', 'mentions.alert_mentionId = alerts_mencions.id')
+          ->where(['alertId' => $alertId])
+          ->count();
+          
+          if($count > 0 && $flag){
+            $sourcesMentionsCount = \app\helpers\MentionsHelper::getCountSourcesMentions($alertId);
               
-            // send email
-            $message->send(); 
+            if(isset($sourcesMentionsCount['data'])){
+              // link graph
+              $urlTotalResource = $this->getTotalResourceHyperLinkGraph($sourcesMentionsCount['data']);
+              $urlIterationResource = $this->getIterationResourcesHyperLinkGraph($sourcesMentionsCount['data']);
+              
+              $productsMentionsCount = \app\helpers\MentionsHelper::getProductInteration($alertId);
+              $urlIterationsProducts = $this->getIterarionByProductsLinkGraph($productsMentionsCount['data']);
 
-            if($isFileAttach){
-                unlink($filePath);
-                unlink("{$folderPath}{$file_name}.zip");
-            } 
+              $properties = [
+                'width'=> 250,
+                'height'=> 300,
+                'leyend' => [
+                    "display" => true,
+                    "labels" => [
+                        "fontSize" => 5
+                      ]
+                  ]
+              ];
+              $urlMentionsDateCount = \app\helpers\DocumentHelper::GraphResourceOnDate($alertConfig['id'],$properties);
+
+              $message = \Yii::$app->mailer->compose('alerts',[
+                'alertId' => $alertId,
+                'alertName' => $alertName,
+                'createdAt' => $createdAt,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'status' => $status,
+                'hiperLinkTotalResource' => $urlTotalResource,
+                'hiperLinkIterationResource' => $urlIterationResource,
+                'hiperLinkIterationByProducts' => $urlIterationsProducts,
+                'hiperLinkMentionsDateCount' => $urlMentionsDateCount,
+                'frontendUrl' => \Yii::$app->params['frontendUrl'],
+              ])
+              ->setFrom('monitormtg@gmail.com')
+              ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
+              //->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
+              $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
+              $isFileAttach = false;
+              if(is_dir($pathFolder)){
+                  $files = \yii\helpers\FileHelper::findFiles($pathFolder,['only'=>['*.xlsx','*.xls']]);
+                  if(isset($files[0])){
+                      $start_date = \Yii::$app->formatter->asDatetime($alertConfig['config']['start_date'],'yyyy-MM-dd');
+                      $end_date   = \Yii::$app->formatter->asDatetime($alertConfig['config']['end_date'],'yyyy-MM-dd');
+                      $name       = "{$alertConfig['name']} {$start_date} to {$end_date} mentions"; 
+                      $file_name  =  \app\helpers\StringHelper::replacingSpacesWithUnderscores($name);
+
+                      $folderPath = \Yii::getAlias("@runtime/export/{$alertId}/");
+                      $filePath = $folderPath."{$file_name}.xlsx";
+                      copy($files[0],"{$folderPath}{$file_name}.xlsx");
+                      // zip files
+                      $zip = new \ZipArchive;
+                      if ($zip->open($folderPath."{$file_name}.zip", \ZipArchive::CREATE) === TRUE){
+                          // Add files to the zip file
+                          $zip->addFile("{$folderPath}{$file_name}.xlsx","alert/{$file_name}.xlsx");
+                          // All files are added, so close the zip file.
+                          $zip->close();
+                          // Adjunta un archivo del sistema local de archivos:
+                          $message->attach("{$folderPath}{$file_name}.zip");
+                          $isFileAttach = true;
+                      }
+                      
+                  }
+              };
+                
+              // send email
+              $message->send(); 
+
+              if($isFileAttach){
+                  unlink($filePath);
+                  unlink("{$folderPath}{$file_name}.zip");
+              } 
+            }
+
           }
-
         }
+        
           
       }
           

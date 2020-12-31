@@ -165,7 +165,7 @@
                                              <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f5f5f5;vertical-align:top;" width="100%">
                                                 <tr>
                                                    <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                                      <div style="font-family:Roboto, Helvetica, Arial, Sans-Serif;font-size:18px;line-height:1;text-align:left;color:black;">Nombre de la Alerta: <a href=<?= "{$frontendUrl}monitor/alert/view?id={$alertId}"?>><?=  $alertName ?></a></div>
+                                                      <div style="font-family:Roboto, Helvetica, Arial, Sans-Serif;font-size:18px;line-height:1;text-align:left;color:black;">Nombre de la Alerta: <a href=<?= "{$frontendUrl}monitor/alert/view?id={$alertId}"?><?=  $alertName ?></a></div>
                                                    </td>
                                                 </tr>
                                              </table>
@@ -380,7 +380,44 @@
          
         
         
-        
+        <table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" >
+            <tr>
+               <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
+                  <![endif]-->
+                  <div style="background:white;background-color:white;margin:0px auto;max-width:600px;">
+                     <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;">
+                        <tbody>
+                           <tr>
+                              <td style="direction:ltr;font-size:0px;padding:0;text-align:center;">
+                                 <!--[if mso | IE]>
+                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                       <td class="" style="vertical-align:top;width:600px;" >
+                                          <![endif]-->
+                                          <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                             <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f5f5f5;vertical-align:top;" width="100%">
+                                                
+                                                <tr>
+                                                   <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                      <a href="<?= "{$frontendUrl}monitor/pdf/document?alertId={$alertId}"?>" target="_blank" style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 3px; background-color: #D4647A; border-top: 12px solid #D4647A; border-bottom: 12px solid #D4647A; border-right: 18px solid #D4647A; border-left: 18px solid #D4647A; display: inline-block;">Descargar Reporte &rarr;</a>
+                                                    </td>
+                                                </tr>
+                                             </table>
+                                          </div>
+                                          <!--[if mso | IE]>
+                                       </td>
+                                    </tr>
+                                 </table>
+                                 <![endif]-->
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+                  <!--[if mso | IE]>
+               </td>
+            </tr>
+         </table>
         
          
          <table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" >

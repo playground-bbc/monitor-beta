@@ -129,8 +129,8 @@ class EmailController extends Controller
               'frontendUrl' => \Yii::$app->params['frontendUrl'],
             ])
             ->setFrom('monitormtg@gmail.com')
-            ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
-            //->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
+            //->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
+            ->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
             $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
             $isFileAttach = false;
             if(is_dir($pathFolder)){
@@ -354,9 +354,9 @@ class EmailController extends Controller
           if(count($data) > 5){
               $data = array_slice($data, 0, 5); 
           }
-          
+         
           // top 5 products
-          for($d = 0; $d < 3; $d++){
+          for($d = 0; $d < sizeOf($data); $d++){
             $config['data']['labels'][] = $data[$d][0];
             $config['data']['datasets'][0]['data'][] = $data[$d][1];
             $config['data']['datasets'][1]['data'][] = $data[$d][2];

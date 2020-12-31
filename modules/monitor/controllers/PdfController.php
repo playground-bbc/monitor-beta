@@ -3,7 +3,7 @@
 namespace app\modules\monitor\controllers;
 
 use yii\helpers\Url;
-
+use yii\web\NotFoundHttpException;
 use Box\Spout\Writer\Common\Creator\WriterFactory;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
@@ -20,7 +20,7 @@ class PdfController extends \yii\web\Controller
     public function actionDocument($alertId)
     {
         
-        $model = \app\models\Alerts::findOne($alertId);
+        $model = $this->findModel($alertId);
         $file_name  =  \app\helpers\PdfHelper::setName($model);
         
         $pathFolder = \Yii::getAlias("@pdf/{$alertId}");
@@ -122,7 +122,7 @@ class PdfController extends \yii\web\Controller
      */
     public function actionExportMentionsExcel($alertId){
         
-        $model = \app\models\Alerts::findOne($alertId);
+        $model = $this->findModel($alertId);
         $start_date = \Yii::$app->formatter->asDatetime($model->config->start_date,'yyyy-MM-dd');
         $end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'yyyy-MM-dd');
         $name       = "{$model->name} {$start_date} to {$end_date} mentions"; 
@@ -159,6 +159,22 @@ class PdfController extends \yii\web\Controller
         unlink($filePath);
     }
 
+
+    /**
+     * Finds the Alerts model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Alerts the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = \app\models\Alerts::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
+    }
 
     
 }

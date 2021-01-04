@@ -548,7 +548,7 @@ class DocumentHelper
                                 "ticks" => [
                                     "major" => [
                                         "enabled"=> true
-                                    ]
+                                    ],
                                 ]
                             ]
                         ],
@@ -559,6 +559,9 @@ class DocumentHelper
                                     "display"=> true,
                                     "labelString"=> "Valor"
                                 ],
+                                "ticks" => [
+                                    "min" => 1
+                                ]
                             ]
                         ]
                     ]

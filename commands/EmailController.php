@@ -222,9 +222,12 @@ class EmailController extends Controller
           'options' => [
             'plugins' => [
               'datalabels' => [
-                'anchor' => 'end',
-                'align' => 'top',
-                'color' => '#000000',
+                'anchor' => 'center',
+                'align' => 'center',
+                'color' => '#fff',
+                'font' => [
+                  'weight'=> 'bold',
+                ],
                 'formatter' => '(value) => { return value ;}'
               ]
             ]
@@ -286,9 +289,12 @@ class EmailController extends Controller
           'options' => [
             'plugins' => [
               'datalabels' => [
-                'anchor' => 'end',
-                'align' => 'top',
-                'color' => '#000000',
+                'anchor' => 'center',
+                'align' => 'center',
+                'color' => '#fff',
+                'font' => [
+                  'weight'=> 'bold',
+                ],
                 'formatter' => '(value) => { return value ;}'
               ]
             ]
@@ -359,9 +365,12 @@ class EmailController extends Controller
             'options' => [
               'plugins' => [
                 'datalabels' => [
-                  'anchor' => 'end',
-                  'align' => 'top',
-                  'color' => '#000000',
+                  'anchor' => 'center',
+                  'align' => 'center',
+                  'color' => '#fff',
+                  'font' => [
+                    'weight'=> 'bold',
+                  ],
                   'formatter' => '(value) => { return value ;}'
                 ]
               ]

@@ -522,7 +522,6 @@ class DocumentHelper
        
         $width = (isset($properties['width'])) ? $properties['width'] : 400;
         $height = (isset($properties['height'])) ? $properties['height'] : 280;
-        $leyend = (isset($properties['leyend'])) ? $properties['leyend'] : [] ;
 
         $data = \app\helpers\MentionsHelper::getMentionOnDate($alertId,false);  
         
@@ -535,7 +534,7 @@ class DocumentHelper
                 ],
                 'options' => [
                     "responsive"=> true,
-                    "legend" => $leyend,
+                    //"legend" => $leyend,
                     "scales" =>[
                         "xAxes" => [
                             [
@@ -570,6 +569,10 @@ class DocumentHelper
             ];
             
 
+            if(isset($properties['leyend'])){
+                $config['options']['leyend'] = $properties['leyend'];
+            }
+
             $dataset = [];
             for($m = 0; $m < sizeOf($data['model']); $m++){
                 $dataset[$m]['label'] = (isset(\Yii::$app->params['resourcesName'][$data['model'][$m]['name']])) ?
@@ -597,6 +600,7 @@ class DocumentHelper
             ));
             
             $config_json = json_encode($config);
+            
             $qc->setConfig($config_json);
             
             # Print the chart URL

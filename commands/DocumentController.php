@@ -18,7 +18,6 @@ class DocumentController extends Controller
 {
     /**
      * This command create document excel with mention of the alert.
-     * @param string $message the message to be echoed.
      * @return int Exit code
      */
     public function actionIndex()
@@ -97,10 +96,13 @@ class DocumentController extends Controller
         return ExitCode::OK;
     }
 
-
+    /**
+     * This command create document pdf of the alert.
+     * @return int Exit code
+     */
     public function actionPdf()
     {
-        $alerts = $this->getAlerts();
+        $alerts = \app\models\Alerts::find()->all();
 
         if (!empty($alerts))
         {
@@ -189,34 +191,7 @@ class DocumentController extends Controller
         return ExitCode::OK;
     }
 
-    private function getAlerts(){
-        $alerts = [];
-        $pathFolder = \Yii::getAlias("@pdf");
-        $files = \yii\helpers\FileHelper::findFiles($pathFolder);
-
-        if(count($files)){
-            $func = function($value) {
-                $value_explode = explode("/",$value);
-                if(count($value_explode)){
-                    // get name of the folder
-                    return $value_explode[count($value_explode) - 2];
-                }
-            };
-            $foldersName = array_map($func, $files);
-            $models = \app\models\Alerts::find()->all();
-            foreach($models as $model){
-               if(!in_array($model->id,$foldersName)){
-                $alerts[] = $model;
-               }
-            }
-            if(count($alerts)){
-                return $alerts;
-            }
-        }
-        
-        $alerts = \app\models\Alerts::find()->all();
-        return $alerts;
-    }
+    
     /**
      * This command create json with post facebook.
      * @return int Exit code

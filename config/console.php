@@ -58,7 +58,7 @@ $config = [
         'urlManager' => [
             'class' => 'yii\web\UrlManager',
             'hostInfo' => 'https://lg.mediatrendsgroup.com/'
-    ]
+        ]
     ],
     'params' => $params,
     

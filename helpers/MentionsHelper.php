@@ -664,8 +664,8 @@ class MentionsHelper
         if(count($data)){
             $model[$index]['name'] = $resourceName;
             for($d = 0; $d < sizeOf($data); $d++){
-            $date = ($js) ? (int) strtotime($data[$d]['date_created']) * 1000 : (int) strtotime($data[$d]['date_created']);
-            $model[$index]['data'][] = array((int)$date,(int)$data[$d]['total']);
+		    $date = ($js) ? (int) strtotime($data[$d]['date_created']) * 1000 : (int) strtotime($data[$d]['date_created']);
+		    $model[$index]['data'][] = array((int)$date,(int)$data[$d]['total']);
             }
             $model[$index]['color'] = \app\helpers\MentionsHelper::getColorResourceByName($resourceName);
             $index++;

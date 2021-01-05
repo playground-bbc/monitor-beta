@@ -702,9 +702,6 @@ class AlertController extends Controller
         // prepare and execute delete products_models_alerts
         $product_alert_delete->bindParam(':alertId', $id);
         $product_alert_delete->execute(); 
-        // delete document
-        $folderPath = \Yii::getAlias("@runtime/export/{$id}/");
-        \yii\helpers\FileHelper::removeDirectory($folderPath); 
 
         return $this->redirect(['index']);
     }

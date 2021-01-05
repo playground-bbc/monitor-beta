@@ -93,7 +93,7 @@ class PdfHelper{
     }
 
     public static function getGraphResourceOnDate($model,$alertResource){
-        $url = \app\helpers\DocumentHelper::GraphResourceOnDate($model->id,false);
+        $url = \app\helpers\DocumentHelper::GraphResourceOnDate($model->id);
         if(!is_null($url)){
             $alertResource['url_graph_date_sources'] = $url;
         }

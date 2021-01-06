@@ -13,7 +13,7 @@ use yii\widgets\ActiveForm;
   <button class="btn btn-info" v-on:click.prevent="send" v-bind:class="{ disabled: isdisabled}">Reporte</button>
 </script>
 
-<!-- template que muestra llos indicadores de cada red social -->
+<!-- template que muestra los indicadores de cada red social -->
 <script type="text/x-template" id="status-alert">
   <span class="status-indicator" v-bind:class= "colorClass"></span>
 </script> 
@@ -108,31 +108,13 @@ use yii\widgets\ActiveForm;
   </div> 
 </script>
 
-<!-- template chart by date google chart -->
-<script type="tex/x-template" id="view-date-resources-chart">
+<!-- chart common words -->
+<script type="tex/x-template" id="view-count-common-words-chart">
   <div v-if="loaded">
-    <div id="date-resources-chart"></div>
+    <div id="container-common-words"></div>
     <hr>
   </div>
 </script>
-
-<!-- template que muestra el total de todas las menciones por Red Social -->
-<script type="text/x-template" id="view-total-mentions-resources">
-    <div v-if="loaded">
-        <div v-for="(value,resource) in response" class="col-md-2">
-            <div class="well text-center">
-              <h4><a href="#">{{resource}}:</a></h4>
-                <p>{{value}}</p>
-            </div>
-        </div>
-    </div>
-    <div v-else>
-        <div class="loader">
-          <div class="spinner"></div>
-        </div>
-    </div>
-</script>
-
 
 <!-- template que muestra todas las menciones -->
 <script type="text/x-template" id="mentions-list">
@@ -313,45 +295,6 @@ use yii\widgets\ActiveForm;
         <hr>
         <button v-on:click.prevent="reload" class="btn btn-sm btn-primary" id="update-demo">Update</button>
         <div id="jqcloud" class="jqcloud"></div>
-    </div>
-</script>
-
-<!-- template que muestra las tablas recurso: fecha - total -->
-<script type="text/x-template" id="resource-date-mentions">
-    <div v-if="loaded" class="panel-group" id="accordion">
-      <div v-for="(values,resource,index) in response" class="panel panel-default">
-        <div class="panel-heading">
-          <h2 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" :href="collapseValue('#',index)">
-            <h2>{{resource}}</h2></a>
-          </h2>
-        </div>
-        <div :id="collapseValue('',index)" class="panel-collapse collapse">
-          <div class="panel-body">
-            <table class="table table-striped table-bordered" cellspacing="0"  style="width:100%">
-              <thead>
-                  <tr>
-                      <th>Producto</th>
-                      <th>Fecha</th>
-                      <th>Cant. Menciones</th>
-                  </tr>
-              </thead>
-              <tfoot>
-                  <tr v-for="value in values">
-                      <th>{{value.product_searched}}</th>
-                      <th>{{value.date}}</th>
-                      <th>{{value.total}}</th>
-                  </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else>
-        <div class="loader">
-          <div class="spinner"></div>
-        </div>
     </div>
 </script>
 

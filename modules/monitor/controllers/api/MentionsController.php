@@ -24,6 +24,7 @@ class MentionsController extends Controller
               'top-post-interation',
               'product-interation',
               'mention-on-date',
+              'common-words',
               'list-mentions',
               'list-words',
               'list-emojis'
@@ -361,6 +362,15 @@ class MentionsController extends Controller
    */
   public function actionMentionOnDate($alertId){
     return  \app\helpers\MentionsHelper::getMentionOnDate($alertId);  
+  }
+
+   /**
+   * [actionCommonWords return array of commons words
+   * @param  [int] $id            [id of alert]
+   * @return [array \ Exception]  [array of date or exception if alert id not exists]
+   */
+  public function actionCommonWords($alertId){
+    return  \app\helpers\MentionsHelper::getCommonWordsByAlertId($alertId);
   }
 
 

@@ -68,6 +68,12 @@ $input = "<input type='text' v-model='test' value='".$model->id."'>";
                 <products-interations-chart :is_change="is_change"> 
             </div>
         </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <count-common-words-chart :is_change="is_change"> 
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-md-12">

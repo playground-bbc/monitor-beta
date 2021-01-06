@@ -629,131 +629,107 @@ const products_interations_chart = Vue.component("products-interations-chart", {
 });
 
 /**
- * [componente que muestra grafico de post por fecha]
- * template: '#view-total-resources-chart' [depred]
+ * [componente que muestra grafico de productos con mas menciones]
+ * template: '#view-products-interations-chart' [description]
  * @return {[component]}           [component]
  */
-const count_resources_date_chat = Vue.component("count-date-resources-chart", {
+const count_common_words_chart = Vue.component("count-common-words-chart",{
   props: ["is_change"],
-  template: "#view-date-resources-chart",
-  data: function () {
+  template: "#view-count-common-words-chart",
+  data: function(){
     return {
       alertId: id,
-      response: [],
-      headers: [],
-      loaded: false,
-      dataTable: null,
-      view: null,
+      loaded: true,
     };
   },
   mounted() {
-    // get firts data
-    this.fetchResourceCount();
-    // load chart
-    if (this.loaded) {
-      google.charts.setOnLoadCallback(this.drawColumnChart);
-    }
-
-    setInterval(
-      function () {
-        if (this.loaded) {
-          google.charts.setOnLoadCallback(this.drawColumnChart);
-        }
-        if (this.is_change) {
-          this.fetchResourceCount();
-        }
-      }.bind(this),
-      refreshTime
-    );
+    this.drawPieChart();
   },
-  methods: {
-    fetchResourceCount() {
-      getCountDateResources(this.alertId)
-        .then((response) => {
-          if (typeof this.response === "object") {
-            this.response = response.data.model;
-            this.headers = response.data.resourceNames;
-            this.loaded = true;
-          }
-        })
-        .catch((error) => console.log(error));
-    },
-    drawColumnChart() {
-      var data = new google.visualization.DataTable();
-
-      data.addColumn("string", "Date");
-
-      for (var i = 0; i < this.headers.length; i++) {
-        data.addColumn("number", this.headers[i]);
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.drawPieChart();
       }
+    },
+  },
+  methods:{
+    getColors(){
+      var colors = [], base = Highcharts.getOptions().colors[0],i;
 
-      data.addRows(this.response);
+      for (i = 0; i < 10; i += 1) {
+          // Start out with a darkened base color (negative brighten), and end
+          // up with a much brighter color
+          colors.push(Highcharts.color(base).brighten((i - 3) / 7).get());
+      }
+      return colors;
+    },
+   
+    drawPieChart() {
+      let colors = this.getColors();
+      $.getJSON(`${origin}/${appId}/monitor/api/mentions/common-words?alertId=` + id,
+        function(response){
+          
+          // order data to the graph
+          let getData = function (response){
+            var data = [];
+            response.words.forEach(function(value){
+              var tmp = {
+                'name': value.name,
+                'y': parseInt(value.total),
+              };
+              data.push(tmp);
+            });
+            return data;
+          };
 
-      var view = new google.visualization.DataView(data);
-
-      var column = [0];
-
-      for (var i = 0; i < this.headers.length; i++) {
-        column.push(i + 1);
-        column.push({
-          calc: "stringify",
-          sourceColumn: i + 1,
-          type: "string",
-          role: "annotation",
+          Highcharts.chart('container-common-words', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Palabras mas comunes en las menciones'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    colors: colors,
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                        distance: -50,
+                        filter: {
+                            property: 'percentage',
+                            operator: '>',
+                            value: 4
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: 'Total',
+                data: getData(response),
+            }]
         });
-      }
 
-      view.setColumns(column);
-      var options = {
-        focusTarget: "category",
-        title: "Grafico total de registros por fecha y recurso",
-        width: 1200,
-        height: 400,
-        vAxis: {
-          title: "Cantidad",
-          textStyle: {
-            color: "#005500",
-            fontSize: "12",
-            paddingRight: "100",
-            marginRight: "100",
-          },
-        },
-        hAxis: {
-          title: "Fechas",
-          textStyle: {
-            color: "#005500",
-            fontSize: "12",
-            paddingRight: "100",
-            marginRight: "100",
-          },
-        },
-        // isStacked: true,
-        series: { 5: { type: "line", lineWidth: 10 } },
-        curveType: "function",
-        pointSize: 10,
-        tooltip: { trigger: "both" },
-        selectionMode: "multiple",
-        aggregationTarget: "none",
-        animation: {
-          startup: true,
-          duration: 1500,
-          easing: "out",
-        },
-      };
-
-      var chart = new google.visualization.AreaChart(
-        document.getElementById("date-resources-chart")
-      );
-
-      google.visualization.events.addListener(chart, "ready", function () {
-        data_chart["date_resources"] = chart.getImageURI();
       });
-      chart.draw(view, options);
-
-      loadedChart = true;
-    },
-  },
+      
+    }
+    
+  }
 });
+
 
 /**
  * [componente que muestra grafico de post por fecha (Higchart)]
@@ -875,9 +851,7 @@ const date_chart = Vue.component("date-chart", {
             },
             xAxis: {
               categories: [
-                "Live Chat",
-                "Instagram Comments",
-                "Facebook Comments",
+               
               ],
             },
             tooltip: {
@@ -892,27 +866,7 @@ const date_chart = Vue.component("date-chart", {
             },
             series: data.model,
           });
-          // var test = chart.exportChart({
-          //   type: "image/png",
-          //   filename: "chart",
-          // });
-          //console.log(test);
-          var svg = chart.getSVG();
-          var data = {
-            options: svg,
-            filename: "test.png",
-            type: "image/png",
-            async: true,
-          };
-
-          var exportUrl = "https://export.highcharts.com/";
-          $.post(exportUrl, data, function (data) {
-            var imageUrl = exportUrl + data;
-            data_chart["date_resources"] = imageUrl;
-            loadedChart = true;
-          });
-          // data_chart["date_resources"] = chart.getSVG();
-          // console.log(data_chart["date_resources"]);
+          
         }
       );
     },

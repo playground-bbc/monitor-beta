@@ -985,7 +985,7 @@ class DetailHelper {
         ->where($where_alertMentions)
         ->groupBy('name')
         ->orderBy(['total' => SORT_DESC])
-        ->limit(20)
+        ->limit(10)
         ->all();
         
         $data = [];

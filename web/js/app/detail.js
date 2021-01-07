@@ -113,7 +113,7 @@ const detailComponent = Vue.component("detail", {
     },
     setCallSelectDepen() {
       if (document.body.contains(document.getElementById("depend_select"))) {
-        //$("#depend_select").empty().trigger("change");
+        $("#depend_select").empty().trigger("change");
         getDataSelectDetail(this.alertid, this.resourceid, this.term)
           .then((response) => {
             if (response.status == 200) {
@@ -296,16 +296,156 @@ const boxCommonWordsComponent = Vue.component("common-words-detail", {
         this.term,
         this.socialId
       )
-        .then((response) => {
-          if (response.status == 200) {
-            this.words = response.data.words;
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-          // see error by dialog
-        });
+      .then((response) => {
+        if (response.status == 200) {
+          this.words = response.data.words;
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        // see error by dialog
+      });
     },
+  },
+});
+/**
+ * graphCommonWordsComponent: send call to api and display graph words most repeated
+ */
+const graphCommonWordsComponent = Vue.component("graph-common-words-detail", {
+  props: {
+    alertid: {
+      type: Number,
+      required: true,
+    },
+    resourceid: {
+      type: Number,
+      required: true,
+    },
+    term: {
+      type: String,
+      required: true,
+    },
+    socialId: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    isChange: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  template: "#graph-common-words-detail",
+  data: function () {
+    return {
+      words: [],
+    };
+  },
+  mounted() {
+    this.fetchCommonWords();
+  },
+  watch: {
+    isChange: function (val, oldVal) {
+      if (val) {
+        this.fetchCommonWords();
+      }
+    },
+    socialId: function (val, oldVal) {
+      if (val || val == "") {
+        this.fetchCommonWords();
+      }
+    },
+  },
+  methods: {
+    fetchCommonWords() {
+      //this.drawPieGraph();
+      getBoxCommonWordsDetail(
+        this.alertid,
+        this.resourceid,
+        this.term,
+        this.socialId
+      )
+      .then((response) => {
+        if (response.status == 200) {
+          this.words = [];
+          response.data.words.forEach(function(value){
+            let tmp = {
+              'name': value.name,
+              'y': parseInt(value.total),
+            };
+            this.words.push(tmp);
+          }.bind(this));
+          
+          if(this.words.length > 0){
+            this.drawPieGraph();
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        // see error by dialog
+      });
+    },
+    drawPieGraph(){
+      // Make monochrome colors
+      var pieColors = this.pieColors();
+
+      // Build the chart
+      Highcharts.chart('graph-common-words', {
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: 'Palabras mas comunes en las menciones'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        accessibility: {
+            point: {
+                valueSuffix: '%'
+            }
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                colors: pieColors,
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                    distance: -50,
+                    filter: {
+                        property: 'percentage',
+                        operator: '>',
+                        value: 4
+                    }
+                }
+            }
+        },
+        series: [{
+            name: 'Total',
+            data: this.words
+        }]
+      });
+    },
+    pieColors(){
+      var colors = [],
+          base = Highcharts.getOptions().colors[0],
+          i;
+
+      for (i = 0; i < 10; i += 1) {
+          // Start out with a darkened base color (negative brighten), and end
+          // up with a much brighter color
+          colors.push(Highcharts.color(base).brighten((i - 3) / 7).get());
+      }
+      return colors;
+      
+    }
   },
 });
 /**

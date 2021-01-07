@@ -22,7 +22,14 @@ use yii\widgets\ActiveForm;
     :isChange="isChange"
     ></box-detail>
     
-    <common-words-detail
+    <!-- <common-words-detail
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange"/> -->
+
+    <graph-common-words-detail
     :alertid="alertid" 
     :resourceid="resourceid" 
     :term="term" 
@@ -98,6 +105,20 @@ use yii\widgets\ActiveForm;
         </span>
       </div>
       <div v-else class="well">
+        <h4 class="card-title">No hay Palabras utilizadas</h4>
+      </div>
+    </div>
+  </div> 
+</script>
+
+<!-- graph common words mentions -->
+<script type="text/x-template" id="graph-common-words-detail">
+  <div  class="row">
+    <div class="col-md-12">
+      <div v-show="words.length">
+        <div id="graph-common-words"></div>
+      </div>
+      <div v-show="!words.length" class="well">
         <h4 class="card-title">No hay Palabras utilizadas</h4>
       </div>
     </div>

@@ -117,7 +117,8 @@ class EmailController extends Controller
               
               $productsMentionsCount = \app\helpers\MentionsHelper::getProductInteration($alertId);
               $urlIterationsProducts = $this->getIterarionByProductsLinkGraph($productsMentionsCount['data']);
-
+              $urlCommonWords = $this->getCommonWordsByAlertIdLinkGraph($alertId);
+              
               $properties = [
                 'width'=> 250,
                 'height'=> 300,
@@ -141,11 +142,12 @@ class EmailController extends Controller
                 'hiperLinkIterationResource' => $urlIterationResource,
                 'hiperLinkIterationByProducts' => $urlIterationsProducts,
                 'hiperLinkMentionsDateCount' => $urlMentionsDateCount,
+                'hiperCommonWords' => $urlCommonWords,
                 'frontendUrl' => \Yii::$app->params['frontendUrl'],
               ])
               ->setFrom('monitormtg@gmail.com')
-              ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
-              //->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
+              //->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
+              ->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
               $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
               $isFileAttach = false;
               if(is_dir($pathFolder)){
@@ -397,6 +399,64 @@ class EmailController extends Controller
         }
       }
       return $url;
+    }
+
+    private function getCommonWordsByAlertIdLinkGraph($alertId){
+     
+      $words = \app\helpers\MentionsHelper::getCommonWordsByAlertId($alertId);
+      $words = array_slice($words['words'],0,5);
+        
+      if(count($words)){
+        $config = [
+        'type' => 'outlabeledPie',
+        'data' => [
+            'labels' => [],
+            'datasets' => [
+                [
+                    "backgroundColor" => ["#FF3784", "#36A2EB", "#4BC0C0", "#F77825", "#9966FF"],
+                    "data" => []
+                ]
+            ],
+        ],
+        'options' => [
+            'plugins' => [
+                "legend" => false,
+                "outlabels" => [
+                        "text" => "%l %p",
+                        "color" => "white",
+                        "stretch" => 35,
+                        "font" => [
+                            'size' => 6
+                            //"resizable" => true,
+                            //"minSize" => 12,
+                            //"maxSize" => 18
+                        ]
+                    ]    
+                ]
+            ]
+        ];
+
+        for($w = 0; $w < sizeOf($words); $w++){
+            $config['data']['labels'][] = $words[$w]['name'];
+            $config['data']['datasets'][0]['data'][] = $words[$w]['total'];
+        }  
+
+        $qc = new \QuickChart(array(
+          'width'=> 250,
+          'height'=> 300,
+        ));
+
+
+        $config_json = json_encode($config);
+        $qc->setConfig($config_json);
+        
+        # Print the chart URL
+        $url =  $qc->getShortUrl();
+        return $url;
+      }
+
+      
+      return null;
     }
 
 }

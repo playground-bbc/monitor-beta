@@ -146,8 +146,8 @@ class EmailController extends Controller
                 'frontendUrl' => \Yii::$app->params['frontendUrl'],
               ])
               ->setFrom('monitormtg@gmail.com')
-              //->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
-              ->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
+              ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
+              //->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
               $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
               $isFileAttach = false;
               if(is_dir($pathFolder)){

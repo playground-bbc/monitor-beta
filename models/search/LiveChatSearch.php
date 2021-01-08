@@ -288,7 +288,7 @@ class LiveChatSearch {
         $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
        
         foreach($words as $word => $weight){
-            if(!is_numeric($word)){
+            if(!is_numeric($word) && strlen($word) > 2){
                 $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
                     [
                         'alert_mentionId' => $alertsMencionId,

@@ -262,7 +262,7 @@ const count_mentions = Vue.component("total-mentions", {
       return smallboxProperties[resource].icon;
     },
     getLink(resource) {
-      name = smallboxProperties[resource].name;
+      var name = smallboxProperties[resource].name;
       hiperlink = document.getElementById(name);
       return hiperlink;
     },
@@ -639,7 +639,7 @@ const count_common_words_chart = Vue.component("count-common-words-chart",{
   data: function(){
     return {
       alertId: id,
-      loaded: true,
+      loaded: false,
     };
   },
   mounted() {
@@ -666,11 +666,12 @@ const count_common_words_chart = Vue.component("count-common-words-chart",{
    
     drawPieChart() {
       let colors = this.getColors();
+      this.loaded = true;
       $.getJSON(`${origin}/${appId}/monitor/api/mentions/common-words?alertId=` + id,
         function(response){
           
           // order data to the graph
-          let getData = function (response){
+          var getData = function (response){
             var data = [];
             response.words.forEach(function(value){
               var tmp = {
@@ -682,7 +683,106 @@ const count_common_words_chart = Vue.component("count-common-words-chart",{
             return data;
           };
 
-          Highcharts.chart('container-common-words', {
+          let data = getData(response);
+          if(data.length > 0){
+            Highcharts.chart('container-common-words', {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Palabras mas comunes en las menciones'
+                },
+                credits: {
+                    enabled: false
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                accessibility: {
+                    point: {
+                        valueSuffix: '%'
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        colors: colors,
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                            distance: -50,
+                            filter: {
+                                property: 'percentage',
+                                operator: '>',
+                                value: 4
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Total',
+                    data: data
+                }]
+            });
+
+          }
+
+          if(data.length === 0){
+            this.loaded = false;
+          }
+      });
+    }
+    
+  }
+});
+
+/**
+ * [componente que muestra grafico de retail para LiveChat Tickets]
+ * template: '#view-products-interations-chart' [description]
+ * @return {[component]}           [component]
+ */
+const count_retails_chart = Vue.component("count-domains-chart",{
+  props: ["is_change"],
+  template: "#view-count-domains-chart",
+  data: function(){
+    return {
+      alertId: id,
+      loaded: false,
+    };
+  },
+  mounted() {
+    this.drawPieChart();
+  },
+  watch: {
+    is_change: function (val, oldVal) {
+      if (val) {
+        this.drawPieChart();
+      }
+    },
+  },
+  methods:{
+    drawPieChart() {
+     
+      let retails = [];
+      this.loaded = true;
+      $.getJSON(`${origin}/${appId}/monitor/api/mentions/web-page-domains?alertId=` + id,
+      function(response){
+        // order data to the graph
+        for(var key in response){
+          var tmp = {
+            'name': key,
+            'y': parseInt(response[key]),
+          };
+          retails.push(tmp);
+        }
+        
+        if(retails.length > 0){
+          // Build the chart
+          Highcharts.chart('view-count-domains-chart', {
             chart: {
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
@@ -690,7 +790,10 @@ const count_common_words_chart = Vue.component("count-common-words-chart",{
                 type: 'pie'
             },
             title: {
-                text: 'Palabras mas comunes en las menciones'
+                text: 'Dominios de Paginas Webs'
+            },
+            credits: {
+                enabled: false
             },
             tooltip: {
                 pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -704,30 +807,39 @@ const count_common_words_chart = Vue.component("count-common-words-chart",{
                 pie: {
                     allowPointSelect: true,
                     cursor: 'pointer',
-                    colors: colors,
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
-                        distance: -50,
-                        filter: {
-                            property: 'percentage',
-                            operator: '>',
-                            value: 4
-                        }
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        connectorColor: 'silver'
                     }
                 }
             },
+            colors: Highcharts.getOptions().colors.map(function(color) {
+              return {
+                radialGradient: {
+                  cx: 0.5,
+                  cy: 0.5,
+                  r: 0.7
+                },
+                stops: [
+                  [0, color],
+                  [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+                ]
+              }
+            }),
             series: [{
-                name: 'Total',
-                data: getData(response),
+                name: 'Share',
+                data: retails
             }]
-        });
+          });
+
+        }
 
       });
-      
     }
     
   }
+  
 });
 
 

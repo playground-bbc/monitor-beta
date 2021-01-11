@@ -25,6 +25,7 @@ class MentionsController extends Controller
               'product-interation',
               'mention-on-date',
               'common-words',
+              'web-page-domains',
               'list-mentions',
               'list-words',
               'list-emojis'
@@ -373,6 +374,14 @@ class MentionsController extends Controller
     return  \app\helpers\MentionsHelper::getCommonWordsByAlertId($alertId);
   }
 
+  /**
+   * [actionWebPageRetails return array web page retails
+   * @param  [int] $id            [id of alert]
+   * @return [array \ Exception]  [array of date or exception if alert id not exists]
+   */
+  public function actionWebPageDomains($alertId){
+    return  \app\helpers\MentionsHelper::getDomainsFromMentionsOnUrls($alertId);
+  }
 
   /**
    * Finds the Alerts model based on its primary key value.

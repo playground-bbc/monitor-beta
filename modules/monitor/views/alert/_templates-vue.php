@@ -67,7 +67,6 @@ use yii\widgets\ActiveForm;
   <div>
     <div v-show="loaded">
       <div id="resources_chart_count"></div>
-      <hr>
     </div>
     <div v-show="!loaded">
       <div class="loader">
@@ -81,7 +80,6 @@ use yii\widgets\ActiveForm;
   <div>
     <div v-show="loaded">
       <div id="post_mentions"></div>
-      <hr>
     </div>
     <div v-show="!loaded">
       <div class="loader">
@@ -98,7 +96,6 @@ use yii\widgets\ActiveForm;
       <div id="products-interation-chart">
         
       </div>
-      <hr>
     </div>
     <div v-show="!loaded">
           <div class="loader">
@@ -110,9 +107,17 @@ use yii\widgets\ActiveForm;
 
 <!-- chart common words -->
 <script type="tex/x-template" id="view-count-common-words-chart">
-  <div v-if="loaded">
+  <div v-show="loaded">
     <div id="container-common-words"></div>
-    <hr>
+    
+  </div>
+</script>
+
+<!-- chart retails -->
+<script type="tex/x-template" id="view-count-domains-chart">
+  <div v-show="loaded">
+    <div id="view-count-domains-chart"></div>
+    
   </div>
 </script>
 
@@ -292,7 +297,6 @@ use yii\widgets\ActiveForm;
     <div v-if="loaded" class="col-md-12 well">
         <h2>Nube de tags</h2>
         <i>Clickea la palabra para revisar los mensajes que contienen ese keyword</i>
-        <hr>
         <button v-on:click.prevent="reload" class="btn btn-sm btn-primary" id="update-demo">Update</button>
         <div id="jqcloud" class="jqcloud"></div>
     </div>
@@ -305,7 +309,6 @@ use yii\widgets\ActiveForm;
     <!-- <div id="date"></div>        -->
     <div v-show="loaded">
       <div id="date"></div>  
-      <hr>
     </div>
     <div v-show="!loaded">
         <div class="loader">

@@ -114,7 +114,6 @@ class LiveTicketSearch {
                                         $tickets[$t]['events'][$w]['rate']        = $tickets[$t]['rate'];
                                         $tickets[$t]['events'][$w]['status']      = $tickets[$t]['status'];
                                         $tickets[$t]['events'][$w]['subject']     = $tickets[$t]['subject'];
-                                    // $tickets[$t]['events'][$w]['geolocation'] = $geolocation;
 
                                         $mention = $this->saveMentions($tickets[$t]['events'][$w],$alertsMencionsModel->id,$user);
 
@@ -188,7 +187,7 @@ class LiveTicketSearch {
      * @return [type]                   [description]
      */
     private function saveMentions($mention,$alertsMencionsId,$user){
-       
+        
         $date = \app\helpers\DateHelper::asTimestamp($mention['date']);
         $mention_data = [];
         $mention_data['id']  = $mention['id'];
@@ -196,14 +195,12 @@ class LiveTicketSearch {
         $social_id = hexdec( substr(sha1($mention['id']), 0, 15) );
 
         $mention_data['status'] = $mention['status'];
-        //$mention_data['geo']    = ($user->user_data['type'] == 'client') ? $mention['geolocation']: null;
         $mention_data['source'] = $mention['source']['type'];
 
         $subject        = $mention['subject'];
         $message        = $mention['message'];
         $message_markup = $mention['message_markup'];
         $url            = ($user->user_data['type'] == 'client') ? $mention['source']['url'] : null;
-      //  $location       = ($user->user_data['type'] == 'client') ? $mention['geolocation']['regionName'] : null;
         $domain_url     = ($user->user_data['type'] == 'client') ? \app\helpers\StringHelper::getDomain($mention['source']['url']) : null;
         // set params for search
         $alertsMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($this->alertId,$this->resourcesId);

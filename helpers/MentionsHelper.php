@@ -263,10 +263,6 @@ class MentionsHelper
         return $colors[$resourceName];
     }
     
-    
-
-    
-
 
     public static function getPropertiesSourceBox($alertId){
         $model = \app\models\Alerts::findOne($alertId);
@@ -702,5 +698,40 @@ class MentionsHelper
             }
         }
         return ['words' => $data];
+    }
+
+    public static function getDomainsFromMentionsOnUrls($alertId,$resourceId = null){
+
+        $properties['alertId'] = $alertId;
+        if(!is_null($resourceId)){
+            $properties['resourcesId'] = $resourceId;
+        }
+        
+        $alertMentions = \app\helpers\AlertMentionsHelper::getAlersMentions($properties);
+        $totalDomains = [];
+        
+        if(!is_null($alertMentions)){
+            
+            $alertMentionsIds = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id');
+           
+            $urls = \app\models\Mentions::find()->select(['domain_url'])->where(['alert_mentionId' => $alertMentionsIds])
+            //->cache(20)
+            ->where(['IS NOT', 'domain_url', null])
+            ->asArray()
+            ->all();
+            
+            foreach($urls as $index => $values){
+                $domain = $values['domain_url'];
+                if(!in_array($domain,array_keys($totalDomains))){
+                    $totalDomains[$domain] = 1;
+                }else{
+                    $count = $totalDomains[$domain];
+                    $totalDomains[$domain] = $count + 1;
+                }
+            }
+            arsort($totalDomains);
+
+        }
+        return $totalDomains;
     }
 }

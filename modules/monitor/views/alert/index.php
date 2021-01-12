@@ -181,12 +181,13 @@ $escape = new JsExpression("function(m) { return m; }");
             
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{update} {delete} {view}',
+                'template' => '{update} {delete} {view} {report}',
                 'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
                 'buttons' => [
                     'delete' => function($url, $model){
                         return Html::a('<span class="glyphicon glyphicon-trash"></span>', ['delete', 'id' => $model->id], [
                             'style' => ($model->userId != \Yii::$app->user->getId()) ? 'display: none;': '',
+                            'title' => 'Eliminar la Alerta',
                             'data' => [
                                 'confirm' => 'Are you absolutely sure ? You will lose all the information about this user with this action.',
                                 'method' => 'post',
@@ -196,6 +197,15 @@ $escape = new JsExpression("function(m) { return m; }");
                     'update' => function($url, $model){
                         return Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['update', 'id' => $model->id], [
                             'style' => ($model->userId != \Yii::$app->user->getId()) ? 'display: none;': '',
+                            'title' => 'Actualizar la Alerta'
+                        ]);
+                    },
+                    'report' => function($url, $model){
+                        $mentionCount = \app\helpers\MentionsHelper::getCountMentions($model);
+
+                        return Html::a('<span class="glyphicon glyphicon-export"></span>', ['/monitor/pdf/document', 'alertId' => $model->id], [
+                            'style' => (!$mentionCount['data']['count']) ? 'display: none;': '',
+                            'title' => 'Descargar el Reporte'
                         ]);
                     }
                 ]

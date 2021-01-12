@@ -742,4 +742,24 @@ class MentionsHelper
         }
         return $totalDomains;
     }
+
+    public static function getCountMentions($model){
+        $data = [];
+
+        if($model){
+            $count = (new \yii\db\Query())
+            ->cache(10)
+            ->from('alerts_mencions')
+            ->join('JOIN', 'mentions', 'mentions.alert_mentionId = alerts_mencions.id')
+            ->where(['alertId' => $model->id])
+            ->count();
+            
+            // total register
+            $data['count'] = (int)$count;
+        }
+        
+        return [
+        'data' => $data,
+        ];
+    }
 }

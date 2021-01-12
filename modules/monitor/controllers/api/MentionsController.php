@@ -52,23 +52,7 @@ class MentionsController extends Controller
   public function actionCountMentions($alertId){
    
     $model = $this->findModel($alertId);
-    $data = [];
-
-    if($model){
-      $count = (new \yii\db\Query())
-      ->cache(10)
-      ->from('alerts_mencions')
-      ->join('JOIN', 'mentions', 'mentions.alert_mentionId = alerts_mencions.id')
-      ->where(['alertId' => $alertId])
-      ->count();
-      
-      // total register
-      $data['count'] = (int)$count;
-    }
-    
-    return [
-      'data' => $data,
-    ];
+    return \app\helpers\MentionsHelper::getCountMentions($model);
   }
 
   public function actionPropertiesSourceBox($alertId){

@@ -1,4 +1,5 @@
 "use strict";
+var resourceName = document.querySelector(".resourceName");
 let columnsName = [
   "col-md-12",
   "col-md-6",
@@ -390,7 +391,10 @@ const graphCommonWordsComponent = Vue.component("graph-common-words-detail", {
             type: 'pie'
         },
         title: {
-            text: 'Palabras mas comunes en las menciones'
+            text: `Palabras mas comunes en las menciones de ${resourceName.innerText}`
+        },
+        credits: {
+            enabled: false
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -529,7 +533,7 @@ const countRetailsChart = Vue.component("graph-count-domains-detail",{
             type: 'pie'
         },
         title: {
-            text: 'Dominios de Paginas Webs'
+            text: `Dominios de Paginas Webs en ${resourceName.innerText}`,
         },
         credits: {
             enabled: false
@@ -665,7 +669,7 @@ const mapUserComponent = Vue.component("map-user-detail", {
             },
 
             title: {
-              text: "Mapa de Usuarios",
+              text: `Mapa de Usuarios en ${resourceName.innerText}`,
             },
             mapNavigation: {
               enabled: true,

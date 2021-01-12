@@ -411,6 +411,61 @@ class DocumentHelper
         return $url;
     }
 
+    public static function actionGraphDomainsByResourceId($alertId,$resourceId){
+
+        $data = \app\helpers\MentionsHelper::getDomainsFromMentionsOnUrls($alertId,$resourceId);
+        $url = null;
+        if(count($data)){
+            $config = [
+            'type' => 'outlabeledPie',
+            'data' => [
+                'labels' => [],
+                'datasets' => [
+                    [
+                        "backgroundColor" => [],
+                        "data" => []
+                    ]
+                ],
+            ],
+            'options' => [
+                'plugins' => [
+                    "legend" => false,
+                    "outlabels" => [
+                            "text" => "%l %p",
+                            "color" => "white",
+                            "stretch" => 35,
+                            "font" => [
+                                "resizable" => true,
+                                "minSize" => 12,
+                                "maxSize" => 18
+                            ]
+                        ]    
+                    ]
+                ]
+            ];
+
+            foreach($data as $resourceName => $value){
+                $config['data']['labels'][] = $resourceName;
+                $config['data']['datasets'][0]['data'][] = $value;
+                // set backgroundColor
+                $config['data']['datasets'][0]['backgroundColor'][] = self::getRgbColor($value);
+            }
+
+            $qc = new \QuickChart(array(
+                'width'=> 400,
+                'height'=> 280,
+            ));
+    
+    
+            $config_json = json_encode($config);
+            $qc->setConfig($config_json);
+            
+            # Print the chart URL
+            $url =  $qc->getShortUrl();
+        }
+        return $url;
+    }
+
     public static function GraphCommonWordsByResourceId($alertId,$resourceId){
         $words = \app\helpers\DetailHelper::CommonWords($alertId,$resourceId);
         $words = array_slice($words['words'],0,5);
@@ -612,6 +667,18 @@ class DocumentHelper
         
         
         return null;
+    }
+
+
+    public static function getRgbColor($num) {
+        $hash = md5('color' . $num); // modify 'color' to get a different palette
+        $rgb = [
+            hexdec(substr($hash, 0, 2)), // r
+            hexdec(substr($hash, 2, 2)), // g
+            hexdec(substr($hash, 4, 2)), //b
+        ];
+        $rbgCode = implode(",",$rgb);
+        return "rgb({$rbgCode})";
     }
 
 }

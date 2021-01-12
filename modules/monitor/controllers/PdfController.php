@@ -94,6 +94,7 @@ class PdfController extends \yii\web\Controller
             $data = \app\helpers\PdfHelper::getGraphResourceOnDate($model,$data);
             $data = \app\helpers\PdfHelper::getTermsFindByResources($model,$data);
             $data = \app\helpers\PdfHelper::getGraphDataTermsByResourceId($model,$data);
+            $data = \app\helpers\PdfHelper::getGraphDomainsByResourceId($model,$data);
             $data =  \app\helpers\PdfHelper::getGraphCommonWordsByResourceId($model,$data);
             $data =  \app\helpers\PdfHelper::getMentionsByResourceId($model,$data);
         }

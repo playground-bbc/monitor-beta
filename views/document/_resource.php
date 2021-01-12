@@ -30,6 +30,17 @@ use yii\widgets\ListView;
                     <img src="<?= $url ?>" alt="Static Chart"/>
                 </div>
             <?php endif; ?> 
+            <?php if(isset($values['url_graph_domains'])): ?> 
+                <!-- break to another page -->
+                <div style='page-break-after:always'></div>
+                <!-- end break to another page -->   
+                <?php $url = $values['url_graph_domains'];?>
+                <h4 style="font-family: 'Helvetica', sans-serif;">Dominios obtenidos en <?= \Yii::$app->params['resourcesName'][$resourceName]; ?></h4>
+                <br><br>
+                <div class="chart">
+                    <img src="<?= $url ?>" alt="Static Chart"/>
+                </div>
+            <?php endif; ?> 
             <?php if(isset($values['provider'])): ?> 
                 <!-- break to another page -->
                 <div style='page-break-after:always'></div>

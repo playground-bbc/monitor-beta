@@ -205,7 +205,9 @@ $escape = new JsExpression("function(m) { return m; }");
 
                         return Html::a('<span class="glyphicon glyphicon-export"></span>', ['/monitor/pdf/document', 'alertId' => $model->id], [
                             'style' => (!$mentionCount['data']['count']) ? 'display: none;': '',
-                            'title' => 'Descargar el Reporte'
+                            'title' => 'Descargar el Reporte',
+                            'target' => '_blank',
+                            'data-pjax'=>"0"
                         ]);
                     }
                 ]

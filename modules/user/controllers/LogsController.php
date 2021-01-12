@@ -48,18 +48,6 @@ class LogsController extends Controller
                     ],
                 ],
             ],
-            [
-                'class' => 'yii\filters\PageCache',
-                'only' => ['index'],
-                'duration' => 60,
-                'variations' => [
-                    \Yii::$app->language,
-                ],
-                'dependency' => [
-                    'class' => 'yii\caching\DbDependency',
-                    'sql' => 'SELECT * FROM user_logs',
-                ],
-            ],
         ];
     }
 

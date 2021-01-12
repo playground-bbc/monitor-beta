@@ -20,7 +20,7 @@ class UserLogsSearch extends UserLogs
         return [
             [['id', 'userId', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['username','message'], 'string'],
-           // [['username','message'], 'safe'],
+            //[['username','message'], 'safe'],
         ];
     }
 
@@ -42,7 +42,7 @@ class UserLogsSearch extends UserLogs
      */
     public function search($params)
     {
-        $query = UserLogs::find()->orderBy(['log_date' => SORT_ASC]);
+        $query = UserLogs::find()->orderBy(['log_date' => SORT_DESC]);
 
         // add conditions that should always apply here
 
@@ -76,7 +76,7 @@ class UserLogsSearch extends UserLogs
             
         $query->andFilterWhere(['like', 'message', $this->message])
             ->andFilterWhere(['like', \app\models\Users::tableName() .'.id', $this->username]);
-
+        
         return $dataProvider;
     }
 }

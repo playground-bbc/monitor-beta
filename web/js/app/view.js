@@ -1,5 +1,3 @@
-
-
 let refreshTime = 15000;
 let refreshSweetAlert = 30000;
 let refreshTimeTable = 40000;

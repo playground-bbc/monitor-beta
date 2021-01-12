@@ -319,9 +319,6 @@ class MentionsController extends Controller
     $model =  \app\models\HistorySearch::findOne(['alertId' => $alertId]);
     return array('data' => $model);  
   }
-
- 
-
   /**
    * [actionCountByProducts count mentions by products]
    * @param  [type] $alertId [description]

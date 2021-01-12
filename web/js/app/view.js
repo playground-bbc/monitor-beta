@@ -828,7 +828,7 @@ const count_retails_chart = Vue.component("count-domains-chart",{
               }
             }),
             series: [{
-                name: 'Share',
+                name: 'Total',
                 data: retails
             }]
           });

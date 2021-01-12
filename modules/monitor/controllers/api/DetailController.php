@@ -121,6 +121,20 @@ class DetailController extends Controller {
         
         return \app\helpers\DetailHelper::CommonWords($alertId,$resourceId,$term,$socialId);
     }
+
+    /**
+     * return domains
+     * @param integer $id
+     * @param integer $resourceId
+     * @param string $term
+     * @return $data domains
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionUrlsDomains($alertId,$resourceId,$term = '',$socialId = ''){
+        
+        return  \app\helpers\MentionsHelper::getDomainsFromMentionsOnUrls($alertId,$resourceId,$term,$socialId);
+    }
+
     /**
      * return post or ticket to second select2 on view detail
      * @param integer $id

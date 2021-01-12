@@ -35,6 +35,13 @@ use yii\widgets\ActiveForm;
     :term="term" 
     :socialId="socialId"
     :isChange="isChange"/>
+
+    <graph-count-domains-detail
+    :alertid="alertid" 
+    :resourceid="resourceid" 
+    :term="term" 
+    :socialId="socialId"
+    :isChange="isChange"/>
     
     <map-user-detail
     :alertid="alertid" 
@@ -120,6 +127,17 @@ use yii\widgets\ActiveForm;
       </div>
       <div v-show="!words.length" class="well">
         <h4 class="card-title">No hay Palabras utilizadas</h4>
+      </div>
+    </div>
+  </div> 
+</script>
+
+<!-- graph common words mentions -->
+<script type="text/x-template" id="graph-count-domains-detail">
+<div  class="row">
+    <div class="col-md-12">
+      <div v-show="domains.length">
+        <div id="view-count-domains-chart"></div>
       </div>
     </div>
   </div> 

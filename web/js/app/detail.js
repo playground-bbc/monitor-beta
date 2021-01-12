@@ -42,7 +42,6 @@ const detailComponent = Vue.component("detail", {
     this.getSelect();
     setInterval(
       function () {
-        // console.log(this.term);
         this.fetchIsData();
       }.bind(this),
       10000 // numbers second reload
@@ -59,7 +58,6 @@ const detailComponent = Vue.component("detail", {
           }
         })
         .catch((error) => {
-          console.log(error);
           // see error by dialog
         });
 
@@ -83,7 +81,6 @@ const detailComponent = Vue.component("detail", {
           `detail_count_${this.alertid}_${this.resourceid}`,
           this.count
         );
-        console.info("set storage ...");
       }
     },
     getSelect() {
@@ -129,7 +126,6 @@ const detailComponent = Vue.component("detail", {
             }
           })
           .catch((error) => {
-            console.error(error);
             // see error by dialog
           });
       }
@@ -191,11 +187,9 @@ const boxComponent = Vue.component("box-detail", {
         .then((response) => {
           if (response.status == 200) {
             this.box_properties = response.data.propertyBoxs;
-            //console.log("call api box-info");
           }
         })
         .catch((error) => {
-          console.error(error);
           // see error by dialog
         });
     },
@@ -210,7 +204,6 @@ const boxComponent = Vue.component("box-detail", {
     },
     searched(attribute) {
       for (var [key, value] of Object.entries(attribute)) {
-        //console.log(key + " " + value);
         $(`#mentionsearch-${key}`).attr("value", value);
       }
       $("#mentionsearch-id").attr("value", this.alertid);
@@ -229,7 +222,6 @@ const boxComponent = Vue.component("box-detail", {
         default:
           break;
       }
-      //console.log(method, attribute);
     },
   },
   computed: {
@@ -302,7 +294,6 @@ const boxCommonWordsComponent = Vue.component("common-words-detail", {
         }
       })
       .catch((error) => {
-        console.error(error);
         // see error by dialog
       });
     },
@@ -383,7 +374,6 @@ const graphCommonWordsComponent = Vue.component("graph-common-words-detail", {
         }
       })
       .catch((error) => {
-        console.error(error);
         // see error by dialog
       });
     },
@@ -446,6 +436,143 @@ const graphCommonWordsComponent = Vue.component("graph-common-words-detail", {
       return colors;
       
     }
+  },
+});
+/**
+ * countRetailsChart: send call to api and display domains graph
+ */
+const countRetailsChart = Vue.component("graph-count-domains-detail",{
+  props: {
+    alertid: {
+      type: Number,
+      required: true,
+    },
+    resourceid: {
+      type: Number,
+      required: true,
+    },
+    term: {
+      type: String,
+      required: true,
+    },
+    socialId: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    isChange: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  template: "#graph-count-domains-detail",
+  data: function () {
+    return {
+      domains: [],
+      excludeIds: [1,5,6,7,8], // exclude twitter,facebook, Instagram and document
+    };
+  },
+   watch: {
+    isChange: function (val, oldVal) {
+      if (val) {
+        this.fetchDomains();
+      }
+    },
+    socialId: function (val, oldVal) {
+      if (val || val == "") {
+        this.fetchDomains();
+      }
+    },
+  },
+  mounted() {
+    this.fetchDomains();
+  },
+  methods: {
+    fetchDomains() {
+      if(this.excludeIds.indexOf(this.resourceid) === -1){
+        getUrlsDomainsDetail(
+          this.alertid,
+          this.resourceid,
+          this.term,
+          this.socialId
+        )
+        .then((response) => {
+          this.domains = [];
+          if (response.status == 200) {
+            // order data to the graph
+            for(var key in response.data){
+              var tmp = {
+                'name': key,
+                'y': parseInt(response.data[key]),
+              };
+              this.domains.push(tmp);
+            }
+  
+            if(this.domains.length > 0){
+              this.drawPieGraph();
+            }
+          }
+        })
+        .catch((error) => {
+          // see error by dialog
+        });
+      }
+    },
+    drawPieGraph(){
+      // Build the chart
+      Highcharts.chart('view-count-domains-chart', {
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: 'Dominios de Paginas Webs'
+        },
+        credits: {
+            enabled: false
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        accessibility: {
+            point: {
+                valueSuffix: '%'
+            }
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    connectorColor: 'silver'
+                }
+            }
+        },
+        colors: Highcharts.getOptions().colors.map(function(color) {
+          return {
+            radialGradient: {
+              cx: 0.5,
+              cy: 0.5,
+              r: 0.7
+            },
+            stops: [
+              [0, color],
+              [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+          }
+        }),
+        series: [{
+            name: 'Total',
+            data: this.domains
+        }]
+      });
+    },
+    
   },
 });
 /**
@@ -514,7 +641,6 @@ const mapUserComponent = Vue.component("map-user-detail", {
           }
         })
         .catch((error) => {
-          console.error(error);
           // see error by dialog
         });
     },
@@ -534,7 +660,6 @@ const mapUserComponent = Vue.component("map-user-detail", {
               events: {
                 load: function () {
                   //this.mapZoom(-0.3, 0, 0, 0.5, 0);
-                  //console.log(this.get()); //zoom to the country using "id" from data serie
                 },
               },
             },
@@ -584,7 +709,6 @@ const mapUserComponent = Vue.component("map-user-detail", {
                         }
                       })
                       .catch((error) => {
-                        console.error(error);
                         // see error by dialog
                       });
                   },

@@ -174,7 +174,7 @@ class TwitterSearch
             }else{
                 $mention  = new \app\models\Mentions();
                 $mention->url = $url;
-                $mention->domain_url = $url;
+                $mention->domain_url = ($url != '-') ? \app\helpers\StringHelper::getDomain($url) : null;
                 $mention->origin_id  = $userMentions->id;
                 $mention->message   = $message;
                 $mention->social_id = $social_id;
@@ -379,7 +379,7 @@ class TwitterSearch
             $model->location        = '';
             $model->subject         = '';
             $model->url             = $url;
-            $model->domain_url      = $url;
+            $model->domain_url      = ($url != '-') ? \app\helpers\StringHelper::getDomain($url) : null;
             $model->origin_id       = $originId;
             $model->message         = $message;
             $model->social_id       = $social_id;

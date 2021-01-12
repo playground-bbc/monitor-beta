@@ -1,5 +1,4 @@
-// flag to chart line
-let loadedChart = false;
+
 
 let refreshTime = 15000;
 let refreshSweetAlert = 30000;
@@ -157,7 +156,7 @@ const report_button = Vue.component("button-report", {
   mounted() {
     setInterval(
       function () {
-        if (this.count > 0 && loadedChart) {
+        if (this.count > 0) {
           this.isdisabled = false;
         }
       }.bind(this),
@@ -166,7 +165,7 @@ const report_button = Vue.component("button-report", {
   },
   methods: {
     send(event) {
-      if (this.count > 0 && loadedChart) {
+      if (this.count > 0) {
         modalFinish(this.count, baseUrlView, id);
       }
     },

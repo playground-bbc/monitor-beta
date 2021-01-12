@@ -284,6 +284,7 @@ class DocumentHelper
     public static function actionGraphDataTermsByResourceId($alertId,$resourceId){
 
         $data = \app\helpers\MentionsHelper::getProductInteration($alertId,$resourceId);
+        
         $terms = [];
         $totals = [];
         
@@ -358,8 +359,8 @@ class DocumentHelper
                 ];
                 for($i = 0; $i < sizeOf($data['data']); $i ++){
                     $labels[] = $data['data'][$i][0];
-                    $config['data']['datasets'][0]['data'][] = $data['data'][$i][2];
-                    $config['data']['datasets'][1]['data'][] = $data['data'][$i][3];
+                    $datasets[0]['data'][] = $data['data'][$i][2];
+                    $datasets[1]['data'][] = $data['data'][$i][3];
                 }
             break;
             

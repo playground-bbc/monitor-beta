@@ -181,7 +181,7 @@ $escape = new JsExpression("function(m) { return m; }");
             
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{update} {delete} {view} {report}',
+                'template' => '{update} {view} {delete} {report}',
                 'contentOptions' => ['style' => 'width: 10%;min-width: 20px'], 
                 'buttons' => [
                     'delete' => function($url, $model){

@@ -184,7 +184,6 @@ class Dictionaries extends \yii\db\ActiveRecord
           $models[] = [$alertId,$model->id];
 
       }
-
       if(count($models)){
         Yii::$app->db->createCommand()->batchInsert('alerts_keywords', ['alertId','keywordId'],$models)
         ->execute();

@@ -101,33 +101,6 @@ class m190813_194401_Dictionaries extends Migration
             'updatedBy'             => '1',
         ]);
 
-        // $this->insert('{{%dictionaries}}', [
-        //     'name'                  => 'Product description',
-        //     'color'                 => '#f7978f',
-        //     'createdAt'             => '1488153462',
-        //     'updatedAt'             => '1488153462',
-        //     'createdBy'             => '1',
-        //     'updatedBy'             => '1',
-        // ]);
-
-        // $this->insert('{{%dictionaries}}', [
-        //     'name'                  => 'Product Competition',
-        //     'color'                 => '#f27979',
-        //     'createdAt'             => '1488153462',
-        //     'updatedAt'             => '1488153462',
-        //     'createdBy'             => '1',
-        //     'updatedBy'             => '1',
-        // ]);
-
-        // $this->insert('{{%dictionaries}}', [
-        //     'name'                  => 'Neutral Words',
-        //     'color'                 => '#f27980',
-        //     'createdAt'             => '1488153462',
-        //     'updatedAt'             => '1488153462',
-        //     'createdBy'             => '1',
-        //     'updatedBy'             => '1',
-        // ]);
-
     }
 
     /**

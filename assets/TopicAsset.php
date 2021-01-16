@@ -4,6 +4,10 @@ namespace app\assets;
 
 use yii\web\AssetBundle;
 
+/**
+ * SweetAlertAsset asset bundle.
+ *
+ */
 class TopicAsset extends AssetBundle
 {
     public $basePath = '@webroot';

@@ -4,10 +4,8 @@ namespace app\assets;
 use yii\web\AssetBundle;
 
 /**
- * Main application asset bundle.
+ * GoogleChartAsset asset bundle.
  *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
  */
 class GoogleChartAsset extends AssetBundle
 {

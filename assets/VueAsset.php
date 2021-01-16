@@ -5,10 +5,7 @@ use yii\web\AssetBundle;
 use yii\web\View;
 
 /**
- * Main application asset bundle.
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
+ * VueAsset asset bundle.
  */
 class VueAsset extends AssetBundle
 {

@@ -4,10 +4,8 @@ namespace app\assets;
 use yii\web\AssetBundle;
 
 /**
- * Main application asset bundle.
+ * DataTableAsset asset bundle.
  *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
  */
 class DataTableAsset extends AssetBundle
 {
@@ -28,14 +26,5 @@ class DataTableAsset extends AssetBundle
         'yii\bootstrap\BootstrapAsset',
         'yii\bootstrap\BootstrapPluginAsset',
     ]; 
-    //public $baseUrl = '@web';
-    /*public $css = [
-        'css/site.css',
-    ];
-    public $js = [
-    ];
-    public $depends = [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
-    ];*/
+   
 }

@@ -5,10 +5,8 @@ use yii\web\AssetBundle;
 use yii\web\View;
 
 /**
- * Main application asset bundle.
+ * highmapsAsset asset bundle.
  *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
  */
 class highmapsAsset extends AssetBundle
 {
@@ -18,8 +16,6 @@ class highmapsAsset extends AssetBundle
      * @inheritdoc
      */
     public $js = [
-        //'highcharts.js',
-        //'highstock.js',
         'highmaps.js',
         'modules/exporting.js',
         'https://code.highcharts.com/mapdata/countries/cl/cl-all.js',

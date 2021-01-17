@@ -1,11 +1,7 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
 
 namespace app\commands;
+
 use yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
@@ -23,9 +19,9 @@ use app\modules\report\models\SectionType;
 
 
 /**
- * This command echoes the first argument that you have entered.
  *
- * This command is provided as an example for you to learn how to create console commands.
+ * This command create presentation on google  Slide
+ *
  *
  * @author Eduardo Morales <xavierm@outlook.com>
  * @since 2.0
@@ -36,11 +32,14 @@ class PresentationController extends Controller{
     public $slidesIdsTemplate = [];
     public $slidesIds = [];
     public $pageElements = [];
-    //public $presentationTemplateId = '1Vqu9FGku2fD6U1cQJAgKlaQwo5IXgEFUa6dLliPU4-w';
     public $presentationTemplateId ='1Vqu9FGku2fD6U1cQJAgKlaQwo5IXgEFUa6dLliPU4-w';
-    //public $spreadsheetId = '11m-NUK6VBdf5c6epONp-t5Tyjkbiqk_hDSUdMhIu-YE';
-    public $spreadsheetId = '1IO1d3PxLjMmTE4NOSyQen8yJ6HdSfqahLVe8aiKAZpQ';
+    public $spreadsheetId;
 
+    /**
+     * funtion (DEFAULT) load model by id and runs presentation function to create Google Slide
+     * @param int $id of model
+     * @return int Exit code
+     */
     public function actionIndex($id)
     {
         // get models
@@ -49,13 +48,13 @@ class PresentationController extends Controller{
             Console::stdout("Runing Presentation model id: {$model->id} \n", Console::BOLD);
             $this->main($model);
         }
-        //Console::stdout("loop in call method \n", Console::BOLD);
         return ExitCode::OK;
     }
 
     /**
      * main function that builds requests for google slide API responses
      * @param Presentation the loaded model
+     * @return int Exit code
      */
     public function main($model){
         
@@ -108,14 +107,6 @@ class PresentationController extends Controller{
         $this->presentationId = SlideHelper::getOrSetPresentationId($client,$this->presentationTemplateId,$model->name);
         // set spreadsheetId
         $this->spreadsheetId = SheetHelper::getIdFromUrl($model->url_sheet);
-
-        // $recordsObjects = SheetHelper::getValuesFromRange($client,$this->spreadsheetId,"Publicaciones 09_2020");
-        // $records = SheetHelper::getRecordOrderBy($recordsObjects,['Engagement Rate in %',SORT_DESC]);
-        // $records_publications = SheetHelper::getRecordsWhere($records,['Tags'=> "BRAND"]);
-        //print_r($recordsObjects[0]);
-        //print_r($records[0]);
-        //  print_r($records_publications);
-        // die();
 
         try {
             // create cover    
@@ -172,6 +163,7 @@ class PresentationController extends Controller{
     /** 
      * create request array to cover slide
      * @param Array the presentation model
+     * @return Array request of cover
      */
     protected function createCover($presentationModel){
         // get cover page id
@@ -201,6 +193,7 @@ class PresentationController extends Controller{
     /** 
      * create request array to slide with parent and child
      * @param Array the presentation model
+     * @return Array request of section
      */
     protected function createSection($client,$presentationModel){
         // set slides
@@ -246,6 +239,7 @@ class PresentationController extends Controller{
     /** 
      * create request array to slide with static section AKA overview
      * @param Array the presentation model
+     * @return Array request of Overview section
      */
     protected function createOverView($client,$presentationModel){
         // set slides
@@ -330,6 +324,7 @@ class PresentationController extends Controller{
     /** 
      * create request array to slide with static section AKA overview
      * @param Array the presentation model
+     * @return Array request of categories
      */
     protected function createCategories($client,$presentationModel){
         // set slides
@@ -618,6 +613,7 @@ class PresentationController extends Controller{
     /** 
      * create get brand name for the range of spreedsheet
      * @param Array the range of spreedsheet
+     * @return String brand
      */
     protected function getBrandForRange($range){
         $range_explode = explode(" ",$range);
@@ -633,6 +629,7 @@ class PresentationController extends Controller{
      * @param Array $recordsObjects records sheet
      * @param Array $pageObjectIds obejct id elements
      * @param String $brandName name brand: HA,HE ..
+     * @return Array request of paragraph
      */
     protected function addDataMainParagraphOfCategories($recordsObjects = [],$pageObjectIds,$brandName)
     {
@@ -675,7 +672,9 @@ class PresentationController extends Controller{
 
     /** 
      * create request array to slide Sac
+     * @param Client Google client
      * @param Array the presentation model
+     * @return Array request of cover
      */
     protected function createSac($client,$presentationModel){
         // set slides
@@ -817,7 +816,11 @@ class PresentationController extends Controller{
         
         return $request;
     }
-
+    /** 
+     * create request array to properties slide Sac
+     * @param Array Properties to update Sac
+     * @return Array request of cover
+     */
     protected function UpdateTablePropertiesSac($tablesPropertiesToUpdate){
         $request = [];
         // update table alt_table_received_sac
@@ -850,35 +853,22 @@ class PresentationController extends Controller{
     /** 
      * send request delete slides template
      * @param Google_Client $client
+     * @return void
      */
     protected function deleteSlideTemplate($client){
+        $slidesIdToDelete = [2,3,4,5,6,8,9,10,11,12,13,14];
+        $requestD = [];
         // delete pages template
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[2]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[3]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[4]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[5]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[6]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[8]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[9]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[10]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[11]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[12]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[13]);
-        $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[14]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[15]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[16]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[17]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[18]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[19]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[20]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[21]);
-        // $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[22]);
-      //  $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[7]);
+        for($s = 0; $s < sizeOf($slidesIdToDelete); $s++){
+            $id = $slidesIdToDelete[$s];
+            $requestD[] = SlideHelper::deleteObject($this->slidesIdsTemplate[$id]);
+        }
         SlideHelper::executeRequest($client,$requestD,$this->presentationId);  
     }
     /** 
      * send request updating slides order
      * @param Google_Client $client
+     * @return void
      */
     protected function updateOrder($client){
 
@@ -893,6 +883,7 @@ class PresentationController extends Controller{
      * @param Google_Client $client
      * @param string $presentationId
      * @param string $newName
+     * @return void
      */
     protected function mapElementPresentation($client){
         // map element slides
@@ -934,7 +925,11 @@ class PresentationController extends Controller{
 
         return false;
     }
-
+    /**
+     * Change status of presentation model.
+     * @param  Presentation $model
+     * @return void
+     */
     protected function changeStatus($model,$status){
         // change status
         $model->status = $status;

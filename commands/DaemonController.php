@@ -4,28 +4,22 @@ namespace app\commands;
 
 use yii\console\ExitCode;
 use yii\console\Controller;
-use Yii\helpers\ArrayHelper;
-use yii\helpers\Console;
 
 use app\models\Alerts;
 use app\models\api\BaseApi;
 use app\models\api\DriveApi;
 
-use app\models\file\JsonFile;
-
-
 /**
- * This command echoes the first argument that you have entered.
- *
- * This command will runs all the alerts.
+ * This command will runs all the alerts - insights - topic - data-search -sync terms and dictionaries google docs .
  *
  * @author Eduardo Morales <eduardo@montana-studio.com>
  */
 class DaemonController extends Controller
 {
-    /** run terminal ./yii daemon/alerts-run
-     * [actionAlertsRun runs all alerts]
-     * @return [type] [description]
+    /** 
+     * @param string $resourceName [ ej: Facebook Comments, Twitter, etc ..]
+     * [actionAlertsRun runs all alerts active]
+     * @return int Exit code
      */
     public function actionAlertsRun($resourceName = ''){
         $alert = new Alerts();
@@ -39,9 +33,9 @@ class DaemonController extends Controller
         return ExitCode::OK;
     }
 
-    /** run terminal ./yii daemon/alerts-run-web
-     * [actionAlertsRun runs all alerts when its resource are equal to web page]
-     * @return [type] [description]
+    /**
+     * [actionAlertsRun runs all alerts  (Scraping) when its resource are equal to web page]
+     * @return int Exit code
      */
     public function actionAlertsRunWeb(){
         
@@ -54,9 +48,9 @@ class DaemonController extends Controller
         }
         return ExitCode::OK;
     }
-    /** run terminal ./yii daemon/data-search
-     * [actionDataSearch get json in transformed the data to db [Not finish]]
-     * @return [type] [description]
+    /** 
+     * [actionDataSearch get json file in transformed the data to db]
+     * @return int Exit code
      */
     public function actionDataSearch(){
         $alert = new Alerts();
@@ -65,14 +59,14 @@ class DaemonController extends Controller
         if(!empty($alertsConfig)){
             $baseApi = new BaseApi();
             $api = $baseApi->readDataResource($alertsConfig);
-            // send email
-            //\app\helpers\EmailHelper::sendCommonWords($alertsConfig);
         }
+        return ExitCode::OK;
     }
+
     /**
-     *  run terminal ./yii daemon/sync-products
+     *  
      * [actionSyncProducts sync products to drive documents]
-     * @return [type] [description]
+     * @return int Exit code
      */
     public function actionSyncProducts(){
         $drive = new DriveApi();
@@ -81,9 +75,8 @@ class DaemonController extends Controller
     }
 
     /**
-     *  run terminal ./yii daemon/sync-dictionaries
      * [actionSyncProducts sync products to drive documents]
-     * @return [type] [description]
+     * @return int Exit code
      */
     public function actionSyncDictionaries(){
         $drive = new DriveApi();
@@ -108,10 +101,10 @@ class DaemonController extends Controller
         }
         return ExitCode::OK;
     }
+    
     /**
-     * run terminal ./yii daemon/insights-run
-     * [actionInsightsRun call api to get insights]
-     * @return [type] [description]
+     * [actionInsightsRun call api insights facebook of current client]
+     * @return int Exit code
      */
     public function actionInsightsRun(){
         $userFacebook = \app\helpers\FacebookHelper::getUserActiveFacebook();
@@ -122,10 +115,9 @@ class DaemonController extends Controller
         return ExitCode::OK;
     }
     /**
-     * run terminal ./yii daemon/topic-run
-     * [actionTopicRun console method to topic  search]
-     * @param  string $resourceName [description]
-     * @return [type]               [description]
+     * [actionTopicRun console method to topic search]
+     * @param  string $resourceName   [ej:Twitter,Livechat]
+     * @return int Exit code               [description]
      */
     public function actionTopicRun($resourceName = "Paginas Webs")
     {
@@ -139,8 +131,8 @@ class DaemonController extends Controller
     }
     /**
      * run terminal ./yii daemon/truncate-prodcuts
-     * [only development function]
-     * @return [type] [description]
+     * [only development function delete products]
+     * @return void
      */
     public function actionTruncateProducts(){
         \Yii::$app->db->createCommand()->delete('products_series','status = :status', [':status' => 1])->execute();

@@ -2,6 +2,11 @@
 namespace app\components;
 use yii\validators\Validator;
 
+/**
+ *
+ * This Components validate if a product has register
+ *
+ */
 class ProductsValidator extends Validator{
     
 

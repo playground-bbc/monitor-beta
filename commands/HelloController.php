@@ -20,7 +20,7 @@ use yii\console\ExitCode;
 class HelloController extends Controller
 {
     /**
-     * This command echoes what you have entered as the message.
+     * This command save on mentions table Faker Data
      * @param string $message the message to be echoed.
      * @return int Exit code
      */

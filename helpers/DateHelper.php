@@ -5,18 +5,20 @@ use yii;
 use Jenssegers\Date\Date;
 
 /**
- *
+ * ateHelper wrapper for time function.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
  */
 
-/**
- * DateHelper wrapper for time function.
- *
- */
 class DateHelper
 {
 
+    /**
+     * [create formate date]
+     * @param  [string] $date   [date]
+     * @param  [string] $format   [date]
+     * @return Date
+     */
     public static function createFormat($date,$format= 'Y-m-d H:i:s'){
         return Date::createFromFormat($format, Date::parse($date));
     }
@@ -42,7 +44,6 @@ class DateHelper
      */
     public static function addHours($date, $number)
     {
-        //$date_format = Yii::$app->formatter->asDatetime($date,'yyyy-MM-dd');
         $date_future = Date::parse($date)->addHours($number);
         return $date_future->getTimestamp();
     }
@@ -64,7 +65,8 @@ class DateHelper
     /**
      * [diffInDays get diffInDays between two date]
      * @param  [string] $date_1   [date ej unix date]
-     * @return [string] $date_2   [date ej unix date]
+     * @param [string] $date_2   [date ej unix date]
+     * @return int 
      */
     public static function diffInHours($date_1,$date_2){
     	
@@ -78,7 +80,8 @@ class DateHelper
     /**
      * [diffInDays get diffInDays between two date]
      * @param  [string] $date_1   [date ej unix date]
-     * @return [string] $date_21  [date ej "Sat Aug 24 14:29:51 +0000 2019"]
+     * @param  [string] $date_1   [date ej unix date]
+     * @return [string] $diff
      */
     public static function diffInDays($date_1,$date_2){
     	
@@ -92,7 +95,8 @@ class DateHelper
      /**
      * [diffInDays get diffInMonths between two date]
      * @param  [string] $date_1   [date ej unix date]
-     * @return [string] $date_21  [date ej "Sat Aug 24 14:29:51 +0000 2019"]
+     * @param  [string] $date_1   [date ej unix date]
+     * @return [string] $diff
      */
     public static function diffInMonths($date_1,$date_2){
         
@@ -114,6 +118,12 @@ class DateHelper
         return $diff;
     }
 
+    /**
+     * [periodDates get days a periodo]
+     * @param  [string / int] $date_1 [unix date format]
+     * @param  [string / int] $date_2 [unix date format]
+     * @return Array [days in period]
+     */
     public static function periodDates($start_date,$end_date)
     {
         date_default_timezone_set('UTC');
@@ -133,7 +143,7 @@ class DateHelper
 
     /**
      * [asTimestamp get time in unix date]
-     * @param  [type] $date [11 julio de 2019 or 11/07/2019 yes is my birthday]
+     * @param  [type] $date 
      * @return [string]       [21101054511210 yes is not unix is example]
      */
     public static function asTimestamp($date){
@@ -141,6 +151,11 @@ class DateHelper
         return $date->getTimestamp();
     }
 
+    /**
+     * [asDatetime convert as datetime with a format]
+     * @param  [type] $date 
+     * @return [Date]
+     */
     public static function asDatetime($date,$format = "d/m/Y"){
         return date($format,$date);
     }

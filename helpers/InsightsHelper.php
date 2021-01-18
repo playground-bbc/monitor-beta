@@ -7,6 +7,7 @@ use yii\helpers\Url;
 
 /**
  *  class helper to model Insights
+ * @author Eduardo Morales <eduardo@montana-studio.com>
  */
 class InsightsHelper
 {
@@ -294,7 +295,7 @@ class InsightsHelper
         
     }
     /** 
-     * _searchIdSeriesInEntyties private helpers look up id series on entityies if not search, look in the message 
+     * _searchIdSeriesInEntyties look up id series on entityies if not search, look in the message 
     */
     public static function _searchIdSeriesInEntyties($entyties,$message){
 
@@ -648,16 +649,24 @@ class InsightsHelper
         return $posts_content;
     }
 
-
+    /**
+     * [getNumbersContent get number of content for widget insights]
+     * @param int $page_resource          [description]
+     * @return  int 
+     */
     public static function getNumbersContent(){
         
         $pageContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Page'])->one(); 
-
         $page_resource = \app\models\WContent::find()->select('resource_id')->where(['type_content_id' => $pageContentId->id])->groupBy('resource_id')->asArray()->all();
         
         return $page_resource;
     }
 
+    /**
+     * [getContentPage get content page by resource for widget insights]
+     * @param int $page_resource          [description]
+     * @return  array conten page
+     */
     public static function getContentPage($resourceId){
         
         $pageContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Page'])->one(); 
@@ -690,6 +699,12 @@ class InsightsHelper
 		return reset($page_content);
     }
 
+    /**
+     * [getPostsInsights get post insights 
+     * @param int $resourceId          [description]
+     * @param int limite of result
+     * @return  array post page
+     */
     public static function getPostsInsights($resourceId,$limit = 5){
         // type posts
         $postContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Post'])->one(); 
@@ -704,6 +719,11 @@ class InsightsHelper
         return $posts_content;
     }
 
+    /**
+     * [getStorysInsights get stories insights 
+     * @param int $resourceId          [description]
+     * @return  array stories page
+     */
     public static function getStorysInsights($resourceId){
         
         $storyContentId = \app\models\WTypeContent::find()->select(['id'])->where(['name' => 'Story'])->one();

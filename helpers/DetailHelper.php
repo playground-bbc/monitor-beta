@@ -6,15 +6,11 @@ use yii\helpers\Html;
 use yii\db\Expression;
 
 /**
- *
+ * DetailHelper wrapper for DetailController function.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
  */
 
-/**
- * DetailHelper wrapper for DetailController function.
- *
- */
 class DetailHelper {
 
     /**
@@ -942,7 +938,7 @@ class DetailHelper {
      * Compose column for gridview
      * @param string $label
      * @param string $attribute
-     * @param function $format
+     * @param string $format
      * @param array contentOptions
      * 
      */
@@ -962,6 +958,15 @@ class DetailHelper {
         return $column;
     }
 
+    /** 
+     * get Common Words from the alert
+     * @param int $alertId
+     * @param int $resourceId
+     * @param string $term
+     * @param string $socialId
+     * @return  array words
+     * 
+     */
     public static function CommonWords($alertId,$resourceId,$term = '',$socialId = ''){
         
         $model = self::findModel($alertId,$resourceId);
@@ -997,6 +1002,13 @@ class DetailHelper {
         return ['words' => $data];
     }
 
+    /** 
+     * get model alert
+     * @param int $id
+     * @param int $resourceId
+     * @return Alert
+     * 
+     */
     public static function findModel($id,$resourceId)
     {
         if (($model = \app\models\Alerts::findOne($id)) !== null) {

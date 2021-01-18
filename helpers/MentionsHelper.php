@@ -11,14 +11,9 @@ use app\models\UsersMentions;
 
 
 /**
- *
+ * MentionsHelper wrapper for table db function.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
- */
-
-/**
- * MentionsHelper wrapper for table db function.
- *
  */
 class MentionsHelper
 {
@@ -64,7 +59,6 @@ class MentionsHelper
      * @return [type]             [description]
      */
     public static function saveUserMencions($where = [], $properties = []){
-        
 
         $is_model = UsersMentions::find()->where($where)->one();
         // if there a record 
@@ -132,7 +126,10 @@ class MentionsHelper
     public static function isMobile($user_agent){
         return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $user_agent);
     }
-
+    /**
+     * [getRegionsOnHcKey returns array of regions chile with key HC]
+     * @return array
+     */
     public static function getRegionsOnHcKey(){
         return [
             "Araucania" => 'cl-2730',
@@ -192,8 +189,11 @@ class MentionsHelper
             "Tarapacá"=>"cl-ta",
         ];
     }
-
-    public static function setNumberCommentsSocialMedia($alertId,$resourceSocialIds = []){
+     /**
+     * [getNumberCommentsSocialMedia returns total records by resource social Id]
+     * @return array
+     */
+    public static function getNumberCommentsSocialMedia($alertId,$resourceSocialIds = []){
         $alerMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($alertId,$resourceSocialIds);
         $total = 0;
         if(!empty($alerMentionsIds)){
@@ -206,7 +206,10 @@ class MentionsHelper
         return $total;    
     }
 
-
+    /**
+     * [getDataMentionData returnsmentions data fields for alert mentions]
+     * @return int
+     */
     public static function getDataMentionData($alertId,$resourceId,$targets){
         $alerMentionsIds = \app\helpers\AlertMentionsHelper::getAlertsMentionsIdsByAlertIdAndResourcesIds($alertId,$resourceId);
         // set targets
@@ -285,7 +288,7 @@ class MentionsHelper
         //$data = \app\helpers\AlertMentionsHelper::setMentionData($data_search);
         
         if(in_array('Facebook Comments',array_values($alertResources))){
-        $data['total_comments_facebook_comments'] = (int) \app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
+        $data['total_comments_facebook_comments'] = (int) \app\helpers\MentionsHelper::getNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
         
         }
         
@@ -295,7 +298,7 @@ class MentionsHelper
 
         if(in_array('Instagram Comments',array_values($alertResources))){
         $instagramId = array_search('Instagram Comments',$alertResources);
-        $data['total_comments_instagram'] =  (int)\app\helpers\MentionsHelper::setNumberCommentsSocialMedia($model->id,$instagramId);
+        $data['total_comments_instagram'] =  (int)\app\helpers\MentionsHelper::getNumberCommentsSocialMedia($model->id,$instagramId);
         }
 
         if(in_array('Twitter',array_values($alertResources))){
@@ -404,7 +407,6 @@ class MentionsHelper
         'data' => $data
         ];
     }
-
 
 
     public static function getCountSourcesMentions($alertId,$resourceId = null){

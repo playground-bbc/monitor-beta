@@ -101,12 +101,12 @@ class TwitterSearch
         $error = [];
         if(!is_null($data)){
             foreach($data as $product => $tweets){
-                $alertsMencions =  $this->findAlertsMencionsByProducts($product);
-                if(!is_null($alertsMencions)){
+                $alertsMencion =  $this->findAlertsMencionsByProducts($product);
+                if(!is_null($alertsMencion)){
                     // loop over tweets
                     for($t = 0; $t < sizeof($tweets); $t++){
                         if(!\app\helpers\StringHelper::isEmpty($tweets[$t]['message'])){
-                            $this->savePropertyMentions($tweets[$t],$alertsMencions);
+                            $this->savePropertyMentions($tweets[$t],$alertsMencion);
                         }
                     }
                 }
@@ -116,7 +116,7 @@ class TwitterSearch
         return (empty($error)) ? true : false;
     }
 
-    private function savePropertyMentions($tweet,$alertsMencions){
+    private function savePropertyMentions($tweet,$alertsMencion){
 
         $transaction = \Yii::$app->db->beginTransaction();
        
@@ -181,10 +181,10 @@ class TwitterSearch
                 $mention->mention_data = $mention_data;
                 $mention->created_time = $created_time;
                 $mention->message_markup  = $message_markup;
-                $mention->alert_mentionId = $alertsMencions->id;
+                $mention->alert_mentionId = $alertsMencion->id;
 
                 if(strlen($mention->message) > 2){
-                    $this->saveOrUpdatedCommonWords($mention,$mention->alert_mentionId);
+                    \app\helpers\StringHelper::saveOrUpdatedCommonWords($mention,$alertsMencion);
                 }
 
             }
@@ -227,41 +227,6 @@ class TwitterSearch
         } 
     }
 
-    public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
-        // most repeated words
-        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
-       
-        foreach($words as $word => $weight){
-            if(!is_numeric($word) && strlen($word) > 2){
-                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
-                    [
-                        'mention_socialId' => $mention->social_id,
-                        'name' => $word,
-                    ]
-                )->exists();
-                if (!$is_words_exists) {
-                    $model = new \app\models\AlertsMencionsWords();
-                    $model->alert_mentionId = $alertsMencionId;
-                    $model->mention_socialId = $mention->social_id;
-                    $model->name = $word;
-                    $model->weight = $weight; 
-                } else {
-                    
-                    $model = \app\models\AlertsMencionsWords::find()->where(
-                        [
-                            'mention_socialId' => $mention->social_id,
-                            'name' => $word  
-                        ])->one();
-                    
-                    $model->weight = $model->weight + $weight; 
-                }
-                if($model->validate()){
-                    $model->save();
-                }
-            }
-            
-        }
-    }
 
     /**
      * [searchDataByDictionary search keywords in the tweets]

@@ -108,7 +108,7 @@ class FacebookSearch
                                             $mention = $this->saveComments($comment,$alertsMencionsModel->id,$origin->id);
                                             // save repeated words
                                             if(strlen($mention->message) > 2){
-                                                $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel->id);
+                                                $this->saveOrUpdatedCommonWords($mention,$alertsMencionsModel);
                                             }
                                             
                                             if(empty($mention->errors)){
@@ -282,40 +282,11 @@ class FacebookSearch
     /**
      *  saveComments common words
      * @param array $mention
-     * @param int $alertsMencionId
+     * @param AlertsMentions $alertsMencionId
      */
-    public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
+    public function saveOrUpdatedCommonWords($mention,$alertsMencion){
         // most repeated words
-        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
-        foreach($words as $word => $weight){
-            if(!is_numeric($word) && strlen($word) > 2){
-                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
-                    [
-                        'alert_mentionId' => $alertsMencionId,
-                        'name' => $word,
-                    ]
-                )->exists();
-                if (!$is_words_exists) {
-                    $model = new \app\models\AlertsMencionsWords();
-                    $model->alert_mentionId = $alertsMencionId;
-                    $model->mention_socialId = $mention->social_id;
-                    $model->name = $word;
-                    $model->weight = $weight; 
-                } else {
-                    
-                    $model = \app\models\AlertsMencionsWords::find()->where(
-                        [
-                            'alert_mentionId' => $alertsMencionId,
-                            'name' => $word  
-                        ])->one();
-                    
-                    $model->weight = $model->weight + $weight; 
-                }
-                if($model->validate()){
-                    $model->save();
-                }
-            }
-        }
+        \app\helpers\StringHelper::saveOrUpdatedCommonWords($mention,$alertsMencion);
     }
 
     /**

@@ -100,7 +100,7 @@ class LiveChatSearch {
                                     $author = ($chats[$c]['messages'][$m]['user_type'] == 'visitor') ? $visitor : $agent;
                                     $chats[$c]['messages'][$m]['chat_start_url'] = $chat_start_url;
                                     if(isset($author->id)){
-                                        $mention = $this->saveMentions($chats[$c]['messages'][$m],$alertsMencionsModel->id,$author);
+                                        $mention = $this->saveMentions($chats[$c]['messages'][$m],$alertsMencionsModel,$author);
                                         if(empty($mention->errors)){
                                             if(ArrayHelper::keyExists('wordsId', $chats[$c]['messages'][$m])){
                                                 $wordsId = $chats[$c]['messages'][$m]['wordsId'];
@@ -223,7 +223,7 @@ class LiveChatSearch {
      * @param  [type] $user             [description]
      * @return [type]                   [description]
      */
-    private function saveMentions($chat,$alertsMencionsId,$user){
+    private function saveMentions($chat,$alertsMencionsModel,$user){
 
         $name      = $chat['author_name'];
         $message   = $chat['text'];
@@ -257,7 +257,7 @@ class LiveChatSearch {
             
             $model = new \app\models\Mentions();
             
-            $model->alert_mentionId = $alertsMencionsId;
+            $model->alert_mentionId = $alertsMencionsModel->id;
             $model->origin_id       = $user->id;
             $model->created_time    = $timestamp;
             $model->mention_data    = $mention_data;
@@ -269,7 +269,7 @@ class LiveChatSearch {
             
             if($model->save()){
                 if(strlen($model->message) > 2 && $user->user_data['type'] == 'client'){
-                    $this->saveOrUpdatedCommonWords($model,$model->alert_mentionId);
+                    \app\helpers\StringHelper::saveOrUpdatedCommonWords($model,$alertsMencionsModel);
                 }
             }
             
@@ -278,45 +278,7 @@ class LiveChatSearch {
         return $model;
 
     }
-    /**
-     * [saveOrUpdatedCommonWords save or update common words]
-     * @param  [obj] $mention             [mention object]
-     * @param  [int] $alertsMencionsId [alertsMencionId id ]
-     */
-    public function saveOrUpdatedCommonWords($mention,$alertsMencionId){
-        // most repeated words
-        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
-       
-        foreach($words as $word => $weight){
-            if(!is_numeric($word) && strlen($word) > 2){
-                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
-                    [
-                        'alert_mentionId' => $alertsMencionId,
-                        'name' => $word,
-                    ]
-                )->exists();
-                if (!$is_words_exists) {
-                    $model = new \app\models\AlertsMencionsWords();
-                    $model->alert_mentionId = $alertsMencionId;
-                    $model->mention_socialId = $mention->social_id;
-                    $model->name = $word;
-                    $model->weight = $weight; 
-                } else {
-                    $model = \app\models\AlertsMencionsWords::find()->where(
-                        [
-                            'alert_mentionId' => $alertsMencionId,
-                            'name' => $word  
-                        ])->one();
-                    
-                    $model->weight = $model->weight + $weight; 
-                }
-                if($model->validate()){
-                    $model->save();
-                }
-            }
-            
-        }
-    }
+    
 
      /**
      * [saveKeywordsMentions save keywords id on table pivote]

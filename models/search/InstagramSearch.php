@@ -128,10 +128,10 @@ class InstagramSearch
     /**
      * [savePropertyMentions save  mentions ]
      * @param  [array] $comment [array comment prperties]
-     * @param  [int] $alertsMencions [id alertsMencions]
+     * @param  [int] $alertsMencion [id alertsMencion]
      * @return [boolean]
      */
-    private function savePropertyMentions($comment,$alertsMencions,$permalink = null){
+    private function savePropertyMentions($comment,$alertsMencion,$permalink = null){
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             // save user
@@ -189,14 +189,14 @@ class InstagramSearch
                 
                 $mention = \app\models\Mentions::find()->where(
                     [
-                        'origin_id' => $userMentions->id,
+                        'origin_id' => $userMention->id,
                         'social_id' => $comment['id']
                     ]
                 )->one();    
 
             }else{
                 $mention = new \app\models\Mentions();
-                $mention->alert_mentionId = $alertsMencions->id;
+                $mention->alert_mentionId = $alertsMencion->id;
                 $mention->origin_id = $userMentions->id;
                 $mention->social_id = $comment['id'];
                 $mention->created_time = \app\helpers\DateHelper::asTimestamp($comment['timestamp']);
@@ -205,38 +205,9 @@ class InstagramSearch
                 $mention->message_markup = (isset($comment['message_markup'])) ? $comment['message_markup'] : $comment['text'];
                 $mention->url = $permalink;
                // $mention->domain_url = (!is_null($mention->url)) ? \app\helpers\StringHelper::getDomain($mention->url): null;
-            
                 // most repeated words
-                $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
-                foreach($words as $word => $weight){
-                    if(!is_numeric($word) && strlen($word) > 2){
-                        $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
-                            [
-                                'alert_mentionId' => $alertsMencions->id,
-                                'name' => $word,
-                            ]
-                        )->exists();
-                        if (!$is_words_exists) {
-                            $model = new \app\models\AlertsMencionsWords();
-                            $model->alert_mentionId = $alertsMencions->id;
-                            $model->mention_socialId = $alertsMencions->publication_id;
-                            $model->name = $word;
-                            $model->weight = $weight; 
-                        } else {
-                            $model = \app\models\AlertsMencionsWords::find()->where(
-                                [
-                                    'alert_mentionId' => $alertsMencions->id,
-                                    'name' => $word  
-                                ])->one();
-                            
-                            $model->weight = $model->weight + $weight; 
-                        }
-                        if($model->validate()){
-                            $model->save();
-                        }
-                    }
-                    
-                }
+                \app\helpers\StringHelper::saveOrUpdatedCommonWords($mention,$alertsMencion);
+                
 
             }
             unset($mention_data);

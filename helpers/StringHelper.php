@@ -519,37 +519,46 @@ class StringHelper
         }
     }
 
-    public static function saveOrUpdateRepeatedWords($sentence,$alertMentionId,$sociaId)
-    {
-       $words = \app\helpers\ScrapingHelper::sendTextAnilysis($sentence,$link = null);
-       foreach($words as $word => $weight){
-            $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
-                [
-                    'alert_mentionId' => $alertMentionId,
-                    'name' => $word,
-                ]
-            )->exists();
-            if (!$is_words_exists) {
-                $model = new \app\models\AlertsMencionsWords();
-                $model->alert_mentionId = $alertMentionId;
-                $model->mention_socialId = $sociaId;
-                $model->name = $word;
-                $model->weight = $weight; 
-            } else {
-                $model = \app\models\AlertsMencionsWords::find()->where(
+    /**
+     *  saveComments common words
+     * @param array $mention
+     * @param AlertsMentions $alertsMencion
+     */
+    public static function saveOrUpdatedCommonWords($mention,$alertsMencion){
+        // most repeated words
+        $words = \app\helpers\ScrapingHelper::sendTextAnilysis($mention->message,$link = null);
+        foreach($words as $word => $weight){
+            if(!is_numeric($word) && strlen($word) > 2){
+                $is_words_exists = \app\models\AlertsMencionsWords::find()->where(
                     [
-                        'alert_mentionId' => $alertMentionId,
-                        'name' => $word  
-                    ])->one();
-                 
-                $model->weight = $model->weight + $weight; 
-            }
-            if(!$model->save()){
-                var_dump($model->errors);
+                        'alert_mentionId' => $alertsMencion->id,
+                        'name' => $word,
+                    ]
+                )->exists();
+                if (!$is_words_exists) {
+                    $model = new \app\models\AlertsMencionsWords();
+                    $model->alert_mentionId = $alertsMencion->id;
+                    $model->mention_socialId = $alertsMencion->publication_id;
+                    $model->name = $word;
+                    $model->weight = $weight; 
+                } else {
+                    $model = \app\models\AlertsMencionsWords::find()->where(
+                        [
+                            'alert_mentionId' => $alertsMencion->id,
+                            'name' => $word  
+                        ])->one();
+                    
+                    $model->weight = $model->weight + $weight; 
+                }
+                if($model->validate()){
+                    $model->save();
+                    
+                }else{
+                    var_dump($model->errors);
+                }
             }
             
-       }
-       
+        }
     }
 
 

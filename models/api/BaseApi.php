@@ -251,7 +251,7 @@ class BaseApi extends Model {
 		$searchFacebookApi->load($data);
 
 		if($searchFacebookApi->search()){
-			\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Facebook Comments');
+			//\app\helpers\DocumentHelper::moveFilesToProcessed($alertId,'Facebook Comments');
 
 		}
 	}

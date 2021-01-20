@@ -36,7 +36,7 @@ class AlertsMencionsWords extends \yii\db\ActiveRecord
     {
         return [
             [['alert_mentionId','name'], 'required'],
-            [['alert_mentionId', 'mention_socialId', 'weight', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
+            [['alert_mentionId', 'weight', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['alert_mentionId'], 'exist', 'skipOnError' => true, 'targetClass' => AlertsMencions::className(), 'targetAttribute' => ['alert_mentionId' => 'id']],
         ];

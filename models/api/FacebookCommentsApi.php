@@ -271,7 +271,6 @@ class FacebookCommentsApi extends Model {
 				}
 			}// end loop data
 		}// end loop pagination	
-		
 		return $feeds_candidate;
 	}
 

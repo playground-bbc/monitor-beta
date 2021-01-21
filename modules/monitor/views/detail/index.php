@@ -8,12 +8,18 @@ use yii\widgets\DetailView;
 \app\assets\JqcloudAsset::register($this);
 \app\assets\highmapsAsset::register($this);
 \app\assets\DetailAsset::register($this);
+
+$this->title = $resource->name;
+$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['/monitor/alert/view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = $resource->name;
+
+$name = (isset(\Yii::$app->params['resourcesName'][$resource->name])) ? \Yii::$app->params['resourcesName'][$resource->name] : $resource->name;
 ?>
 <div id="alerts-detail" class="alerts-detail" style="padding-top: 10px">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-            <?= Html::tag('h1', Html::encode($resource->name), ['class' => 'resourceName']) ?>
+            <?= Html::tag('h1', Html::encode($name), ['class' => 'resourceName']) ?>
             <?= Html::hiddenInput('alertId', $model->id,['id' => 'alertId']); ?>
 
             <p>

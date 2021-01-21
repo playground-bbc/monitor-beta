@@ -581,11 +581,11 @@ class MentionsHelper
                 foreach($emojis as $emoji){
                     $name = $emoji['short_name'];
                     if(isset($model[$name])){
-                    $model[$name]['count'] += 1;
+                        $model[$name]['count'] += 1;
                     
                     }else{
-                    $emoji = $emoji['emoji'];
-                    $model[$name] = ['count' => 1,'emoji' => $emoji ];
+                        $emoji = $emoji['emoji'];
+                        $model[$name] = ['count' => 1,'emoji' => $emoji];
                     }
                 }
             }
@@ -594,6 +594,42 @@ class MentionsHelper
         return array('data' => $model); 
     }
 
+
+    public static function getEmojisListPointHex($alertId){
+        // list mentions: mentions
+        $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
+        $alertsId = [];
+        foreach ($alertMentions as $alertMention){
+            if($alertMention->mentionsCount){
+                $alertsId[] = $alertMention->id;
+            }
+        }
+
+        $mentions = \app\models\Mentions::find()->select(['id','message'])->where(['alert_mentionId' => $alertsId])->asArray()->all();
+        $model = [];
+        foreach ($mentions as $mention){
+            $emojis = \Emoji\detect_emoji($mention['message']);
+            if(!empty($emojis)){
+                foreach($emojis as $emoji){
+                    if(isset($emoji['points_hex'][0])){
+                        $points_hex = $emoji['points_hex'][0];
+                        $point = \app\helpers\StringHelper::convertRegEx($points_hex);
+                        
+                        $name = $emoji['short_name'];
+                        if(isset($model[$name])){
+                            $model[$name]['count'] += 1;
+                        
+                        }else{
+                            $emoji = $emoji['emoji'];
+                            $model[$name] = ['count' => 1,'emoji' => $emoji, 'unicode' => $point];
+                        }
+                    }
+                }
+            }
+        }
+
+        return array('data' => $model); 
+    }
 
     public static function getMentionOnDate($alertId,$js = true){
          // get models

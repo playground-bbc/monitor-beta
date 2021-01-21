@@ -184,7 +184,6 @@ class DocumentHelper
 
     public static function GraphCountSourcesMentions($alertId){
         $data = \app\helpers\MentionsHelper::getCountSourcesMentions($alertId);
-        
         $config = [
             'type' => 'doughnut',
             'data' => [
@@ -242,11 +241,6 @@ class DocumentHelper
               ],
             ],
             'options' => [
-            //   'title'=> [
-            //     'display'=> true,
-            //     'text'=> 'Totales por terminos',
-            //     'fontSize'=> 5,
-            //    ],
               'plugins' => [
                 'datalabels' => [
                   'anchor' => 'center',
@@ -524,53 +518,52 @@ class DocumentHelper
     
 
     public static function GraphEmojisByResourceId($alertId){
-        $emojis = \app\helpers\MentionsHelper::getEmojisList($alertId);   
-        $emojis = array_slice($emojis['data'],0,10);
-
-        $config = [
-        'type' => 'outlabeledPie',
-        'data' => [
-          'labels' => [],
-            'datasets' => [
-                [
-                    "backgroundColor" => ["#FF3784", "#36A2EB", "#4BC0C0", "#F77825", "#9966FF","#060F77","#067761","#8EEA3C","#EAD03C","#EA813C","#EA3CBD"],
-                    "data" => []
+        $data = \app\helpers\MentionsHelper::getEmojisListPointHex($alertId); 
+        $emojis = array_slice($data['data'],0,10);
+        $url  =  null;
+        if(count($emojis)){
+            $config = [
+                'type' => 'bar',
+                'data' => [
+                  'labels' => [],
+                  'datasets' => [
+                    [
+                      'label' => 'Total',
+                      'data'  => [],
+                      'backgroundColor' => 'rgba(54, 162, 235, 0.5)'
+                    ],
+                  ],
+                ],
+                'options' => [
+                  'plugins' => [
+                    'datalabels' => [
+                      'anchor' => 'center',
+                      'align' => 'center',
+                      'color' => '#fff',
+                      'font' => [
+                          'weight' => 'bold'
+                      ]
+                    ]
+                  ]
                 ]
-            ],
-        ],
-        'options' => [
-            'plugins' => [
-                "legend" => false,
-                "outlabels" => [
-                        "text" => "%l %p",
-                        "color" => "white",
-                        "stretch" => 35,
-                        "font" => [
-                            "resizable" => true,
-                            "minSize" => 12,
-                            "maxSize" => 18
-                        ]
-                    ]    
-                ]
-            ]
-        ];
-
-        foreach($emojis as $emoji => $values){
-            $config['data']['labels'][] = $values['emoji'];
-            $config['data']['datasets'][0]['data'][] = $values['count'];
+            ];
+            foreach($emojis as $emoji => $values){
+                $config['data']['labels'][] = \IntlChar::chr($values['unicode']);
+                $config['data']['datasets'][0]['data'][] = $values['count'];
+            }
+    
+            $qc = new \QuickChart(array(
+                'width'=> 400,
+                'height'=> 280,
+            ));
+    
+    
+            $config_json = json_encode($config);
+            $qc->setConfig($config_json);
+            
+            $url =  $qc->getShortUrl();
+            
         }
-
-        $qc = new \QuickChart(array(
-            'width'=> 400,
-            'height'=> 280,
-        ));
-
-
-        $config_json = json_encode($config);
-        $qc->setConfig($config_json);
-        
-        # Print the chart URL
-        $url =  $qc->getShortUrl();
         return $url;
     }
 

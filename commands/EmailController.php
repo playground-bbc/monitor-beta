@@ -118,7 +118,7 @@ class EmailController extends Controller
               $productsMentionsCount = \app\helpers\MentionsHelper::getProductInteration($alertId);
               $urlIterationsProducts = $this->getIterarionByProductsLinkGraph($productsMentionsCount['data']);
               $urlCommonWords = $this->getCommonWordsByAlertIdLinkGraph($alertId);
-              
+              $urlEmojis = $this->getEmojisLinkGraph($alertId);
               $properties = [
                 'width'=> 250,
                 'height'=> 300,
@@ -143,11 +143,12 @@ class EmailController extends Controller
                 'hiperLinkIterationByProducts' => $urlIterationsProducts,
                 'hiperLinkMentionsDateCount' => $urlMentionsDateCount,
                 'hiperCommonWords' => $urlCommonWords,
+                'hiperLinkEmojis' => $urlEmojis,
                 'frontendUrl' => \Yii::$app->params['frontendUrl'],
               ])
               ->setFrom('monitormtg@gmail.com')
-              ->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
-              //->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
+              //->setTo($userModel->email)->setSubject("Alerta Monitor 📝: {$alertName}");
+              ->setTo("spiderbbc@gmail.com")->setSubject("Alerta Monitor 📝: {$alertName}");
               $pathFolder = \Yii::getAlias('@runtime/export/').$alertId;
               $isFileAttach = false;
               if(is_dir($pathFolder)){
@@ -457,6 +458,57 @@ class EmailController extends Controller
 
       
       return null;
+    }
+
+    private function getEmojisLinkGraph($alertId){
+      
+      $data = \app\helpers\MentionsHelper::getEmojisListPointHex($alertId); 
+      $emojis = array_slice($data['data'],0,10);
+      $url  =  null;
+      if(count($emojis)){
+          $config = [
+              'type' => 'bar',
+              'data' => [
+                'labels' => [],
+                'datasets' => [
+                  [
+                    'label' => 'Total',
+                    'data'  => [],
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.5)'
+                  ],
+                ],
+              ],
+              'options' => [
+                'plugins' => [
+                  'datalabels' => [
+                    'anchor' => 'center',
+                    'align' => 'center',
+                    'color' => '#fff',
+                    'font' => [
+                        'weight' => 'bold'
+                    ]
+                  ]
+                ]
+              ]
+          ];
+          foreach($emojis as $emoji => $values){
+              $config['data']['labels'][] = \IntlChar::chr($values['unicode']);
+              $config['data']['datasets'][0]['data'][] = $values['count'];
+          }
+  
+          $qc = new \QuickChart(array(
+            'width'=> 250,
+            'height'=> 300,
+          ));
+  
+  
+          $config_json = json_encode($config);
+          $qc->setConfig($config_json);
+          
+          $url =  $qc->getShortUrl();
+          
+      }
+      return $url;
     }
 
 }

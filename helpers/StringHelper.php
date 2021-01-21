@@ -561,6 +561,12 @@ class StringHelper
         }
     }
 
-
+    public static function convertRegEx($unicode){
+        $uni = '{' . $unicode; // First bracket needs to be separated, otherwise you get '\u1F605'
+        $str = "\u$uni}";
+    
+        eval("\$str = \"$str\";"); // Turns unicode into RegEx and store it as $str
+        return $str;
+    }
 
 }

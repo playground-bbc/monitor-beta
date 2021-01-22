@@ -3,7 +3,7 @@ namespace app\helpers;
 
 use yii;
 use kartik\mpdf\Pdf;
-
+use Mpdf;
 
 /**
  *
@@ -37,6 +37,14 @@ class PdfHelper{
      * @return object Dompdf
      */
     public static function getKartikMpdf($file_path,$content,$model){
+
+        $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+
+        $defaultFontConfig = (new Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
+        
         return new \kartik\mpdf\Pdf([
             'filename' => $file_path,
             // set to use core fonts only
@@ -52,11 +60,29 @@ class PdfHelper{
             // format content from your own css file if needed or use the
             // enhanced bootstrap css built by Krajee for mPDF formatting 
             'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
+            //'defaultFont' => 'noto-color-emoji',
             // any css to be embedded if required
-            'cssInline' => '.list-inline{list-style: none;
-                float: left;}', 
+            'cssInline' => ".emoji{ width:30.5%; font-family:EmojiSymbols-Regular;font-size:18px;} .list-inline{list-style: none;
+                float: left;}", 
+            //'defaultFont' => 'emoji',                
             // set mPDF properties on the fly
-            'options' => ['title' => $model->name],
+            'options' => [
+                'title' => $model->name,
+                'fontDir' => array_merge($fontDirs, [
+                    \yii ::getalias ("@webroot/fonts")
+                ]),
+                'fontdata' => array_merge($fontData,[
+                    // "Noto-color-emoji" => [/* emoji */
+                    //     'R' => "NotoColorEmoji.ttf",
+                    // ],
+                    // "Open-sans-emoji" => [/* emoji */
+                    //     'R' => "OpenSansEmoji.ttf",
+                    // ],
+                    "EmojiSymbols-Regular" => [/* emoji */
+                        'R' => "EmojiSymbols-Regular.woff",
+                    ],
+                ]),
+            ],
             // call mPDF methods on the fly
             'methods' => [ 
                 'SetHeader'=>[$model->name], 
@@ -77,6 +103,7 @@ class PdfHelper{
         if(count($data['alertResource'])){
             $data = \app\helpers\PdfHelper::getGraphCountSourcesMentions($model,$data);
             $data = \app\helpers\PdfHelper::getGraphResourceOnDate($model,$data);
+            $data = \app\helpers\PdfHelper::getEmojis($model,$data);
             $data = \app\helpers\PdfHelper::getTermsFindByResources($model,$data);
             $data = \app\helpers\PdfHelper::getGraphDataTermsByResourceId($model,$data);
             $data = \app\helpers\PdfHelper::getGraphDomainsByResourceId($model,$data);
@@ -101,6 +128,13 @@ class PdfHelper{
         return $alertResource;
     }
 
+    public static function getEmojis($model,$alertResource){
+        $emojis = \app\helpers\MentionsHelper::getEmojisListPointHex($model->id);
+        if(count($emojis['data'])){
+            $alertResource['emojis'] = $emojis['data'];
+        }
+        return $alertResource;
+    }
     public static function getTermsFindByResources($model,$alertResource){
         
         foreach($alertResource['alertResource'] as $resourceName => $resourceId){

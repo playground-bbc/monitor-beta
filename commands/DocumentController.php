@@ -169,12 +169,14 @@ class DocumentController extends Controller
                                  // load images
                                 $url_logo_small = \yii\helpers\Url::to('web/img/logo_small.png',true);
                                 $url_logo = \yii\helpers\Url::to('web/img/logo.png',true);
+                                $str = "Hello &#x1F600";
                                 
                                 $html = $this->renderPartial('_document',[
                                     'model' => $alert,
                                     'resourcesSocialData' => $resourcesSocialData,
                                     'url_logo_small' => $url_logo_small,
                                     'url_logo' =>$url_logo,
+                                    'str' => $str
                                 ]);
 
                                 $pdf = \app\helpers\PdfHelper::getKartikMpdf($filePath,$html,$alert);

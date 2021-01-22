@@ -614,7 +614,7 @@ class MentionsHelper
                     if(isset($emoji['points_hex'][0])){
                         $points_hex = $emoji['points_hex'][0];
                         $point = \app\helpers\StringHelper::convertRegEx($points_hex);
-                        
+                        $point = \IntlChar::chr($point);
                         $name = $emoji['short_name'];
                         if(isset($model[$name])){
                             $model[$name]['count'] += 1;

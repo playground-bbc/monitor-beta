@@ -62,8 +62,8 @@ class PdfHelper{
             'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
             //'defaultFont' => 'noto-color-emoji',
             // any css to be embedded if required
-            'cssInline' => ".emoji{ width:30.5%; font-family:EmojiSymbols-Regular;font-size:18px;} .list-inline{list-style: none;
-                float: left;}", 
+            // 'cssInline' => ".emoji{ width:30.5%; font-family:EmojiSymbols-Regular;font-size:18px;} .list-inline{list-style: none;
+            //     float: left;}", 
             //'defaultFont' => 'emoji',                
             // set mPDF properties on the fly
             'options' => [
@@ -71,17 +71,12 @@ class PdfHelper{
                 'fontDir' => array_merge($fontDirs, [
                     \yii ::getalias ("@webroot/fonts")
                 ]),
-                'fontdata' => array_merge($fontData,[
-                    // "Noto-color-emoji" => [/* emoji */
-                    //     'R' => "NotoColorEmoji.ttf",
-                    // ],
-                    // "Open-sans-emoji" => [/* emoji */
-                    //     'R' => "OpenSansEmoji.ttf",
-                    // ],
-                    "EmojiSymbols-Regular" => [/* emoji */
-                        'R' => "EmojiSymbols-Regular.woff",
-                    ],
-                ]),
+                'fontdata' => $fontData + [
+                    'frutiger' => [
+                        'R' => 'OpenSansEmoji.ttf',
+                        
+                    ]
+                ],
             ],
             // call mPDF methods on the fly
             'methods' => [ 

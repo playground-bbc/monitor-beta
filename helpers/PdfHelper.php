@@ -48,7 +48,7 @@ class PdfHelper{
         return new \kartik\mpdf\Pdf([
             'filename' => $file_path,
             // set to use core fonts only
-            'mode' => Pdf::MODE_CORE, 
+            'mode' => Pdf::MODE_UTF8, 
             // A4 paper format
             'format' => Pdf::FORMAT_A4, 
             // portrait orientation
@@ -62,9 +62,7 @@ class PdfHelper{
             'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
             //'defaultFont' => 'noto-color-emoji',
             // any css to be embedded if required
-            // 'cssInline' => ".emoji{ width:30.5%; font-family:EmojiSymbols-Regular;font-size:18px;} .list-inline{list-style: none;
-            //     float: left;}", 
-            //'defaultFont' => 'emoji',                
+            'cssInline' => ".emoji{ width:30.5%; font-family:noto-emoji;font-size:22px;} .list-inline{list-style: none;float: left;}", 
             // set mPDF properties on the fly
             'options' => [
                 'title' => $model->name,
@@ -72,8 +70,8 @@ class PdfHelper{
                     \yii ::getalias ("@webroot/fonts")
                 ]),
                 'fontdata' => $fontData + [
-                    'frutiger' => [
-                        'R' => 'OpenSansEmoji.ttf',
+                    'noto-emoji' => [
+                        'R' => 'NotoEmoji-661A.ttf',
                         
                     ]
                 ],
@@ -125,6 +123,8 @@ class PdfHelper{
 
     public static function getEmojis($model,$alertResource){
         $emojis = \app\helpers\MentionsHelper::getEmojisListPointHex($model->id);
+        // var_dump($emojis);
+        // die();
         if(count($emojis['data'])){
             $alertResource['emojis'] = $emojis['data'];
         }

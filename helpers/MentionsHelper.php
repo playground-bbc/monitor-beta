@@ -627,7 +627,12 @@ class MentionsHelper
                 }
             }
         }
-
+        // order by value count
+        if(count($model)){
+            usort($model, function($a, $b) {
+                return $b['count'] - $a['count'];
+            });
+        }
         return array('data' => $model); 
     }
 

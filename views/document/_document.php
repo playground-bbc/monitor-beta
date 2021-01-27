@@ -6,8 +6,6 @@ $start_date = \Yii::$app->formatter->asDatetime($model->config->start_date,'dd/M
 $end_date   = \Yii::$app->formatter->asDatetime($model->config->end_date,'dd-MM/yyyy');
 $new_time = date("d/m", $model->config->start_date);
 $now = date("h:i d/m");
-$emoji = \IntlChar::chr("\u{2603}");
-
 
 ?>
 
@@ -17,12 +15,6 @@ $emoji = \IntlChar::chr("\u{2603}");
     
 </head>
 <body>
-    <h1 class="emoji"><?= $emoji ?></h1>
-    <p>🏀🏀🏀🏀</p>
-    <p>&#x1F600</p>
-
-    <p class="emoji">🏀🏀🏀🏀</p>
-    <p class="emoji">&#x1F600</p>
     <div class="container">
         <?= $this->render('_cover',[
             'model' => $model,
@@ -57,8 +49,11 @@ $emoji = \IntlChar::chr("\u{2603}");
         <?php endif; ?>
         
         
-        <h2>Emojis mas usados en las menciones</h2>
         <?php if(isset($resourcesSocialData['emojis']) && count($resourcesSocialData['emojis'])): ?>
+            <!-- break to another page -->
+            <div style='page-break-after:always'></div>
+            <!-- end break to another page -->  
+            <h2>Emojis mas usados en las menciones</h2>
             <table class="table table-striped">
                 <thead>
                 <tr>

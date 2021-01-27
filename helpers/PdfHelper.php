@@ -123,8 +123,6 @@ class PdfHelper{
 
     public static function getEmojis($model,$alertResource){
         $emojis = \app\helpers\MentionsHelper::getEmojisListPointHex($model->id);
-        // var_dump($emojis);
-        // die();
         if(count($emojis['data'])){
             $alertResource['emojis'] = $emojis['data'];
         }

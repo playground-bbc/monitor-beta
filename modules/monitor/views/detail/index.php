@@ -19,7 +19,8 @@ $name = (isset(\Yii::$app->params['resourcesName'][$resource->name])) ? \Yii::$a
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-            <?= Html::tag('h1', Html::encode($name), ['class' => 'resourceName']) ?>
+            <?= Html::tag('h1', Html::encode($name)) ?>
+            <?= Html::hiddenInput('resourceName', $resource->name,['class' => 'resourceName']); ?>
             <?= Html::hiddenInput('alertId', $model->id,['id' => 'alertId']); ?>
 
             <p>

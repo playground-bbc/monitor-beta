@@ -1,5 +1,5 @@
 "use strict";
-var resourceName = document.querySelector(".resourceName");
+var resourceName = document.querySelector(".resourceName").value;
 let columnsName = [
   "col-md-12",
   "col-md-6",
@@ -351,7 +351,6 @@ const graphCommonWordsComponent = Vue.component("graph-common-words-detail", {
   },
   methods: {
     fetchCommonWords() {
-      //this.drawPieGraph();
       getBoxCommonWordsDetail(
         this.alertid,
         this.resourceid,
@@ -391,7 +390,7 @@ const graphCommonWordsComponent = Vue.component("graph-common-words-detail", {
             type: 'pie'
         },
         title: {
-            text: `Palabras mas comunes en las menciones de ${resourceName.innerText}`
+            text: `Palabras mas comunes en las menciones de ${resourceName}`
         },
         credits: {
             enabled: false
@@ -533,7 +532,7 @@ const countRetailsChart = Vue.component("graph-count-domains-detail",{
             type: 'pie'
         },
         title: {
-            text: `Dominios de Paginas Webs en ${resourceName.innerText}`,
+            text: `Dominios de Paginas Webs en ${resourceName}`,
         },
         credits: {
             enabled: false
@@ -669,7 +668,7 @@ const mapUserComponent = Vue.component("map-user-detail", {
             },
 
             title: {
-              text: `Mapa de Usuarios en ${resourceName.innerText}`,
+              text: `Mapa de Usuarios en ${resourceName}`,
             },
             mapNavigation: {
               enabled: true,
@@ -807,12 +806,8 @@ const gridMentions = Vue.component("grid-detail", {
 
   methods: {
     searchForm() {
-      // $('input[name="MentionSearch[message_markup]"]').attr("value", "");
-      // $("#mentionsearch-message_markup").attr("value", "");
       $("#mentionsearch-id").attr("value", this.alertid);
-      // get resource name
-      var resourceName = document.querySelector(".resourceName");
-      $("#mentionsearch-resourcename").attr("value", resourceName.innerText);
+      $("#mentionsearch-resourcename").attr("value", resourceName);
 
       if (
         this.resourceid == 5 ||
@@ -824,10 +819,10 @@ const gridMentions = Vue.component("grid-detail", {
         $("#mentionsearch-social_id").attr("value", this.socialId);
       }
 
-      //$("#mentionsearch-termsearch").attr("value", "Facebook Messages");
       $("#mentionsearch-resourceid").attr("value", this.resourceid);
       $("#mentionsearch-termsearch").attr("value", this.term);
       $("#search").click();
+      //$.pjax.reload({ container: "#mentions-detail", async: false });
     },
   },
 });

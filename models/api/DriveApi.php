@@ -13,6 +13,13 @@ use app\models\CategoriesDictionary;
 
 require_once Yii::getAlias('@vendor') . '/autoload.php'; // call google client
 
+/**
+ * DriveApi is the model behind the calls to Drive Api.
+ * had the purpose of synchronizing terms and dictionaries in an excel file
+ * deprecated class since a CRUD named products and wordlist was integrated
+ * @author Eduardo Morales <eduardo@montana-studio.com>
+ * @group  Montana-Studio LG 
+ */
 class DriveApi extends Model{
 
 	private $_data;

@@ -9,6 +9,11 @@ use LiveChat\Api\Client as LiveChat;
 use yii\helpers\ArrayHelper;
 use app\models\file\JsonFile;
 
+/**
+ * LiveTicketApi is the model behind the API.
+ * @author Eduardo Morales <eduardo@montana-studio.com>
+ * @group  Montana-Studio LG 
+ */
 class LiveTicketApi extends Model {
 
 	public $userId;
@@ -17,11 +22,8 @@ class LiveTicketApi extends Model {
 	public $start_date;
 	public $resourcesId;
 	public $products;
-	
 	public $data;
 	public $filename;
-
-
 	private $_api_login;
 	private $_access_secret_token;
 

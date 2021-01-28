@@ -29,20 +29,12 @@ class FacebookMessagesApi extends Model {
 	public $start_date;
 	public $resourcesId;
 	public $products;
-	
 	public $data;
-
-
-
 	private $_baseUrl = 'https://graph.facebook.com/v4.0';
-	
 	private $_limit_message = 1;
-	
-	
 	private $_page_access_token;
 	private $_business_account_id;
 	private $_appsecret_proof;
-
 	private $_client;
 
 
@@ -98,8 +90,6 @@ class FacebookMessagesApi extends Model {
 		return false;
 	}
 
-
-
 	/**
 	 * [_setParams set params to build the call]
 	 */
@@ -120,17 +110,13 @@ class FacebookMessagesApi extends Model {
 
 	}
 
-
 	/**
 	 * [call loop in to for each alert and call method _getComments]
 	 * @param  array  $query_params   [array of query]
 	 * @return [type]                  [data]
 	 */
 	public function call($query_params = []){
-
-		
 		$data = $this->_getDataApi($query_params);
-
 		if($data){
 			$this->data[] = $data;
 		}
@@ -142,10 +128,7 @@ class FacebookMessagesApi extends Model {
 	 * @return [type]               [description]
 	 */
 	private function _getDataApi($query_params){
-
-		 
 		$messages = $this->_getMessages($query_params);
-		
 		// if there post
 		if(count($messages)){
 			$filter_messages = $this->_filterFeedsbyProducts($messages);
@@ -319,6 +302,11 @@ class FacebookMessagesApi extends Model {
 
 	}
 
+	/**
+	 * [_filterByDate filter feeds by date]
+	 * @param  [array] $messages 
+	 * @return [array] $messages [feed filter]
+	 */
 	private function _filterByDate($messages){
 		$data = [];
 		for($c = 0; $c < sizeOf($messages); $c++){
@@ -329,7 +317,11 @@ class FacebookMessagesApi extends Model {
 		return $data;
 	}
 
-
+	/**
+	 * [_filterByLastMessage filter feeds by date]
+	 * @param  [array] $messages 
+	 * @return [array] $messages [feed filter]
+	 */
 	private function _filterByLastMessage($messages){
 		// params to save in AlertMentionsHelper and get
 		$model = [];
@@ -376,7 +368,11 @@ class FacebookMessagesApi extends Model {
 
 	}
 
-
+	/**
+	 * [_addingMessagesMarkup ]
+	 * @param  [array] $messages 
+	 * @return [array] $messages [feed filter]
+	 */
 	private function _addingMessagesMarkup($messages){
 
 		foreach ($messages as $product => $ids_messages){
@@ -393,7 +389,10 @@ class FacebookMessagesApi extends Model {
 
 	}
 
-
+	/**
+	 * [_messageSimpleQuery  return query for api]
+	 * @return string
+	 */
 	private function _messageSimpleQuery(){
 		$bussinessId = Yii::$app->params['facebook']['business_id'];
 		

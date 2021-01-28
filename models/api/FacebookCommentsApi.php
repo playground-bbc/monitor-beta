@@ -10,18 +10,11 @@ use app\models\file\JsonFile;
 
 
 /**
- *
+ * FacebookApi is the model behind the login API.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
  */
-
-/**
- * FacebookApi is the model behind the login API.
- *
- */
 class FacebookCommentsApi extends Model {
-
-	
 
 	public $userId;
 	public $alertId;
@@ -29,21 +22,12 @@ class FacebookCommentsApi extends Model {
 	public $start_date;
 	public $resourcesId;
 	public $products;
-	
 	public $data;
-
-
-
 	private $_baseUrl = 'https://graph.facebook.com/v4.0';
-	
 	private $_limit_post = 1;
 	private $_limit_commets = 5;
-	
-	//private $_access_secret_token;
-	
 	private $_page_access_token;
 	private $_appsecret_proof;
-
 	private $_client;
 	
 

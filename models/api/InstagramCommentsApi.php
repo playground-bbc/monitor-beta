@@ -11,14 +11,9 @@ use app\models\file\JsonFile;
 
 
 /**
- *
+ * InstagramCommentsApi is the model behind the login API.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
- */
-
-/**
- * InstagramCommentsApi is the model behind the login API.
- *
  */
 class InstagramCommentsApi extends Model {
 	
@@ -97,7 +92,6 @@ class InstagramCommentsApi extends Model {
 	 * @return [type]               [description]
 	 */
 	private function _getDataApi($query_params){
-
 
 		$feeds = $this->_getPosts($query_params);
 		

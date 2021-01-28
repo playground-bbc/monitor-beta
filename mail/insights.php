@@ -29,7 +29,6 @@ $headersPost = [
     "reach"=> "Alcance",
     "engagement"=> "Interacción",
     "likes"=> "Me Gusta",
-   // "coments"=> "Comentarios y respuestas",
 ];
 
 

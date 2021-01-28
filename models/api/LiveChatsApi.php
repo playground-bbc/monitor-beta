@@ -9,6 +9,12 @@ use LiveChat\Api\Client as LiveChat;
 use yii\helpers\ArrayHelper;
 use app\models\file\JsonFile;
 
+
+/**
+ * LiveChatsApi is the model behind the API.
+ * @author Eduardo Morales <eduardo@montana-studio.com>
+ * @group  Montana-Studio LG 
+ */
 class LiveChatsApi extends Model {
 
 	public $userId;

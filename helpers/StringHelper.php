@@ -2,30 +2,23 @@
 namespace app\helpers;
 
 use yii;
-
-
 use Stringy\Stringy as S;
 use function Stringy\create as s;
-
-
 use Stringizer\Stringizer;
-
-use TextAnalysis\Filters\StopWordsFilter;
-use StopWordFactory;
-
-/**
- *
- * @author Eduardo Morales <eduardo@montana-studio.com>
- * @group  Montana-Studio LG 
- */
 
 /**
  * StringHelper wrapper for string function.
- *
+ * @author Eduardo Morales <eduardo@montana-studio.com>
+ * @group  Montana-Studio LG 
  */
 class StringHelper
 {
 
+    /**
+     * structure_product_to_search [normalize a terms for search (only LG cliente)]
+     * @param  [string] $product   [product to convert]
+     * @return [array] 
+     */
     public static function structure_product_to_search($product)
     {
         $black_list_words = ['descubre','del','de','con','por','Casa','oficina','Blue','Ice','Fit','Frontal'];
@@ -58,6 +51,7 @@ class StringHelper
         return $data;
 
     }
+   
     /**
      * [convert a product string in to array ,delete / and () if exclude words less to 3]
      * @param  [string] $product   [product to convert]
@@ -132,6 +126,10 @@ class StringHelper
 
     }
 
+    /**
+     * blacklistTermsProductsLG [ return black list to not search ]
+     * @return [array] 
+     */
     public static function blacklistTermsProductsLG(){
         return [
                 'en',
@@ -180,6 +178,10 @@ class StringHelper
         ];
     }
 
+    /**
+     * sanitizePrayerForSearch [ convert sentence to lower and remove signal puntuacion]
+     * @return [array] 
+     */
     public static function sanitizePrayerForSearch($sentence){
         $sentence_lowercase = self::lowercase($sentence);
         $sentence_clean = self::stripPunctuation($sentence_lowercase);

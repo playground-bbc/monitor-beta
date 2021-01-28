@@ -4,15 +4,11 @@ namespace app\helpers;
 use yii;
 
 /**
- *
+ * TopicsHelper wrapper for tables function.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
  */
 
-/**
- * TopicsHelper wrapper for tables function.
- *
- */
 class TopicsHelper
 {
 
@@ -242,8 +238,6 @@ class TopicsHelper
 	 */
 	public static function saveOrUpdateTopicsStadistics($data,$topicId,$resourceId,$location=true)
 	{
-
-
 		if ($topicId) {
 			foreach ($data as $key => $values) {
 				for ($t=0; $t < sizeof($values) ; $t++) {
@@ -295,8 +289,6 @@ class TopicsHelper
 	 */
 	public static function saveOrUpdateStadistics($data)
 	{
-
-
 		foreach ($data as $key => $values) {
 			for ($t=0; $t < sizeof($values); $t++) { 
 				if (isset($values[$t]['topicStadisticId']) && !is_bool($values[$t]['total'])) {
@@ -414,41 +406,6 @@ class TopicsHelper
 		}
 	}
 
-	/**
-	 * [orderStadistic depre]
-	 * @param  [type] $mStadistics [description]
-	 * @return [type]              [description]
-	 */
-	public static function orderStadistic($mStadistics)
-	{
-		\yii\helpers\ArrayHelper::multisort($mStadistics, ['total', 'name'], [SORT_ASC, SORT_DESC]);
-		
-		$static = [];
-		$tmp_name = []; 
-		/*for ($m=0; $m < sizeof($mStadistics) ; $m++) { 
-			if (!in_array($mStadistics[$m]['name'], $tmp_name)) {
-				$tmp_name[$m] = $mStadistics[$m]['name'];
-			}else{
-				$value = \yii\helpers\ArrayHelper::getValue($mStadistics[$m], 'data');
-			}
-			
-		}*/
-		/*for ($m=0; $m < sizeof($mStadistics) ; $m++) { 
-			if (!in_array($mStadistics[$m]['name'], $tmp_name)) {
-				$tmp_name[$m] = $mStadistics[$m]['name'];
-			}else{
-				$value = \yii\helpers\ArrayHelper::getValue($mStadistics[$m], 'data');
-				$index = array_search($mStadistics[$m]['name'], $tmp_name);
-				for ($v=0; $v < sizeof($value); $v++) { 
-					$mStadistics[$index]['data'][] = $value[$v];
-				}
-				unset($mStadistics[$m]);
-			}
-			
-		}
-		$mStadistics = array_values($mStadistics);*/
-		return $mStadistics;
-	}
 	/**
 	 * [orderSeries order  data to graph]
 	 * @param  [type] $mStadistics [description]

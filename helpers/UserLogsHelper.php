@@ -3,18 +3,20 @@ namespace app\helpers;
 
 use yii;
 require_once Yii::getAlias('@vendor') . '/cbschuld/browser.php/src/Browser.php'; // call browser client
-/**
- *
- * @author Eduardo Morales <eduardo@montana-studio.com>
- * @group  Montana-Studio LG 
- */
 
 /**
  * UserLogsHelper wrapper for table user_log db function.
- *
+ * @author Eduardo Morales <eduardo@montana-studio.com>
+ * @group  Montana-Studio LG 
  */
 class UserLogsHelper{
 
+    /**
+	 * [save save user on user logs table]
+	 * @param  int $userId 
+	 * @param  string $message 
+	 * @return void
+	 */
     public static function save($userId,$message){
         $model = new \app\modules\user\models\UserLogs();
         $model->userId = $userId;
@@ -45,6 +47,5 @@ class UserLogsHelper{
     }
 
 }
-
 
 ?>

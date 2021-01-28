@@ -249,7 +249,10 @@ class MentionsHelper
         return $data;
     }
 
-
+    /**
+     * [getColorResourceByName return color hex by resource name]
+     * @return string
+     */
     public static function getColorResourceByName($resourceName)
     {
         $colors = [
@@ -266,7 +269,11 @@ class MentionsHelper
         return $colors[$resourceName];
     }
     
-
+    /**
+     * [getPropertiesSourceBox return array of prperties for box info on view alert
+     * @param  int $alertId
+     * @return array
+     */
     public static function getPropertiesSourceBox($alertId){
         $model = \app\models\Alerts::findOne($alertId);
         $alertResources = \yii\helpers\ArrayHelper::map($model->config->sources,'id','name');
@@ -281,134 +288,138 @@ class MentionsHelper
         ->andWhere(['not', ['mention_data' => null]]);
 
         foreach($query->batch() as $alertMention){
-        $data_search[]= $alertMention;
+            $data_search[]= $alertMention;
         }
         
         $data = [];
         //$data = \app\helpers\AlertMentionsHelper::setMentionData($data_search);
         
         if(in_array('Facebook Comments',array_values($alertResources))){
-        $data['total_comments_facebook_comments'] = (int) \app\helpers\MentionsHelper::getNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
-        
+            $data['total_comments_facebook_comments'] = (int) \app\helpers\MentionsHelper::getNumberCommentsSocialMedia($model->id,array_search('Facebook Comments',$alertResources));
         }
         
         if(in_array('Facebook Messages',array_values($alertResources))){
-        $data['total_inbox_facebook'] = (int) \app\helpers\AlertMentionsHelper::getCountAlertMentionsByResourceId($model->id,array_search('Facebook Messages',$alertResources));
+            $data['total_inbox_facebook'] = (int) \app\helpers\AlertMentionsHelper::getCountAlertMentionsByResourceId($model->id,array_search('Facebook Messages',$alertResources));
         }
 
         if(in_array('Instagram Comments',array_values($alertResources))){
-        $instagramId = array_search('Instagram Comments',$alertResources);
-        $data['total_comments_instagram'] =  (int)\app\helpers\MentionsHelper::getNumberCommentsSocialMedia($model->id,$instagramId);
+            $instagramId = array_search('Instagram Comments',$alertResources);
+            $data['total_comments_instagram'] =  (int)\app\helpers\MentionsHelper::getNumberCommentsSocialMedia($model->id,$instagramId);
         }
 
         if(in_array('Twitter',array_values($alertResources))){
         
-        $twitterId = array_search('Twitter',$alertResources);
-        $db = \Yii::$app->db;
-        $duration = 15; 
-        $where = ['alertId' => $model->id,'resourcesId' => $twitterId];
+            $twitterId = array_search('Twitter',$alertResources);
+            $db = \Yii::$app->db;
+            $duration = 15; 
+            $where = ['alertId' => $model->id,'resourcesId' => $twitterId];
 
-        $alertMentions = $db->cache(function ($db) use ($where) {
-            return (new \yii\db\Query())
-            ->select('id')
-            ->from('alerts_mencions')
-            ->where($where)
-            ->orderBy(['resourcesId' => 'ASC'])
-            ->all();
-        },$duration); 
-        
-        $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id'); 
+            $alertMentions = $db->cache(function ($db) use ($where) {
+                return (new \yii\db\Query())
+                ->select('id')
+                ->from('alerts_mencions')
+                ->where($where)
+                ->orderBy(['resourcesId' => 'ASC'])
+                ->all();
+            },$duration); 
+            
+            $alertsId = \yii\helpers\ArrayHelper::getColumn($alertMentions,'id'); 
 
-        $totalCount = (new \yii\db\Query())
-            ->from('mentions m')
-            ->where(['alert_mentionId' => $alertsId])
-            ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
-            ->count();
-        
-        $data['total_tweets'] = (int)$totalCount;
+            $totalCount = (new \yii\db\Query())
+                ->from('mentions m')
+                ->where(['alert_mentionId' => $alertsId])
+                ->join('JOIN','alerts_mencions a', 'm.alert_mentionId = a.id')
+                ->count();
+            
+            $data['total_tweets'] = (int)$totalCount;
         
         }
 
         if(in_array('Live Chat',array_values($alertResources))){
-        $livechatTicketId = array_search('Live Chat',$alertResources);
-        $db = \Yii::$app->db;
-        $duration = 15; 
-        $where = ['alertId' => $model->id,'resourcesId' => $livechatTicketId];
+            $livechatTicketId = array_search('Live Chat',$alertResources);
+            $db = \Yii::$app->db;
+            $duration = 15; 
+            $where = ['alertId' => $model->id,'resourcesId' => $livechatTicketId];
 
-        $alertMentionsIds = $db->cache(function ($db) use ($where) {
-            $ids =\app\models\AlertsMencions::find()->select(['id','alertId'])->where($where)->asArray()->all();
-            return array_keys(\yii\helpers\ArrayHelper::map($ids,'id','alertId'));
-        },$duration); 
+            $alertMentionsIds = $db->cache(function ($db) use ($where) {
+                $ids =\app\models\AlertsMencions::find()->select(['id','alertId'])->where($where)->asArray()->all();
+                return array_keys(\yii\helpers\ArrayHelper::map($ids,'id','alertId'));
+            },$duration); 
 
-        $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
+            $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
 
-        $expression = new \yii\db\Expression("`mention_data`->'$.id' AS ticketId");
-        // count number tickets
-        // SELECT `mention_data`->'$.id' AS ticketId FROM `mentions` where alert_mentionId = 9 GROUP BY `ticketId` DESC
-        $ticketCount = (new \yii\db\Query())
-            ->cache($duration)
-            ->select($expression)
-            ->from('mentions')
-            ->where($mentionWhere)
-            ->groupBy(['ticketId'])
-            ->count();
+            $expression = new \yii\db\Expression("`mention_data`->'$.id' AS ticketId");
+            // count number tickets
+            // SELECT `mention_data`->'$.id' AS ticketId FROM `mentions` where alert_mentionId = 9 GROUP BY `ticketId` DESC
+            $ticketCount = (new \yii\db\Query())
+                ->cache($duration)
+                ->select($expression)
+                ->from('mentions')
+                ->where($mentionWhere)
+                ->groupBy(['ticketId'])
+                ->count();
 
-        $data['total_tickets'] = (int)$ticketCount;    
+            $data['total_tickets'] = (int)$ticketCount;    
         }
 
         if(in_array('Live Chat Conversations',array_values($alertResources))){
-        $livechatId = array_search('Live Chat Conversations',$alertResources);
-        $db = \Yii::$app->db;
-        $duration = 15; 
-        $where = ['alertId' => $model->id,'resourcesId' => $livechatId];
+            $livechatId = array_search('Live Chat Conversations',$alertResources);
+            $db = \Yii::$app->db;
+            $duration = 15; 
+            $where = ['alertId' => $model->id,'resourcesId' => $livechatId];
 
-        $alertMentionsIds = $db->cache(function ($db) use ($where) {
-            $ids =\app\models\AlertsMencions::find()->select(['id','alertId'])->where($where)->asArray()->all();
-            return array_keys(\yii\helpers\ArrayHelper::map($ids,'id','alertId'));
-        },$duration); 
+            $alertMentionsIds = $db->cache(function ($db) use ($where) {
+                $ids =\app\models\AlertsMencions::find()->select(['id','alertId'])->where($where)->asArray()->all();
+                return array_keys(\yii\helpers\ArrayHelper::map($ids,'id','alertId'));
+            },$duration); 
 
-        $expression = new \yii\db\Expression("`mention_data`->'$.event_id' AS eventId");
-    
-        $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
-        // count number tickets
-        // SELECT `mention_data`->'$.event_id' AS eventId FROM `mentions` where alert_mentionId = 9 GROUP BY `eventId` DESC
-        $chatsCount = (new \yii\db\Query())
-            ->cache($duration)
-            ->select($expression)
-            ->from('mentions')
-            ->where($mentionWhere)
-            ->groupBy(['eventId'])
-            ->count();
-    
+            $expression = new \yii\db\Expression("`mention_data`->'$.event_id' AS eventId");
+        
+            $mentionWhere = ['alert_mentionId' => $alertMentionsIds];
+            // count number tickets
+            // SELECT `mention_data`->'$.event_id' AS eventId FROM `mentions` where alert_mentionId = 9 GROUP BY `eventId` DESC
+            $chatsCount = (new \yii\db\Query())
+                ->cache($duration)
+                ->select($expression)
+                ->from('mentions')
+                ->where($mentionWhere)
+                ->groupBy(['eventId'])
+                ->count();
+        
 
-        $data['total_chats'] = (int)$chatsCount;
+            $data['total_chats'] = (int)$chatsCount;
         }
 
         if(in_array('Paginas Webs',array_values($alertResources))){
-        $webPageId = array_search('Paginas Webs',$alertResources);
-        $db = \Yii::$app->db;
-        $duration = 15; 
-        $where = ['alertId' => $model->id,'resourcesId' => $webPageId];
+            $webPageId = array_search('Paginas Webs',$alertResources);
+            $db = \Yii::$app->db;
+            $duration = 15; 
+            $where = ['alertId' => $model->id,'resourcesId' => $webPageId];
 
-        $alertMentions = $db->cache(function ($db) use ($where) {
-            return \app\models\AlertsMencions::find()->where($where)->all();
-        },$duration); 
-        
-        $data['total_web_records_found'] = 0;
+            $alertMentions = $db->cache(function ($db) use ($where) {
+                return \app\models\AlertsMencions::find()->where($where)->all();
+            },$duration); 
+            
+            $data['total_web_records_found'] = 0;
 
-        foreach ($alertMentions as $alertMention) {
-            if($alertMention->mentions){
-                $data['total_web_records_found'] += $alertMention->mentionsCount;
+            foreach ($alertMentions as $alertMention) {
+                if($alertMention->mentions){
+                    $data['total_web_records_found'] += $alertMention->mentionsCount;
+                }
             }
-        }
         }
         
         return [
-        'data' => $data
+            'data' => $data
         ];
     }
 
-
+    /**
+     * [getCountSourcesMentions total mentions by resource
+     * @param  int $alertId
+     * @param  int $resourceId
+     * @return array
+     */
     public static function getCountSourcesMentions($alertId,$resourceId = null){
         // cuenta por menciones
         $model = \app\models\Alerts::findOne($alertId);
@@ -429,17 +440,17 @@ class MentionsHelper
         }
         // chage values to int
         for($d = 0; $d < sizeof($data); $d++){
-        if(!is_null($data[$d])){
-            for ($r=0; $r <sizeof($data[$d]) ; $r++) { 
-            if(is_numeric($data[$d][$r])){
-                $data[$d][$r] = intval($data[$d][$r]);
+            if(!is_null($data[$d])){
+                for ($r=0; $r <sizeof($data[$d]) ; $r++) { 
+                if(is_numeric($data[$d][$r])){
+                    $data[$d][$r] = intval($data[$d][$r]);
+                }
+                }
             }
-            }
-        }
         }
         
         if(is_null($data[0])){
-        $data[0] = ['not found',0,0,0];
+            $data[0] = ['not found',0,0,0];
         }
 
         $colors = ['#3CAAED','#EC1F2E','#3A05BD'];
@@ -447,7 +458,12 @@ class MentionsHelper
         return array('status'=>true,'data'=>$data,'colors' => $colors);
     }
 
-
+    /**
+     * [getProductInteration return products / interation 
+     * @param  int $alertId
+     * @param  int $resourceId
+     * @return array
+     */
     public static function getProductInteration($alertId,$resourceId = null){
 
         $model = \app\models\Alerts::findOne($alertId);
@@ -505,20 +521,18 @@ class MentionsHelper
         return array('status'=>true,'data' => $dataCount,'colors' => $colors);
     }
 
+    /**
+     * [getDataMentions return all mentions
+     * @param  int $alertId
+     * @return array
+     */
     public static function getDataMentions($alertId){
         
         $db = \Yii::$app->db;
         $duration = 60;
         
         $where['alertId'] = $alertId;
-        if(isset($params['resourceId'])){
-            $where['resourcesId'] = $params['resourceId'];
-        }
-        // if resourceId if not firts level on params
-        if(isset($params['MentionSearch']['resourceId'])){
-            $where['resourcesId'] = $params['MentionSearch']['resourceId'];
-        }
-       
+        
         $alertMentions = $db->cache(function ($db) use ($where) {
           return (new \yii\db\Query())
             ->select('id')
@@ -564,7 +578,11 @@ class MentionsHelper
         return $data;
     }
 
-
+    /**
+     * [getEmojisList return all emoji find in the mentions by alertID
+     * @param  int $alertId
+     * @return array
+     */
     public static function getEmojisList($alertId){
         // list mentions: mentions
         $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
@@ -596,7 +614,11 @@ class MentionsHelper
         return array('data' => $model); 
     }
 
-
+    /**
+     * [getEmojisListPointHex return all emoji in pointHex find in the mentions by alertID
+     * @param  int $alertId
+     * @return array
+     */
     public static function getEmojisListPointHex($alertId){
         // list mentions: mentions
         $alertMentions = \app\models\AlertsMencions::find()->where(['alertId' => $alertId])->orderBy(['resourcesId' => 'ASC'])->all();
@@ -638,6 +660,12 @@ class MentionsHelper
         return array('data' => $model); 
     }
 
+    /**
+     * [getMentionOnDate return total mentions group by date
+     * @param  int $alertId
+     * @param  boolean $js
+     * @return array
+     */
     public static function getMentionOnDate($alertId,$js = true){
          // get models
          $model = \app\models\Alerts::findOne($alertId);
@@ -713,6 +741,11 @@ class MentionsHelper
         return array('status'=>true,'model' => $model);
     }
 
+    /**
+     * [getCommonWordsByAlertId return common words on mention by alertId
+     * @param  int $alertId
+     * @return array
+     */
     public static function getCommonWordsByAlertId($alertId){
         
         $model = \app\models\Alerts::findOne($alertId);
@@ -743,6 +776,14 @@ class MentionsHelper
         return ['words' => $data];
     }
 
+    /**
+     * [getDomainsFromMentionsOnUrls return domains from the mentions
+     * @param  int $alertId
+     * @param  int $resourceId
+     * @param  string $term
+     * @param  int $socialId
+     * @return array
+     */
     public static function getDomainsFromMentionsOnUrls($alertId,$resourceId = null,$term = null,$socialId = null){
 
         $properties['alertId'] = $alertId;
@@ -786,6 +827,11 @@ class MentionsHelper
         return $totalDomains;
     }
 
+    /**
+     * [getCountMentions return total of mentions
+     * @param  Alerts $model
+     * @return array
+     */
     public static function getCountMentions($model){
         $data = [];
 

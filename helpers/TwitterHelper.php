@@ -5,14 +5,9 @@ use yii;
 use Codebird\Codebird;
 
 /**
- *
+ * TwitterHelper wrapper for logic Twitter.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
- */
-
-/**
- * TwitterHelper wrapper for logic Twitter.
- *
  */
 class TwitterHelper
 {

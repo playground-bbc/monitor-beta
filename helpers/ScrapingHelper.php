@@ -6,9 +6,9 @@ use TextAnalysis\Filters\StopWordsFilter;
 use StopWordFactory;
 
 /**
- * @author Eduardo Morales <eduardo@montana-studio.com>
  * ScrapingHelper wrapper for scraping function.
- *
+ * @author Eduardo Morales <eduardo@montana-studio.com>
+ * @group  Montana-Studio LG 
  */
 class ScrapingHelper{
 
@@ -19,20 +19,16 @@ class ScrapingHelper{
     public static function rules()
     {
         return [
-           // '//title'       => Yii::t('app','document_title'),
             '//h1'          => Yii::t('app','cabezera_1'),
             '//h2'          => Yii::t('app','cabezera_2'),
             '//h3'          => Yii::t('app','cabezera_3'),
             '//h4'          => Yii::t('app','cabezera_4'),
             '//h5'          => Yii::t('app','cabezera_5'),
             '//strong'      => Yii::t('app','negrita'),
-           //'//a'           => Yii::t('app','link'),
-           '//b'           => Yii::t('app','negrita'),
+           '//b'            => Yii::t('app','negrita'),
             '//span'        => Yii::t('app','contenedor'),
             '//ul//li'      => Yii::t('app','ítem'),
-            //'//address'     => Yii::t('app','address'),
-            //'//aside'       => Yii::t('app','aside'),
-           '//hgroup'      => Yii::t('app','hgroup'),
+           '//hgroup'       => Yii::t('app','hgroup'),
             '//p'           => Yii::t('app','paragraph'),
         ];
     }
@@ -280,6 +276,10 @@ class ScrapingHelper{
 		return $data;
 	}
 
+	/**
+	 * [sendTextAnilysis return commons words on mentions]
+	 * @param [array] $contents [content for each url]
+	 */
 	public static function sendTextAnilysis($content,$link = null)
 	{
 		// filter stop words

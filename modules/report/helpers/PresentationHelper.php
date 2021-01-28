@@ -22,6 +22,10 @@ require_once Yii::getAlias('@vendor') . '/autoload.php'; // call google client
 
 class PresentationHelper{
 
+    /**
+     * return scope permissions
+     * @return array the loaded scope
+     */
     public static function getScope(){
         return  [
             \Google_Service_Slides::DRIVE,
@@ -30,6 +34,10 @@ class PresentationHelper{
             \Google_Service_Sheets::SPREADSHEETS_READONLY
         ];
     }
+    /**
+     * set model section
+     * @return Section model
+     */
     public static function saveSection($requestType,$typeSectionId,$modelId){
 
         $modelSection = new Section;
@@ -39,7 +47,10 @@ class PresentationHelper{
         return $modelSection;
 
     }
-
+    /**
+     * set model page
+     * @return Page model
+     */
     public static function savePage($title,$sectionId){
 
         $modelPage = new Page;
@@ -49,6 +60,10 @@ class PresentationHelper{
 
     }
 
+    /**
+     * set and save model PageElement
+     * @return PageElement model
+     */
     public static function saveDinamicPageElement($name,$value,$pageId){
         
         $pageElementModel = new PageElement();
@@ -59,6 +74,10 @@ class PresentationHelper{
         return $pageElementModel;
     }
 
+    /**
+     * set and save model PageElement
+     * @return PageElement model
+     */
     public static function savePageElements($requestPageElement,$pageId){
        
         foreach ($requestPageElement as $indexElements => $element) {
@@ -75,7 +94,10 @@ class PresentationHelper{
         }
     }
 
-
+    /**
+     * return sheet name from url
+     * @return PageElement model
+     */
     public static function getSheetNames($url){
         
         $sheetNames = [];

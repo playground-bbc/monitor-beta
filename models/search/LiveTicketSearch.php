@@ -36,8 +36,6 @@ class LiveTicketSearch {
 
      /**
      * methodh applied depends of type search
-     *
-     *
      * @return boolean status
      */
     public function search()
@@ -243,8 +241,6 @@ class LiveTicketSearch {
 
     }
     
-    
-
     /**
      * [saveKeywordsMentions save keywords id on table pivote]
      * @param  [array] $wordsId   [id words and each repate in the sentence]
@@ -350,13 +346,6 @@ class LiveTicketSearch {
         return ArrayHelper::getColumn($resourcesId,'id')[0];
 
     }
-
-
-
-
-
-
-
 
 
 }

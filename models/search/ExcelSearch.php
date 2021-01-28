@@ -308,8 +308,6 @@ class ExcelSearch {
      * @return [type]           [description]
      */
     private function saveMentions($mentions){
-
-        
         $error = [];
         foreach($mentions as $product => $data){
             $alertsMencions = $this->_findAlertsMencions($product);

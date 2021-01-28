@@ -68,8 +68,6 @@ class PdfController extends \yii\web\Controller
         
     }
 
-
-
     public function actionDesing($alertId){
         // load model alert
         $model = \app\models\Alerts::findOne($alertId);

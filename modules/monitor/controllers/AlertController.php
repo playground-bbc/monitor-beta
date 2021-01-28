@@ -48,9 +48,9 @@ class AlertController extends Controller
     }
 
     /**
+     * actionChangeStatus [ change status alert]
      * @param $id
      * @param $value
-     *
      * @return string
      * @throws \yii\web\NotFoundHttpException
      */

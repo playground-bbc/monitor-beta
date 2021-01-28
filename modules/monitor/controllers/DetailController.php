@@ -6,6 +6,7 @@ use yii\web\NotFoundHttpException;
 
 class DetailController extends \yii\web\Controller
 {
+    
     public function actionIndex($id,$resourceId = null)
     {
         $resourceId = (isset(\Yii::$app->request->get('MentionSearch')['resourceId'])) ? \Yii::$app->request->get('MentionSearch')['resourceId'] : $resourceId;

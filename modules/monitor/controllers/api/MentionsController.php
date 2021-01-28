@@ -89,7 +89,6 @@ class MentionsController extends Controller
 
     return array('status' => true,'data' => $data,'modelDataCount' => $modelDataCount);
   }
-
   
   /**
    * [actionCountSourcesMentions count by sources / call component vue: total-resources-chart]

@@ -33,10 +33,8 @@ class LiveChatSearch {
         return (count($this->data)) ? true : false;
     }
 
-      /**
+    /**
      * methodh applied depends of type search
-     *
-     *
      * @return boolean status
      */
     public function search()

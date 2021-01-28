@@ -31,20 +31,9 @@ class TwitterSearch
         unset($data);
         return (count($this->data)) ? true : false;
     }
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-        ];
-    }
-
-
+    
     /**
      * methodh applied depends of type search
-     *
-     *
      * @return boolean status
      */
     public function search()
@@ -227,7 +216,6 @@ class TwitterSearch
         } 
     }
 
-
     /**
      * [searchDataByDictionary search keywords in the tweets]
      * @param  [array] $mentions 
@@ -265,8 +253,6 @@ class TwitterSearch
         }
         return $data;
     }
-
-
 
     /**
      * Finds the AlertsMencions model based on product key value.

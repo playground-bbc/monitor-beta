@@ -35,15 +35,6 @@ class InstagramSearch
         return (count($this->data)) ? true : false;
     }
 
-      /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-        ];
-    }
-
 
     /**
      * methodh applied depends of type search
@@ -249,7 +240,6 @@ class InstagramSearch
             throw $e;
         }
     }
-
 
      /**
      * [searchDataByDictionary search keywords in the feed]
@@ -482,7 +472,6 @@ class InstagramSearch
         }
 
     }
-
 
     /**
      * [_getClient return client http request]

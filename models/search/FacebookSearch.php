@@ -34,18 +34,7 @@ class FacebookSearch
     }
     
     /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        
-    }
-
-    
-    /**
      * methodh applied depends of type search
-     *
-     *
      * @return boolean status
      */
     public function search()
@@ -83,7 +72,6 @@ class FacebookSearch
         }
 
     }
-
 
     /**
      * [saveMentions save  mentions or update]
@@ -310,7 +298,5 @@ class FacebookSearch
         }
 
     }
-
-
 
 }

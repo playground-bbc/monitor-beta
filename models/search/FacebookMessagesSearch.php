@@ -36,21 +36,8 @@ class FacebookMessagesSearch {
         return (count($this->data)) ? true : false;
     }
     
-
-
-     /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        
-    }
-
-    
     /**
      * methodh applied depends of type search
-     *
-     *
      * @return boolean status
      */
     public function search()
@@ -181,7 +168,6 @@ class FacebookMessagesSearch {
       
         return $model;
     }
-
 
     /**
      *  saveUserMencions save user mencions

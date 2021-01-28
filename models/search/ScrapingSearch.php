@@ -34,8 +34,6 @@ class ScrapingSearch
 
 	/**
 	* methodh applied depends of type search
-	*
-	*
 	* @return boolean status
 	*/
 	public function search()
@@ -76,6 +74,11 @@ class ScrapingSearch
 
 	}
 
+	/**
+     * [saveWebContent save the web content]
+     * @param  [array] $webContent [tickets]
+     * @return [bool]   
+     */
 	private function saveWebContent($webContent)
 	{
 		$error = [];
@@ -108,7 +111,6 @@ class ScrapingSearch
 	    }// end foreach $webContent
 	    return (empty($error)) ? true : false;
 	}
-
 
 	/**
 	* Finds the AlertsMencions model based on terms key value.

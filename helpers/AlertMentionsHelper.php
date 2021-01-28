@@ -5,25 +5,19 @@ use yii;
 use yii\db\Expression;
 
 /**
- *
- * @author Eduardo Morales <eduardo@montana-studio.com>
- * @group  Montana-Studio LG 
- */
-
-/**
  * AlertMentionsHelper wrapper for table db function.
- *
+ * @author Eduardo Morales <eduardo@montana-studio.com>
  */
 class AlertMentionsHelper
 {
     /**
      * [saveAlertsMencions save in alerts_mencions model]
-     * @param  array  $properties [description]
-     * @return [type]             [description]
+     * @param  array  $where [condition to query]
+     * @param  array  $properties [properties to save]
+     * @return Alerts/False 
      */
     public static function saveAlertsMencions($where = [], $properties = []){
 
-        //$is_model = \app\models\AlertsMencions::find()->where($where)->one();
         $is_model = \app\models\AlertsMencions::find()->where($where)->exists();
         // if there a record 
         if($is_model){
@@ -32,9 +26,7 @@ class AlertMentionsHelper
                 $model->$property = $value;
             }
         }
-
         // if not there a record
-        //if(is_null($is_model)){
         if(!$is_model){
             $model = new  \app\models\AlertsMencions();
 
@@ -47,11 +39,11 @@ class AlertMentionsHelper
             }
         }
         return ($model->save()) ? $model : false;
-
     }
     /**
      * [getAlersMentions get the alerts previus mentions call]
-     * @return [obj / null] [the objects db query]
+     * @param  array  $properties [properties to get]
+     * @return AlertsMencions/Null 
      */
     public static function getAlersMentions($properties = []){
         $alertsMencions = \app\models\AlertsMencions::find()->where($properties)->asArray()->all();
@@ -70,7 +62,6 @@ class AlertMentionsHelper
         return false;
     }
 
-
     /**
      * [isAlertsMencionsExists if a mention alert exits by property]
      * @param  [type]  $publication_id [description]
@@ -83,6 +74,13 @@ class AlertMentionsHelper
         return false;
     }
 
+    /**
+     * [isAlertsMencionsExists if a mention alert exits by property]
+     * @param  int  $alertId       [id of alert]
+     * @param  int  $resourceId       [id of resource]
+     * @param  string  $term_searched       [term to search]
+     * @return int                 [total count Alert Mentions Table]
+     */
     public static function getCountAlertMentionsByResourceIdAndTermSearched($alertId,$resourceId,$term_searched){
         $db = \Yii::$app->db;
         $models = $db->cache(function ($db) use($alertId,$resourceId,$term_searched){
@@ -101,7 +99,12 @@ class AlertMentionsHelper
         }
         return $count;
     }
-
+    /**
+     * [isAlertsMencionsExists if a mention alert exits by resource]
+     * @param  int  $alertId       [id of alert]
+     * @param  int  $resourceId       [id of resource]
+     * @return int                 [total count Alert Mentions Table]
+     */
     public static function getCountAlertMentionsByResourceId($alertId,$resourceId){
         $db = \Yii::$app->db;
         $models = $db->cache(function ($db) use($alertId,$resourceId){
@@ -626,7 +629,11 @@ class AlertMentionsHelper
         },60);
         return $alerMentionsIds;
     }
-
+    /**
+     * [getAlertsMentionsIdsByAlertIdAndResourcesIds get alertmentiobns by alertId and his properties]
+     * @param  [alertID]           [id for alert]
+     * @return [array] 
+     */
     public static function isAlertHasResourceByName($resourceName,$model){
         
         foreach($model->config->sources  as $source){

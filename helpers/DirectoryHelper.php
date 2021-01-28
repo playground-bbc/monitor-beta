@@ -7,22 +7,16 @@ use yii\helpers\FileHelper;
 
 
 /**
- *
+ *  DirectoryHelper wrapper for Directories
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
  */
-
-/**
- * DirectoryHelper wrapper for Directories
- *
- */
 class DirectoryHelper{
 
-
-
 	/**
-     * @return $path string or boolean
      * create or return the  valid path for save images
+     * @param array $folderOptions
+     * @return string $path string or boolean
      */
     public static function setFolderPath($folderOptions)
     {
@@ -42,7 +36,9 @@ class DirectoryHelper{
 
     /**
      * [removeDirectory delete a directory and his content when delete a alert]
-     * @param  [int] $id [id alert]
+     * @param  int $id [id alert]
+     * @param  string $resourceName [name of resource]
+     * @return void
      */
     public static function removeDirectory($id,$resourceName="")
     {
@@ -67,6 +63,4 @@ class DirectoryHelper{
             FileHelper::removeDirectory($path);
         }
     }
-
-
 }

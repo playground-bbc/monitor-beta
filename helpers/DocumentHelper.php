@@ -15,15 +15,11 @@ use Box\Spout\Common\Type;
 use QuickChart;
 
 /**
- *
+ * FileHelper wrapper for file function.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
  */
 
-/**
- * FileHelper wrapper for file function.
- *
- */
 class DocumentHelper
 {
 
@@ -44,6 +40,7 @@ class DocumentHelper
      * @param  Integer $alertId [id alert]
      * @param  String   $resourcesName
      * @param  Array   $data
+     * @return void
      */
     public static function saveJsonFile($alertId,$resourcesName,$data){
         if(!empty($data)){
@@ -59,6 +56,7 @@ class DocumentHelper
      * Move files json to folder with the name folder processed
      * @param  Integer $alertId [id from the alert]
      * @param  String  $resource String [name from the resource]
+     * @return void
      */
 	public static function moveFilesToProcessed($alertId,$resource){
 
@@ -93,6 +91,7 @@ class DocumentHelper
      * Move files json to root folder
      * @param  Integer $alertId [id from the alert]
      * @param  String  $resource String [name from the resource]
+     * @return void
      */
     public static function moveFilesToRoot($alertId,$resource){
         $s = DIRECTORY_SEPARATOR;
@@ -116,6 +115,7 @@ class DocumentHelper
      * get data to excel file to array
      * @param  Object $model [model alert]
      * @param  Array  $attribute
+     * @return array
      */
 	public static function excelToArray($model,$attribute){
         // https://es.stackoverflow.com/questions/69486/phpexcel-genera-error-allowed-memory-size-of-bytes-exhausted
@@ -152,6 +152,7 @@ class DocumentHelper
      * create a file excel 
      * @param  String $filePath [id alert]
      * @param  Array   $data
+     * @return void
      */ 
     public static function createExcelDocumentForMentions($filePath,$data){
         $writer = WriterEntityFactory::createXLSXWriter();
@@ -182,6 +183,11 @@ class DocumentHelper
         $writer->close();
     }
 
+    /**
+     * GraphCountSourcesMentions compose url graph
+     * @param  int [id alert]
+     * @return string url of graph
+     */ 
     public static function GraphCountSourcesMentions($alertId){
         $data = \app\helpers\MentionsHelper::getCountSourcesMentions($alertId);
         $config = [
@@ -221,7 +227,12 @@ class DocumentHelper
         $url =  $qc->getShortUrl();
         return $url;
     }
-
+    /**
+     * actionGraphTermsCountByResourceId compose url graph
+     * @param  int [id alert]
+     * @param  int [id resource]
+     * @return string url of graph
+     */ 
     public static function actionGraphTermsCountByResourceId($alertId,$resourceId){
         $data = \app\helpers\MentionsHelper::getProductInteration($alertId,$resourceId);
        
@@ -274,7 +285,12 @@ class DocumentHelper
         return $url;
     }
 
-
+    /**
+     * actionGraphDataTermsByResourceId compose url graph
+     * @param  int [id alert]
+     * @param  int [id resource]
+     * @return string url of graph
+     */ 
     public static function actionGraphDataTermsByResourceId($alertId,$resourceId){
 
         $data = \app\helpers\MentionsHelper::getProductInteration($alertId,$resourceId);
@@ -405,6 +421,12 @@ class DocumentHelper
         return $url;
     }
 
+    /**
+     * actionGraphDomainsByResourceId compose url graph
+     * @param  int [id alert]
+     * @param  int [id resource]
+     * @return string url of graph
+     */ 
     public static function actionGraphDomainsByResourceId($alertId,$resourceId){
 
         $data = \app\helpers\MentionsHelper::getDomainsFromMentionsOnUrls($alertId,$resourceId);
@@ -460,6 +482,12 @@ class DocumentHelper
         return $url;
     }
 
+    /**
+     * GraphCommonWordsByResourceId compose url graph
+     * @param  int [id alert]
+     * @param  int [id resource]
+     * @return string url of graph
+     */ 
     public static function GraphCommonWordsByResourceId($alertId,$resourceId){
         $words = \app\helpers\DetailHelper::CommonWords($alertId,$resourceId);
         $words = array_slice($words['words'],0,5);
@@ -516,7 +544,11 @@ class DocumentHelper
         return null;
     }
     
-
+    /**
+     * GraphEmojisByResourceId compose url graph
+     * @param  int [id alert]
+     * @return string url of graph
+     */ 
     public static function GraphEmojisByResourceId($alertId){
         $data = \app\helpers\MentionsHelper::getEmojisListPointHex($alertId); 
         $emojis = array_slice($data['data'],0,10);
@@ -567,6 +599,12 @@ class DocumentHelper
         return $url;
     }
 
+    /**
+     * GraphResourceOnDate compose url graph
+     * @param  int [id alert]
+     * @param  array [properties]
+     * @return string url of graph
+     */ 
     public static function GraphResourceOnDate($alertId,$properties = []){
        
         $width = (isset($properties['width'])) ? $properties['width'] : 400;
@@ -662,7 +700,11 @@ class DocumentHelper
         return null;
     }
 
-
+    /**
+     * getRgbColor create RBG color
+     * @param  int []
+     * @return string RBG color
+     */ 
     public static function getRgbColor($num) {
         $hash = md5('color' . $num); // modify 'color' to get a different palette
         $rgb = [

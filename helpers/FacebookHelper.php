@@ -8,14 +8,8 @@ use app\models\CredencialsApi;
 
 
 /**
- *
- * @author Eduardo Morales <eduardo@montana-studio.com>
- * @group  Montana-Studio LG 
- */
-
-/**
  * FacebookHelper wrapper for file function facebook.
- *
+ * @author Eduardo Morales <eduardo@montana-studio.com>
  */
 class FacebookHelper
 {
@@ -65,8 +59,7 @@ class FacebookHelper
 	}
 	/**
      * return logout link.
-     * @param string $access_secret_token
-     * @param string $next
+     * @param Credencials $user_facebook
      * @return string link
      */
 	public static function logoutLink($user_facebook){
@@ -119,7 +112,7 @@ class FacebookHelper
 		return ($userCredential->save());
 	}
 	/**
-     * save access token.
+     * save expire date.
      * @param int $userId
      * @param string $expiresAt
      * @return boolean 
@@ -173,11 +166,11 @@ class FacebookHelper
 	}
 	/**
 	 * [isCaseUsage true is over limit the usage api facebook or Instagram]
-	 * @param  [int]                $header_business [headers api call]
+	 * @param  int                $header_business [headers api call]
+	 * @param  string                $header_business [headers api call]
 	 * @return boolean              [true is over limit]
 	 */
 	public static function isCaseUsage($header_business,$business_id = ""){
-
 
 		$headers_decode = json_decode($header_business,true);
 		
@@ -244,8 +237,6 @@ class FacebookHelper
 		$app_secret = \Yii::$app->params['facebook']['app_secret'];
 		return hash_hmac('sha256', $access_token, $app_secret); 
 	}
-
-
 
 	/**
 	 * [_getPageAccessToken get page access token token]
@@ -324,7 +315,6 @@ class FacebookHelper
         return (!is_null($BusinessAccountId)) ? $BusinessAccountId : null;
 
 	}
-
 
 	/**
 	 * [getUserActiveFacebook take a user active with credential facebook]

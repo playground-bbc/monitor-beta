@@ -4,14 +4,9 @@ namespace app\helpers;
 use yii;
 
 /**
- *
+ * EmailHelper wrapper for email functions.
  * @author Eduardo Morales <eduardo@montana-studio.com>
  * @group  Montana-Studio LG 
- */
-
-/**
- * EmailHelper wrapper for email functions.
- *
  */
 class EmailHelper
 {
@@ -19,6 +14,7 @@ class EmailHelper
     /**
 	 * [sendCommonWords send emails if is not on cache]
 	 * @param  array  $alerts [alerts valid on search]
+     * @return void
 	 */
     public static function sendCommonWords($alerts){
         // map alert

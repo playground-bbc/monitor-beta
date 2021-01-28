@@ -4,10 +4,7 @@ namespace app\assets;
 use yii\web\AssetBundle;
 
 /**
- * Main application asset bundle.
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
+ * MomentAsset asset bundle.
  */
 class MomentAsset extends AssetBundle
 {
@@ -25,7 +22,6 @@ class MomentAsset extends AssetBundle
     ]; 
 
     public $publishOptions = [
-      //  'forceCopy' => true,
-         //you can also make it work only in debug mode: 'forceCopy' => YII_DEBUG
+      
     ];
 }

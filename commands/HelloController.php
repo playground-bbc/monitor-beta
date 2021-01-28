@@ -9,7 +9,6 @@ namespace app\commands;
 
 use yii\console\Controller;
 use yii\console\ExitCode;
-use app\models\Dictionaries;
 /**
  * This command echoes the first argument that you have entered.
  *
@@ -21,7 +20,7 @@ use app\models\Dictionaries;
 class HelloController extends Controller
 {
     /**
-     * This command echoes what you have entered as the message.
+     * This command save on mentions table Faker Data
      * @param string $message the message to be echoed.
      * @return int Exit code
      */

@@ -157,6 +157,10 @@ class Alerts extends \yii\db\ActiveRecord
        return $alertsConfig;
     }
 
+    /**
+     * [getBringAllAlertsToFinish get all the alerts to finish]
+     * @return [array] [if not alerts with condition return a empty array]
+     */
     public function getBringAllAlertsToFinish(){
         // get time
         $timestamp = \app\helpers\DateHelper::getToday();

@@ -122,6 +122,7 @@ class Products extends \yii\db\ActiveRecord
     }
 
     /**
+     * getModelsIdByName return id models from products
      * @param  array
      * @return [array]
      */

@@ -292,7 +292,10 @@ class AlertsMencions extends \yii\db\ActiveRecord
         return $count;
     }
 
-
+    /**
+     * [getTopPostFacebookInterations return top post by iteration]
+     * @return array                  [description]
+     */
     public function getTopPostFacebookInterations()
     {
         $connection = \yii::$app->getDb();
@@ -328,6 +331,10 @@ class AlertsMencions extends \yii\db\ActiveRecord
         return $data;
     }
 
+    /**
+     * [getTopPostInstagramInterations return top post by iteration]
+     * @return array                  [description]
+     */
     public function getTopPostInstagramInterations()
     {
         $connection = \yii::$app->getDb();

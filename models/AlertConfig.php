@@ -90,9 +90,7 @@ class AlertConfig extends \yii\db\ActiveRecord
     }
 
     public function normalizeDate($value){
-
         return strtotime(str_replace('/','-',$value));
-
     }
 
     public function normalizeTags($value){
@@ -143,8 +141,6 @@ class AlertConfig extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Alerts::className(), ['id' => 'alertId']);
     }
-
-
 
     /**
      * @return \yii\db\ActiveQuery
